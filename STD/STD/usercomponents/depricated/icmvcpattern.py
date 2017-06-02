@@ -1,20 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-print('import', __file__)
+
 #<< Типовой шаблон пользовательского компонента >>
 
-# -----------------------------------------------------------------------------
-# Name:       icmvcpattern.py
-# Purpose:    MVC паттерн
-#
-# Author:     <Оконешников А.В.>
-#
-# Created:     class:Sat Apr 14 12:43:59 2007
-# RCS-ID:
-# Copyright:   (c) 2007 Infocentre
-# Licence:     $licence:<your licence>$
-# -----------------------------------------------------------------------------
 """
+MVC паттерн.
 Класс пользовательского визуального компонента.
 
 @type ic_user_name: C{string}
