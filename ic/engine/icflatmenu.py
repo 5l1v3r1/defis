@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Модуль описания класса меню.
+"""
+
+# --- Подключение библиотек ---
+import wx
+from wx.lib.agw import flatmenu
+
+# Версия
+__version__ = (0, 0, 0, 3)
+
+# --- Спецификации ---
+SPC_IC_FLATMENU = {'label': 'menu',    # Надпись
+                   'child': list(),
+                   }
+
+
+class icFlatMenuPrototype(flatmenu.FlatMenu):
+    """
+    Класс меню.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Конструктор.
+        """
+        flatmenu.FlatMenu.__init__(self, *args, **kwargs)
+        
+    def appendItem(self, FlatMenuItem_):
+        """
+        Добавить пункт меню.
+        @param FlatMenuItem_: Объект пункта меню. 
+        """
+        if FlatMenuItem_ is None:
+            return None
+        
+        item = None
+        kind = FlatMenuItem_.GetKind()
+        if kind == wx.ITEM_NORMAL:
+            item = self.AppendItem(FlatMenuItem_)
+        elif kind == wx.ITEM_SEPARATOR:
+            item = self.AppendSeparator()
+        elif kind == wx.ITEM_CHECK:
+            pass
+        elif kind == wx.ITEM_RADIO:
+            pass
+
+        return item
+    
+    def appendMenu(self, FlatMenu_):
+        """
+        Добавить меню.
+        @param FlatMenu_: Объект меню. 
+        """
+        if FlatMenu_ is None:
+            return None
+        
+        id = wx.NewId()
+        label = FlatMenu_.getLabel()
+        menu_item = flatmenu.FlatMenuItem(self, id, label, '', wx.ITEM_NORMAL, FlatMenu_)
+        self.AppendItem(menu_item)
+        return menu_item
+    
+    def findMenuItemByName(self, MenuItemName_):
+        """ 
+        Поиск пункта меню по имени. 
+        """
+        for item in self._itemsArr:
+            is_separator = item.IsSeparator()
+            if not is_separator:
+                # Разделители просматривать не надо
+                if item.getName() == MenuItemName_:
+                    return item
+        return None
+    
+    def getMenuBar(self):
+        """
+        Получить горизонтальное меню.
+        """
+        menu_bar = self.GetMenuBar()
+        if menu_bar:
+            return menu_bar
+        parent = self.GetParent()
+        if issubclass(parent.__class__, flatmenu.FlatMenuBar):
+            return parent
+        elif issubclass(parent.__class__, flatmenu.FlatMenu):
+            return parent.getMenuBar()        
+        else:
+            return None
+
+    def popupByButton(self, button, parent=None):
+        """
+        Вызвать всплывающее меню по кнопке.
+        @param button: Объект кнопки wx.Button.
+        @param parent: Родительское окно.
+        """
+        if button is None:
+            # Если кнопка не определена, то функция бессмыслена
+            return None
+        if parent is None:
+            parent = button.GetParent()
+        point = button.GetPosition()
+        point = button.GetParent().ClientToScreen(point)
+        self.SetOwnerHeight(button.GetSize().y)
+        return self.Popup(wx.Point(point.x, point.y), parent)
+
+    # --- Свойства ---

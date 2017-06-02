@@ -1,0 +1,2 @@
+import winpdb
+winpdb.main()
