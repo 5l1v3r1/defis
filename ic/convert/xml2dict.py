@@ -7,9 +7,21 @@
 
 # Подключение библиотек
 import sys
+import os
+import os.path
 
 from xml.sax import xmlreader
 import xml.sax.handler
+
+try:
+    from ic.contrib import xmltodict
+except:
+    print(u'Import error: xmltodict')
+
+from ic.log import log
+from ic.utils import ic_extend
+from ic.utils import ic_str
+
 
 # Описания функций
 DEFAULT_XML_TAG = 'Excel'
@@ -18,7 +30,7 @@ TAG_KEY = '__tag__'
 CHILDREN_KEY = '__children__'
 VALUE_KEY = '__value__'
 
-__version__ = (0, 0, 1, 4)
+__version__ = (0, 0, 2, 1)
 
 
 def XmlFile2Dict(XMLFileName_, encoding='utf-8'):
@@ -146,6 +158,68 @@ class icXML2DICTReader(xml.sax.handler.ContentHandler):
             self._cur_value = None
 
         del self._cur_path[-1]
+
+
+def _strip_xml_dict_keys(xml_dict):
+    """
+    Убрать лишнее из ключей словаря.
+    @param xml_dict: Обрабатываемый словарь XML данных.
+        Ключи в этом словаре представленны в виде:
+        u'http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01:Documents'
+    @return: Обработанный словарь.
+        Ключи в этом словаре представленны в виде:
+        u'Documents'
+    """
+    result = dict()
+    for key, value in xml_dict.items():
+        new_key = key.split(u':')[-1]
+        if isinstance(value, dict):
+            new_value = _strip_xml_dict_keys(value)
+        elif isinstance(value, list):
+            new_value = list()
+            for item in value:
+                new_value.append(_strip_xml_dict_keys(item))
+        else:
+            new_value = value
+        result[new_key] = new_value
+    return result
+
+
+def convert_xml_text2dict(xml_text_data, codepage='utf-8'):
+    """
+    Простая конвертация XML текста в словарь.
+    @param xml_text_data: Текстовые данные XML.
+    @param codepage: Кодовая страница XML.
+    @return: Словарь, соотыветствующий XML тексту.
+    """
+    result_dict = xmltodict.parse(xml_text_data, codepage, process_namespaces=True)
+    # Необходимо преобразовать ключи словаря и убрать лишнее
+    return _strip_xml_dict_keys(result_dict)
+
+
+def convert_xml_file2dict(xml_filename, codepage='utf-8'):
+    """
+    Простая конвертация XML файла в словарь.
+    @param xml_filename: Полное наименование XML файла
+    @param codepage: Кодовая страница XML файла.
+    @return: Словарь, соотыветствующий XML файлу.
+    """
+    if not os.path.exists(xml_filename):
+        log.warning(u'XML файл не найден <%s>' % xml_filename)
+        return dict()
+
+    body_xml = ic_extend.load_file_text(xml_filename, 'utf-8')
+
+    # Перекодировать текст, если надо
+    src_codepage = ic_str.get_codepage(body_xml)
+    if src_codepage and src_codepage.lower() != codepage:
+            log.info(u'Перекодировка XML файла <%s> из <%s> в <%s> кодировку' % (xml_filename, src_codepage, codepage))
+            body_xml = ic_str.recode_text(body_xml, src_codepage, codepage)
+    elif not src_codepage:
+        log.warning(u'Не возможно определить кодовую страницу XML файла <%s>' % xml_filename)
+        return dict()
+
+    return convert_xml_text2dict(body_xml, codepage)
 
 
 def default_test():

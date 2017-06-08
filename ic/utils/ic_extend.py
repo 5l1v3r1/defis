@@ -17,8 +17,12 @@ import shutil
 import traceback
 import struct
 
+try:
+    from ic.utils import ic_str
+except:
+    print(u'Import error ic_str module')
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 
 DEFAULT_ENCODING = 'utf-8'
@@ -500,7 +504,7 @@ def load_file_text(FileName_, code_page='utf-8',
     @return: Текст файла.
     """
     if not os.path.exists(FileName_):
-        print('File', FileName_, 'not found')
+        print(u'File <%s> not found' % FileName_)
         return ''
 
     f = None
@@ -511,12 +515,60 @@ def load_file_text(FileName_, code_page='utf-8',
     except:
         if f:
             f.close()
-        print('Load text file', FileName_, 'ERROR')
+        print(u'Load text file <%s>' % FileName_)
         return ''
 
     if to_unicode:
         return unicode(txt, code_page)
     return txt
+
+
+def load_file_unicode(FileName_, code_page=None):
+    """
+    Чтение текстового файла сразу в виде unocode.
+    Определение содовой страницы происходит автоматически.
+    @param FileName_; Имя файла.
+    @param code_page: Кодовая страница файла.
+        Если не определена, то пробуем определить ее.
+    @return: Текст файла в unicode.
+    """
+    body_text = load_file_text(FileName_)
+    if not code_page:
+        code_page = ic_str.get_codepage(body_text)
+    return unicode(body_text, code_page)
+
+
+def recode_text_file(txt_filename, new_filename=None, src_codepage=None, dst_codepage='utf-8'):
+    """
+    Перекодировать текстовый файл из одной кодирровки в другую.
+    @param txt_filename: Полное наименование текстового файла.
+    @param new_filename: Полное наименование результирующего текстового файла.
+        Если не определено, то берется исходное имя файла.
+    @param src_codepage: Исходная кодировка.
+        Если None, то пробуем определить исходную кодировку файла.
+    @param dst_codepage: Результирующая кодировка.
+        По умолчанию utf-8.
+    @return: True - удачно перекодировали. False - ошибка.
+    """
+    if not os.path.exists(txt_filename):
+        print(u'Файл <%s> не найден' % txt_filename)
+        return False
+
+    if not new_filename:
+        new_filename = txt_filename
+
+    txt_unicode = load_file_unicode(txt_filename, src_codepage)
+
+    if txt_unicode and isinstance(txt_unicode, unicode):
+        txt_str = txt_unicode.encode(dst_codepage)
+        if os.path.exists(new_filename):
+            try:
+                os.remove(new_filename)
+            except:
+                print(u'Ошибка удаления файла <%s>' % new_filename)
+                return False
+        return save_file_text(new_filename, txt_str)
+    return False
 
 
 def copy_file_to(SrcFileName_, DstPath_, ReWrite_=True):

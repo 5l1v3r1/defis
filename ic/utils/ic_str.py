@@ -8,7 +8,7 @@
 import random
 import string
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 # Элементы псевдографики
 PSEUDOGRAPH = (u'│', u'─', u'┌', u'┐', u'└', u'┘', u'├', u'┤', u'┬', u'┴', u'┼')
@@ -394,6 +394,22 @@ def toUnicode(Value_, CP_='utf-8'):
         return unicode(Value_, CP_)
     else:
         return unicode(str(Value_), CP_)
+    return None
+
+
+def recode_text(txt, src_codepage='cp1251', dst_codepage='utf-8'):
+    """
+    Перекодировать текст из одной кодировки в другую.
+    @param txt: Сам текст.
+    @param src_codepage: Кодовая страница исходного текста.
+    @param dst_codepage: Кодовая страница результирующего текста.
+    @return: Перекодированный текст в новой кодировке.
+    """
+    unicode_txt = toUnicode(txt, src_codepage)
+    if isinstance(unicode_txt, unicode):
+        return unicode_txt.encode(dst_codepage)
+
+    # Не смогли перекодировать текст
     return None
 
 

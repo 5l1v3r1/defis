@@ -68,7 +68,7 @@ from STD.queries import filter_builder_env
 from ic.components.user import ic_field_wrp
 
 # Версия
-__version__ = (0, 0, 0, 4)
+__version__ = (0, 0, 1, 2)
 
 # --- Specifications ---
 SPC_IC_REQUISITE = dict({'type': 'Requisite',
@@ -539,7 +539,12 @@ class icNSIRequisitePrototype(icworkbase.icRequisiteBase):
         # Получить ресурсное описание справочника
         nsi_sprav_manager_res = resource.icGetRes(nsi_res_name,
                                                   nsi_res_ext, nameRes=nsi_res_name)
-        nsi_sprav_res = [sprav for sprav in nsi_sprav_manager_res['child'] if sprav['name'] == NSIType_]
+        if nsi_sprav_manager_res['name'] == NSIType_:
+            # Справочник определен просто в ресурсе
+            nsi_sprav_res = [nsi_sprav_manager_res]
+        else:
+            # Справочник определен в менеджере справочников
+            nsi_sprav_res = [sprav for sprav in nsi_sprav_manager_res['child'] if sprav['name'] == NSIType_]
         if not nsi_sprav_res:
             ic.io_prnt.outWarning(u'Не найден справочник <%s> в ресурсе [%s]' % (NSIType_, NSIRes_))
             return None

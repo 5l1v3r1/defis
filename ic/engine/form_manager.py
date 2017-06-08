@@ -25,7 +25,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 3, 2)
+__version__ = (0, 1, 4, 1)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -973,6 +973,39 @@ class icFormManager(formdatamanager.icFormDataManager):
         else:
             log.warning(u'Добавление колонок контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)
         return False
+
+    def setRowColour_list_ctrl_requirement(self, ctrl=None, rows=(),
+                                           fg_colour=None, bg_colour=None, requirement=None):
+        """
+        Установить цвет строки в контроле списка по определенному условию.
+        @param ctrl: Объект контрола.
+        @param rows: Список строк.
+        @param fg_colour: Цвет текста, если условие выполненно.
+        @param bg_colour: Цвет фона, если условие выполненно.
+        @param requirement: lambda выражение, формата:
+            lambda i, row: ...
+            Которое возвращает True/False.
+            Если True, то установка цвета будет сделана.
+            False - строка не расцвечивается.
+        @return: True/False.
+        """
+        if ctrl is None:
+            log.warning(u'Не определен контрол для установления цвета строки')
+            return False
+        if requirement is None:
+            log.warning(u'Не определено условие установки цвета')
+            return False
+        if fg_colour is None and bg_colour is None:
+            log.warning(u'Не определены цвета')
+            return False
+
+        for i, row in enumerate(rows):
+            colorize = requirement(i, row)
+            if fg_colour and colorize:
+                self.setRowForegroundColour_list_ctrl(ctrl, i, fg_colour)
+            if bg_colour and colorize:
+                self.setRowBackgroundColour_list_ctrl(ctrl, i, bg_colour)
+        return True
 
     def setRowForegroundColour_list_ctrl(self, ctrl=None, i_row=0, colour=None):
         """

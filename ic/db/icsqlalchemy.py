@@ -200,7 +200,7 @@ def checkDBConnect(db_url=None):
         log.warning(u'Не определено URL БД при проверке связи')
         return False
 
-    engine = sqlalchemy.create_engine(db_url, echo=True)
+    engine = sqlalchemy.create_engine(db_url, echo=False)
 
     is_connect = False
     if engine:
@@ -496,7 +496,7 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
         if self._connection:
             self.disconnect()
 
-        self._connection = sqlalchemy.create_engine(db_url, echo=True)
+        self._connection = sqlalchemy.create_engine(db_url, echo=False)
         log.info(u'Установлена связь с БД <%s>' % db_url)
         return self._connection
 
