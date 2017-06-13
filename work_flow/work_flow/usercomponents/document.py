@@ -92,6 +92,7 @@ ic_dt_create_requisite_spc['name'] = 'dt_create'
 ic_dt_create_requisite_spc['type_val'] = 'DateTime'
 ic_dt_create_requisite_spc['description'] = u'Дата-время создания'
 ic_dt_create_requisite_spc['label'] = u'Дата-время создания'
+ic_dt_create_requisite_spc['default'] = u'@datetime.datetime.now()'
 
 # Спецификация реквизита даты-времени последней смены состояния
 ic_dt_state_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
@@ -231,7 +232,7 @@ ic_can_contain = ['Requisite', 'NSIRequisite', 'TABRequisite', 'REFRequisite',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 # Функции редактирования
 

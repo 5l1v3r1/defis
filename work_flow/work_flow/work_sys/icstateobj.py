@@ -11,6 +11,7 @@ change_state и обработчиком изменения состояния o
 """
 
 # Подключение библиотек
+import datetime
 from ic.log import log
 from . import icbusinessobj
 
@@ -18,7 +19,7 @@ from ic.engine import ic_user
 from ic.utils import ic_extend
 
 # Версия
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 # Спецификация
 SPC_IC_STATEOBJ = {'type': 'StateObj',
@@ -80,10 +81,13 @@ class icStateObjProto(icbusinessobj.icBusinessObjPrototype):
         """
         # ВНИМАНИЕ! При смене состояния любого документа/объекта запоминаем
         # компьютер и пользователя которым были сделаны изменения
-        if self.isRequisite('compname') and not self.getRequisiteValue('compname'):
-            self.setRequisiteValue('compname', ic_extend.getComputerName())
+        if self.isRequisite('computer') and not self.getRequisiteValue('computer'):
+            self.setRequisiteValue('computer', ic_extend.getComputerName())
         if self.isRequisite('username') and not self.getRequisiteValue('username'):
             self.setRequisiteValue('username', ic_user.getCurUserName())
+        # Дата-время изменения состояния
+        if self.isRequisite('dt_state') and not self.getRequisiteValue('dt_state'):
+            self.setRequisiteValue('dt_state', datetime.datetime.now())
 
         state_requisite = self.findRequisite(state_requisite_name)
         if state_requisite is None:

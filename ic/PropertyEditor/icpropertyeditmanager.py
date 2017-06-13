@@ -5,6 +5,7 @@
 Редактор свойств.
 """
 
+import datetime
 import wx
 import wx.propgrid
 
@@ -12,7 +13,7 @@ from ic.components import icwidget
 from ic.components import icfont
 from . import icDefInf
 
-from ic.kernel import io_prnt
+from ic.log import log
 from ic.imglib import common as imglib
 
 from ic.utils import resource
@@ -22,7 +23,7 @@ from ic.dlg import ic_dlg
 
 from .ExternalEditors import icedituserproperty
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 IGNORE_PROPERTIES = ('type', 'child', 'win1', 'win2', 'cell_attr', 'label_attr', 'cols')
 BASE_PROPERTIES = tuple([attr for attr in icwidget.SPC_IC_SIMPLE.keys() if not attr.startswith('_') and
@@ -92,7 +93,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
         if property_type is None:
             # Не нашли тип свойства в спецификациях
             # надо просигнализировать
-            io_prnt.outWarning(u'''Не определен тип редактора атрибута/свойства <%s>.
+            log.warning(u'''Не определен тип редактора атрибута/свойства <%s>.
             Тип установлен как <EDT_PY_SCRIPT>.''' % name)
             property_type = icDefInf.EDT_PY_SCRIPT
         return property_type
@@ -179,7 +180,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
 
         elif property_type == icDefInf.EDT_EXTERNAL:
             # Внешний редактор.
-            io_prnt.outWarning(u'Свойство [%s]. Редактор свойства <Внешний редактор> не реализован' % name)
+            log.warning(u'Свойство [%s]. Редактор свойства <Внешний редактор> не реализован' % name)
 
         elif property_type == icDefInf.EDT_COMBINE:
             # Редактор комбинированных свойств.
@@ -200,7 +201,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
                 codes = [icDefInf.ICSizerFlag[key] for key in choice_list]
                 value_list = self._get_combin_value_list(value, icDefInf.ICSizerFlag)
             else:
-                io_prnt.outWarning(u'Свойство [%s]. Редактор свойства <Редактор комбинированных свойств> не поддерживается' % name)
+                log.warning(u'Свойство [%s]. Редактор свойства <Редактор комбинированных свойств> не поддерживается' % name)
             if choice_list is not None and codes is not None:
                 wx_property = wx.propgrid.MultiChoiceProperty(name, choices=choice_list, value=value_list)
 
@@ -237,15 +238,24 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
                 value = unicode(value, DEFAULT_ENCODE)
             elif type(value) in (int, float, list, tuple, dict, bool):
                 value = str(value)
+            elif type(value) in (datetime.datetime,):
+                # Если указывается время, то скорее всего это текущее время
+                value = u'@datetime.datetime.now()'
+            elif type(value) in (datetime.date,):
+                # Если указывается день, то скорее всего это сегодняшний
+                value = u'@datetime.date.today()'
+            else:
+                log.warning(u'Свойство [%s]. Редактор свойства <Редактор Python скриптов> для типа <%s> не реализован' % (name, value.__class__.__name__))
+                value = u''
             wx_property = wx.propgrid.LongStringProperty(name, value=value)
 
         elif property_type == icDefInf.EDT_ADD_PROPERTY:
             # Редактор дополнительных свойств
-            io_prnt.outWarning(u'Свойство [%s]. Редактор свойства <Редактор дополнительных свойств> не реализован' % name)
+            log.warning(u'Свойство [%s]. Редактор свойства <Редактор дополнительных свойств> не реализован' % name)
 
         elif property_type == icDefInf.EDT_NEW_PROPERTY:
             # Редактор для добавления дополнительного свойства
-            io_prnt.outWarning(u'Свойство [%s]. Редактор свойства <Редактор для добавления дополнительного свойства> не реализован' % name)
+            log.warning(u'Свойство [%s]. Редактор свойства <Редактор для добавления дополнительного свойства> не реализован' % name)
 
         elif property_type == icDefInf.EDT_USER_PROPERTY:
             # Редактор пользовательского свойства,
@@ -488,13 +498,13 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             #   описании
             name = prop.GetName()
             str_value = prop.GetValueAsString()
-            io_prnt.outLog(u'Свойство [%s] изменено на <%s>' % (name, str_value))
+            log.info(u'Свойство [%s] изменено на <%s>' % (name, str_value))
             value = self.convertPropertyValue(name, str_value, self._spc)
             if self.validate(name, value) == coderror.IC_CTRL_OK:
                 self.setPropertyValue(name, str_value)
                 self._refreshResTree(name, value)
             else:
-                io_prnt.outWarning(u'Значение <%s> свойства [%s] не прошло валидацию' % (str_value, name))
+                log.warning(u'Значение <%s> свойства [%s] не прошло валидацию' % (str_value, name))
 
     def isEnableValidate(self):
         """
@@ -641,7 +651,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
                 for v_name in lst_value:
                     value |= icDefInf.ICSizerFlag.get(v_name, 0)
             else:
-                io_prnt.outWarning(u'Преобразование типа <Редактор комбинированных свойств> для свойства [%s] не поддерживается' % name)
+                log.warning(u'Преобразование типа <Редактор комбинированных свойств> для свойства [%s] не поддерживается' % name)
 
         elif property_type == icDefInf.EDT_COLOR:
             # Редактор цветов wxColour.
@@ -674,11 +684,11 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
 
         elif property_type == icDefInf.EDT_ADD_PROPERTY:
             # Редактор дополнительных свойств
-            io_prnt.outWarning(u'Преобразование типа <Редактор дополнительных свойств> не реализовано')
+            log.warning(u'Преобразование типа <Редактор дополнительных свойств> не реализовано')
 
         elif property_type == icDefInf.EDT_NEW_PROPERTY:
             # Редактор для добавления дополнительного свойства
-            io_prnt.outWarning(u'Преобразование типа <Редактор для добавления дополнительного свойства> не реализовано')
+            log.warning(u'Преобразование типа <Редактор для добавления дополнительного свойства> не реализовано')
 
         elif property_type == icDefInf.EDT_USER_PROPERTY:
             # Редактор пользовательского свойства,
@@ -688,7 +698,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             except:
                 # Если ошибка то оставить как есть и сообщить об ошибке
                 value = str_value
-                io_prnt.outWarning(u'Ошибка конвертации значения свойства <%s>' % name)
+                log.warning(u'Ошибка конвертации значения свойства <%s>' % name)
 
         elif property_type == icDefInf.EDT_RO_TEXTFIELD:
             # Read-Only текстовое поле
@@ -707,7 +717,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             value = str_value
 
         else:
-            io_prnt.outWarning(u'Не определен тип редактора')
+            log.warning(u'Не определен тип редактора')
 
         return value
 
@@ -766,7 +776,7 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
         if bConvert and type(value) in (str, unicode):
             str_value = value
             value = self.convertPropertyValue(name, str_value, self._spc)
-            io_prnt.outLog(u'Set string property [%s] value <%s - \'%s\'>' % (name, value, str_value))
+            log.info(u'Set string property [%s] value <%s - \'%s\'>' % (name, value, str_value))
         self._resource[name] = value
         # Синхронизировать ресурс с редактором ресурса
         resource.RefreshResUUID(self._resource, self.getParentResource(), ic_uuid.get_uuid())
