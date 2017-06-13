@@ -24,7 +24,7 @@ from ic.utils import ic_exec
 
 from ic.kernel import io_prnt
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 # --- Константы и спецификации ---
 DEFAULT_STORAGE_DIR = ic_file.getProfilePath()
@@ -227,7 +227,7 @@ class icFileNodeStorage(storage_interface.icElementStorageInterface):
         """
         ВНИМАНИЕ! Это функция - замена has_key для Python3.
         """
-        return item in self
+        return self.has_key(item)
 
     def items(self):
         if not self.isOpen():
@@ -677,7 +677,7 @@ class icFileStorage(storage_interface.icElementStorageInterface):
         """
         ВНИМАНИЕ! Это функция - замена has_key для Python3.
         """
-        return item in self
+        return self.has_key(item)
 
     def items(self):
         if not self.isOpen():
@@ -1058,7 +1058,7 @@ class icDirStorage(storage_interface.icElementStorageInterface):
         """
         ВНИМАНИЕ! Это функция - замена has_key для Python3.
         """
-        return item in self
+        return self.has_key(item)
 
     def keys(self):
         if not self.isOpen():
