@@ -80,7 +80,7 @@ class PrjRoot(ImpNode.PrjImportSys):
         self.show_popup_help = False
         
         # Сразу зарегестрировать этот объект в хранилище переменных
-        if not ic_user.icIs('PRJ_ROOT'):
+        if not ic_user.icIs('PRJ_ROOT') or ic_user.icGet('PRJ_ROOT') is None:
             ic_user.icLet('PRJ_ROOT', self)
 
         # Режим отладки
@@ -415,7 +415,11 @@ class PrjRoot(ImpNode.PrjImportSys):
             self.logout()
 
             # Определить окружение проекта
-            ic_user.InitEnv(ic_file.DirName(prj_file), PrjName=prj_name)
+            # ВНИМАНИЕ! При инициализации окружения после открытия в контексте ядра
+            # должен отразиться актуальный проект------------------------------+
+            # Иначе дерево проекта для выбора паспорта не обновляется          |
+            # Поэтому явно задаем корень проекта в окружении                   v
+            ic_user.InitEnv(ic_file.DirName(prj_file), PrjName=prj_name, PRJ_ROOT=self)
             
             # Регистрация программиста
             if not self.login(prj_filename=prj_file):

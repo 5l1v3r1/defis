@@ -5,6 +5,7 @@
 Редактор свойств.
 """
 
+import sys
 import datetime
 import wx
 import wx.propgrid
@@ -22,8 +23,9 @@ from ic.utils import coderror
 from ic.dlg import ic_dlg
 
 from .ExternalEditors import icedituserproperty
+from .ExternalEditors import icpyscriptproperty
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 2)
 
 IGNORE_PROPERTIES = ('type', 'child', 'win1', 'win2', 'cell_attr', 'label_attr', 'cols')
 BASE_PROPERTIES = tuple([attr for attr in icwidget.SPC_IC_SIMPLE.keys() if not attr.startswith('_') and
@@ -32,6 +34,9 @@ BASE_PROPERTIES = tuple([attr for attr in icwidget.SPC_IC_SIMPLE.keys() if not a
 VISUAL_PROPERTIES = ('flag', 'proportion', 'size', 'position', 'border', 'span')
 
 DEFAULT_ENCODE = 'utf-8'
+
+# Список пользовательских расширенных редакторов свойств
+CUSTOM_PROPERTY_EDITORS = (icpyscriptproperty.icPyScriptPropertyEditor, )
 
 
 class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
@@ -68,6 +73,31 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
 
         #   Словарь строк помощи атрибутов спецификации
         self._property_hlp = dict()
+
+        self.register_custom_editor()
+
+    def register_custom_editor(self, *editor_classes):
+        """
+        Регистрация пользовательских редакторов свойств.
+        @param editors_classes: Список классов пользовательских редакторов.
+        """
+        if not editor_classes:
+            editor_classes = CUSTOM_PROPERTY_EDITORS
+        #
+        # Let's use some simple custom editor
+        #
+        # NOTE: Editor must be registered *before* adding a property that
+        # uses it.
+        if not getattr(sys, '_PropGridEditorsRegistered', False):
+            for editor_class in editor_classes:
+                if editor_class:
+                    log.debug(u'Регистрация пользовательского редактора свойства <%s>' % editor_class.__name__)
+                    editor_class.setPropertyEditManager(self)
+                    self.RegisterEditor(editor_class)
+                else:
+                    log.warning(u'Не определен пользовательский редактор свойства в редакторе ресурса')
+            # ensure we only do it once
+            sys._PropGridEditorsRegistered = True
 
     def clear(self):
         """
@@ -236,6 +266,8 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
                 value = str(value)
             elif isinstance(value, str):
                 value = unicode(value, DEFAULT_ENCODE)
+            elif isinstance(value, unicode):
+                pass
             elif type(value) in (int, float, list, tuple, dict, bool):
                 value = str(value)
             elif type(value) in (datetime.datetime,):
@@ -247,6 +279,10 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             else:
                 log.warning(u'Свойство [%s]. Редактор свойства <Редактор Python скриптов> для типа <%s> не реализован' % (name, value.__class__.__name__))
                 value = u''
+            # Захотелось по дополнительной кнопке генерировать текст функции
+            # если ее нет и делать прокрутку на нее если она есть в модуле менеджера
+            # ресурса. Создал расширенный редактор. Подключается после добавления
+            # свойства в PropertyGrid
             wx_property = wx.propgrid.LongStringProperty(name, value=value)
 
         elif property_type == icDefInf.EDT_ADD_PROPERTY:
@@ -287,9 +323,12 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             if type(value) not in (str, unicode):
                 value = u''
             wx_property = wx.propgrid.DirProperty(name, value=value)
+        else:
+            log.warning(u'Не поддерживаемы йтип свойства <%s>' % property_type)
 
         # Установить строку помощи для редактора свойства
-        wx_property.SetHelpString(self._property_hlp.get(name, name))
+        if wx_property:
+            wx_property.SetHelpString(self._property_hlp.get(name, name))
         return wx_property
 
     def buildPropertyEditors(self, res=None):
@@ -338,6 +377,10 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             wx_property = self.createWXProperty(attr, res.get(attr, None), edt_type)
             if wx_property is not None:
                 prop_page.Append(wx_property)
+                if edt_type == icDefInf.EDT_PY_SCRIPT:
+                    # Связывать расширенный редактор со свойством можно только после добавления
+                    # свойства
+                    self.SetPropertyEditor(attr, icpyscriptproperty.icPyScriptPropertyEditor.__name__)
 
         events_page = self.AddPage(u'Events/События', imglib.imgEvents)
 
@@ -348,6 +391,9 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             wx_property = self.createWXProperty(attr, res.get(attr, None), icDefInf.EDT_PY_SCRIPT)
             if wx_property is not None:
                 events_page.Append(wx_property)
+                # Связывать расширенный редактор со свойством можно только после добавления
+                # свойства
+                self.SetPropertyEditor(attr, icpyscriptproperty.icPyScriptPropertyEditor.__name__)
 
     def isIgnoreProperty(self, name):
         """

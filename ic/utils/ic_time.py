@@ -10,9 +10,15 @@ import wx
 import time
 import datetime
 import calendar
-from ic.kernel import io_prnt
+
+try:
+    from ic.log import log
+except:
+    from services.ic_std.log import log
 
 _ = wx.GetTranslation
+
+__version__ = (0, 0, 2, 2)
 
 # --- Константы и переменные ---
 DEFAULT_DATETIME_FMT = '%d.%m.%Y'
@@ -73,7 +79,7 @@ def TodayFmt(Fmt_=DEFAULT_DATETIME_FMT):
     try:
         return datetime.date(2005, 01, 01).today().strftime(Fmt_)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.TodayFmt')
+        log.fatal(_('ERROR') + ' in ic_time.TodayFmt')
         return None
 
 
@@ -85,7 +91,7 @@ def Today():
     try:
         return datetime.date(2005, 01, 01).today()
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.Today')
+        log.fatal(_('ERROR') + ' in ic_time.Today')
         return None
 
 
@@ -106,7 +112,7 @@ def NowFmt(Fmt_='%d.%m.%Y %H:%M:%S'):
     try:
         return time.strftime(Fmt_, time.localtime(time.time()))
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.NowFmt')
+        log.fatal(_('ERROR') + ' in ic_time.NowFmt')
         return None
 
 
@@ -119,7 +125,7 @@ def MaxDayFmt(Fmt_=DEFAULT_DATETIME_FMT):
     try:
         return datetime.date(datetime.MAXYEAR, 12, 31).strftime(Fmt_)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.MaxDayFmt')
+        log.fatal(_('ERROR') + ' in ic_time.MaxDayFmt')
         return None
 
 
@@ -132,7 +138,7 @@ def MinDayFmt(Fmt_=DEFAULT_DATETIME_FMT):
     try:
         return datetime.date(datetime.MINYEAR, 01, 01).strftime(Fmt_)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.MinDayFmt')
+        log.fatal(_('ERROR') + ' in ic_time.MinDayFmt')
         return None
 
 
@@ -146,7 +152,7 @@ def DateTimeTuple(DateTimeStr_='01.01.2005', Fmt_=DEFAULT_DATETIME_FMT):
     try:
         return time.strptime(DateTimeStr_, Fmt_)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.DateTimeTuple')
+        log.fatal(_('ERROR') + ' in ic_time.DateTimeTuple')
         return None
 
 
@@ -161,7 +167,7 @@ def MonthDT(DateTimeStr_='01.01.2005', Fmt_=DEFAULT_DATETIME_FMT):
         dt_tuple = DateTimeTuple(DateTimeStr_, Fmt_)
         return datetime.date(dt_tuple[0], dt_tuple[1], 1)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.MonthDT : %s' % dt_tuple)
+        log.fatal(_('ERROR') + ' in ic_time.MonthDT : %s' % dt_tuple)
         return None
 
 
@@ -172,7 +178,7 @@ def OneMonthDelta():
     try:
         return datetime.timedelta(31)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.OneMonthDelta')
+        log.fatal(_('ERROR') + ' in ic_time.OneMonthDelta')
         return None
 
 
@@ -183,7 +189,7 @@ def setDayDT(DateTime_, Day_=1):
     try:
         return datetime.date(DateTime_.year, DateTime_.month, Day_)
     except:
-        io_prnt.outErr(_('ERROR') + ' in ic_time.setDayDT')
+        log.fatal(_('ERROR') + ' in ic_time.setDayDT')
         return None
 
 
@@ -199,7 +205,7 @@ def convertDateTimeFmt(DateTimeStr_, OldFmt_=DEFAULT_DATETIME_FMT, NewFmt_=DEFAU
         date_time_tuple = DateTimeTuple(DateTimeStr_, OldFmt_)
         return time.strftime(NewFmt_, date_time_tuple)
     except:
-        io_prnt.outErr(_('ERROR') + ' in convertDateTimeFmt')
+        log.fatal(_('ERROR') + ' in convertDateTimeFmt')
         return None
 
 
@@ -216,7 +222,7 @@ def strDateFmt2DateTime(DateStr_, Fmt_=DEFAULT_DATETIME_FMT):
         day = date_time_tuple[2]
         return datetime.date(year, month, day)
     except:
-        io_prnt.outErr(_('ERROR') + ' in strDateFmt2DateTime')
+        log.fatal(_('ERROR') + ' in strDateFmt2DateTime')
         return None
 
 
@@ -236,7 +242,7 @@ def strDateTimeFmt2DateTime(DateTimeStr_, Fmt_=DEFAULT_DATETIME_FMT):
         second = date_time_tuple[5]
         return datetime.datetime(year, month, day, hour, minute, second)
     except:
-        io_prnt.outErr(_('ERROR') + ' in strDateTimeFmt2DateTime args: %s' % DateTimeStr_)
+        log.fatal(_('ERROR') + ' in strDateTimeFmt2DateTime args: %s' % DateTimeStr_)
         return None
 
 
@@ -383,7 +389,7 @@ def date2datetime(d):
     elif isinstance(d, datetime.date):
         return datetime.datetime.combine(d, datetime.datetime.min.time())
     # Не можем сделать перевод
-    io_prnt.outWarning(u'Не поддерживаемый тип <%s> для преобразования datetime.date -> datetime.datetime' % type(d))
+    log.warning(u'Не поддерживаемый тип <%s> для преобразования datetime.date -> datetime.datetime' % type(d))
     return None
 
 
@@ -398,7 +404,7 @@ def datetime2date(dt):
     elif isinstance(dt, datetime.date):
         return dt
     # Не можем сделать перевод
-    io_prnt.outWarning(u'Не поддерживаемый тип <%s> для преобразования datetime.datetime -> datetime.date' % type(dt))
+    log.warning(u'Не поддерживаемый тип <%s> для преобразования datetime.datetime -> datetime.date' % type(dt))
     return None
 
 

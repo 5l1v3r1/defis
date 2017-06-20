@@ -6,10 +6,10 @@
 """
 
 from ic.editor import icpassportchoice
-from ic.kernel import io_prnt
 from ic.utils import coderror
+from ic.log import log
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 2)
 
 
 class ic_user_property_editor:
@@ -70,7 +70,7 @@ class icObjectPassportUserEdt(ic_user_property_editor):
         if value:
             parent = propEdt
             res = icpassportchoice.icPassportChoiceDlg(parent)
-            io_prnt.outLog(u'passport = %s' % res)
+            log.debug(u'passport = %s' % res)
             return str(res)
 
     @staticmethod
@@ -93,9 +93,7 @@ class icObjectPassportUserEdt(ic_user_property_editor):
         if value is None:
             return value
 
-        if type(value) in (list, tuple):
-            return coderror.IC_CTRL_OK
-        else:
+        if type(value) not in (list, tuple):
             return coderror.IC_CTRL_FAILED
             
         return coderror.IC_CTRL_OK
@@ -105,14 +103,14 @@ class icObjectPassportUserEdt(ic_user_property_editor):
         """
         Стандартная функция преобразования текста в значение.
         """
-        # Превращаем текс в картеж (представление паспорта)
+        # Превращаем текст в кортеж (представление паспорта)
         try:
             if type(text) in (str, unicode) and text.strip():
                 value = eval(text)
             else:
                 value = text
         except:
-            io_prnt.outErr(u'>>> str_to_val_user_property ERROR in eval(text): text=%s' % text)
+            log.fatal(u'>>> str_to_val_user_property ERROR in eval(text): text=%s' % text)
             return None
         return value
 
@@ -131,7 +129,7 @@ class icObjectPassportListUserEdt(ic_user_property_editor):
             parent = propEdt
             value = icObjectPassportListUserEdt.str_to_val_user_property(value, propEdt)
             res = icpassportchoice.icPassportListDlg(parent, None, value)
-            io_prnt.outLog(u'passports = %s' % res)
+            log.debug(u'passports = %s' % res)
             return str(res)
 
     @staticmethod
@@ -155,9 +153,7 @@ class icObjectPassportListUserEdt(ic_user_property_editor):
         if value is None:
             return value
 
-        if type(value) in (list, tuple):
-            return coderror.IC_CTRL_OK
-        else:
+        if type(value) not in (list, tuple):
             return coderror.IC_CTRL_FAILED
             
         return coderror.IC_CTRL_OK
@@ -174,6 +170,6 @@ class icObjectPassportListUserEdt(ic_user_property_editor):
             else:
                 value = text
         except:
-            io_prnt.outErr(u'>>> str_to_val_user_property ERROR in eval(text): text=%s' % text)
+            log.fatal(u'>>> str_to_val_user_property ERROR in eval(text): text=%s' % text)
             return None
         return value

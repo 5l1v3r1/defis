@@ -22,6 +22,8 @@ try:
 except ImportError:
     print('ERROR! Import error ConfigParser module')
 
+__version__ = (0, 0, 2, 1)
+
 CFG_FILE_EXT = '.cfg'
 INI_FILE_EXT = '.ini'
 DEFAULT_ENCODE = 'utf-8'
@@ -37,9 +39,9 @@ def loadParamCFG(sCFGFileName, sParamName):
     @return: Возвращает значение параметра или 
         None(если параметра нет или ошибка).
     """
+    cfg_file = None
     try:
         param = None
-        cfg_file = None
         cfg_file = open(sCFGFileName, 'r')
         row = None  # Текущая считанная из файла строка
         while row != '':
@@ -64,7 +66,7 @@ def saveParamCFG(sCFGFileName, sParamName, vParamValue):
     """
     Запись параметра в файл настроек.
     @type sCFGFileName: C{string}
-    @param sCFGFileName_: Полное имя файла настроек.
+    @param sCFGFileName: Полное имя файла настроек.
     @type sParamName: C{string}
     @param sParamName: Имя параметра.
     @param vParamValue: Значение параметра.
@@ -157,9 +159,8 @@ def saveParamINI(sINIFileName, sSection, sParamName, vParamValue):
     @param vParamValue: Значение параметра.
     @return: Возвращает результат выполнения операции True/False.
     """
+    ini_file = None
     try:
-        ini_file = None
-
         ini_file_name = os.path.split(sINIFileName)
         path = ini_file_name[0]
         file = ini_file_name[1]
@@ -209,9 +210,8 @@ def delParamINI(sINIFileName, sSection, sParamName):
     @param sParamName: Имя параметра.
     @return: Возвращает результат выполнения операции True/False.
     """
+    ini_file = None
     try:
-        ini_file = None
-
         if not os.path.isfile(sINIFileName):
             log.warning(u'INI file <%s> not exists' % sINIFileName)
             return False
@@ -252,9 +252,8 @@ def getParamCountINI(sINIFileName, sSection):
     @param sSection: Имя секции.
     @return: Возвращает количеств опараметров в секции или -1 в случае ошибки.
     """
+    ini_file = None
     try:
-        ini_file = None
-
         if not os.path.isfile(sINIFileName):
             log.warning(u'INI file <%s> not exists' % sINIFileName)
             return 0
@@ -287,9 +286,8 @@ def getParamNamesINI(sINIFileName, sSection):
     @param sSection: Имя секции.
     @return: Возвращает список имен параметров в секции или None в случае ошибки.
     """
+    ini_file = None
     try:
-        ini_file = None
-
         if not os.path.isfile(sINIFileName):
             log.warning(u'INI file <%s> not exists' % sINIFileName)
             return None
@@ -320,9 +318,8 @@ def INI2Dict(sINIFileName):
     @param sINIFileName: Полное имя файла настроек.
     @return: Заполненный словарь или None в случае ошибки.
     """
+    ini_file = None
     try:
-        ini_file = None
-
         if not os.path.exists(sINIFileName):
             log.warning(u'INI file <%s> not exists' % sINIFileName)
             return None
@@ -352,6 +349,8 @@ def INI2Dict(sINIFileName):
         
         return dict
     except:
+        if ini_file:
+            ini_file.close()
         log.fatal(u'Conver INI file <%s> to dictionary' % sINIFileName)
     return None
 
@@ -366,12 +365,11 @@ def Dict2INI(dDict, sINIFileName, rewrite=False):
     @param rewrite: Переписать полностью существующий INI файл?
     @return: Возвращает результат сохранения True/False.
     """
+    ini_file = None
     try:
         if not dDict:
             log.warning(u'Not define dictionary <%s>' % dDict)
             return False
-            
-        ini_file = None
 
         ini_file_name = os.path.split(sINIFileName)
         path = ini_file_name[0]
@@ -409,5 +407,7 @@ def Dict2INI(dDict, sINIFileName, rewrite=False):
         
         return True
     except:
+        if ini_file:
+            ini_file.close()
         log.fatal(u'Conver dictionary to INI file <%s>' % sINIFileName)
     return False

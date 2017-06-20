@@ -600,7 +600,6 @@ class icKernel(icBaseKernel):
         """
         Start.
         """
-
         self.loopLst = []
         # isSet = True - очередь свободна; False - занята
         self._eventLoopLst = threading.Event()

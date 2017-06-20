@@ -8,12 +8,12 @@
 import wx
 import wx.propgrid
 
-from ic.kernel import io_prnt
 from ic.utils import coderror
+from ic.log import log
 
 _ = wx.GetTranslation
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 1)
 
 
 class icEditUserProperty(wx.propgrid.PyStringProperty):
@@ -69,9 +69,9 @@ class icEditUserProperty(wx.propgrid.PyStringProperty):
                                 style, propEdt, *arg, **kwarg)
                 return str(value)
             except:
-                io_prnt.outErr(u'Ошибка вызова пользовательского редактора свойства <%s>' % attr)
+                log.fatal(u'Ошибка вызова пользовательского редактора свойства <%s>' % attr)
         else:
-            io_prnt.outWarning(u'Не определен объект редактора свойств')
+            log.warning(u'Не определен объект редактора свойств')
         return ''
 
     def OnEvent(self, propgrid, primaryEditor, event):
@@ -107,9 +107,9 @@ class icEditUserProperty(wx.propgrid.PyStringProperty):
                 value = func(self.GetName(), value, propEdt, *arg, **kwarg)
                 return value
             except:
-                io_prnt.outErr(u'Ошибка преобразования типа пользовательского редактора свойства <%s>' % self.GetName())
+                log.fatal(u'Ошибка преобразования типа пользовательского редактора свойства <%s>' % self.GetName())
         else:
-            io_prnt.outWarning(u'Не определен объект редактора свойств')
+            log.warning(u'Не определен объект редактора свойств')
         return None
 
     def StringToValue(self, text, argFlags):
@@ -135,9 +135,9 @@ class icEditUserProperty(wx.propgrid.PyStringProperty):
                 code_err = func(self.GetName(), value, propEdt, *arg, **kwarg)
                 return code_err
             except:
-                io_prnt.outErr(u'Ошибка преобразования типа пользовательского редактора свойства <%s>' % self.GetName())
+                log.fatal(u'Ошибка преобразования типа пользовательского редактора свойства <%s>' % self.GetName())
         else:
-            io_prnt.outWarning(u'Не определен объект редактора свойств')
+            log.warning(u'Не определен объект редактора свойств')
         return coderror.IC_CTRL_FAILED
 
     def ValidateValue(self, value, validationInfo):

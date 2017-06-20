@@ -2013,10 +2013,10 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
 
         return fn
 
-    def get_obj_module_name(self, name, rn=None):
+    def get_obj_module_name(self, name='', rn=None):
         """
         Возвращает имя модуля объекта.
-        @param rn: Имя ресурса.
+        @param name: Имя ресурса.
         @param rn: Имя объекта.
         """
         if not rn:
@@ -2050,16 +2050,16 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
     def create_obj_module(self, name, fn=None):
         """
         Создает модуль ресурса.
-        @param rn: Имя ресурса.
+        @param fn: Имя файла ресурса.
         """
         if os.path.isfile(fn):
             ic_dlg.icMsgBox(u'СООБЩЕНИЕ', u'Файл <%s> существует' % fn)
             return fn
 
         txt = resource.genObjModuleHead(name, fn)
-        file = open(fn, 'wb')
-        file.write(txt)
-        file.close()
+        f = open(fn, 'wb')
+        f.write(txt)
+        f.close()
         return fn
 
     def Destroy(self):
@@ -2368,27 +2368,39 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
 
         evt.Skip()
 
+    def open_ide_py_module(self, py_filename=None):
+        """
+        Открываем на редактирование модуль Python с менеджером ресурса.
+        @param py_filename: Модуль питона с менеджером ресурса.
+        @return: True/False.
+        """
+        res_name = None
+        if py_filename is None:
+            if self.file and '.py' in self.file:
+                py_filename = self.file.replace('\\', '/')
+            elif self.file:
+                res_name = self.file.replace('\\', '/')
+                py_filename = None
+
+        if py_filename is None and res_name:
+            py_filename = self.create_res_module(res_name)
+            py_path, py_name = os.path.split(py_filename)
+            # Проверяем если имя модуля не проставлено в ресурсе, то проставляем его
+            res = self.GetResource()
+            if not ('res_module' in res and res['res_module']):
+                self.res['res_module'] = py_name
+                self.RefreshTree()
+        if py_filename:
+            self.OpenIDEFile(py_filename)
+            return True
+        return False
+
     def OnPyScript(self, evt):
         """
         Вызывает на редактирование обработчик событий для ресурсов, оформленных в виде
         питоновского модуля.
         """
-        # Получаем указатель на среду разработки и открываем файл в IDE
-        if self.file and '.py' in self.file:
-            fl = self.file.replace('\\', '/')
-        elif self.file:
-            nr = self.file.replace('\\', '/')
-            fl = self.create_res_module(nr)
-            p, name = os.path.split(fl)
-            # Проверяем если имя модуля не проставлено в ресурсе, то проставляем его
-            res = self.GetResource()
-            if not ('res_module' in res and res['res_module']):
-                self.res['res_module'] = name
-                self.RefreshTree()
-        else:
-            return
-
-        self.OpenIDEFile(fl)
+        self.open_ide_py_module()
 
     def OpenIDEFile(self, fl):
         """

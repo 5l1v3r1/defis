@@ -20,7 +20,7 @@ from ic.kernel import icexceptions
 from . import glob
 from ic.utils import ic_file
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 
 def getKernel():
@@ -189,8 +189,8 @@ def InitEnv(PrjDir_, **environ):
         from ic.prj import PrjRes
         prj_res_manager = PrjRes.icPrjRes()
         prj_dir = ic_file.NormPathUnix(PrjDir_)
-        prj_res_file_name = prj_dir+'/'+ic_file.BaseName(prj_dir)+'.pro'
-        if ic_file.Exists(prj_res_file_name):
+        prj_res_file_name = os.path.join(prj_dir, ic_file.BaseName(prj_dir)+'.pro')
+        if os.path.exists(prj_res_file_name):
             prj_res_manager.openPrj(prj_res_file_name)
             env_dict = prj_res_manager.getPrjEnv()
             environ.update(env_dict)
@@ -337,8 +337,18 @@ def getPrjRoot():
     try:
         kernel = getKernel()
         if kernel:
-            log.info(u'KERNEL: <%s>\tPROJECT: <%s>' % (kernel, kernel.GetContext().getPrjRoot()))
-            return kernel.GetContext().getPrjRoot()
+            kernel_prj_root = kernel.GetContext().getPrjRoot()
+            if kernel_prj_root:
+                log.info(u'KERNEL: <%s>\tPROJECT: <%s>' % (kernel, kernel_prj_root))
+                return kernel_prj_root
+            else:
+                log.warning(u'Не инициализирован проект в контексте ядра системы')
+            # Берем из глобального контекста
+            prj_root = icGet('PRJ_ROOT')
+            if prj_root:
+                return prj_root
+            else:
+                log.warning(u'Не инициализирован проек в хранилище/окружении системы')
         return None
     except:
         log.fatal(u'Ошибка определения корневого элемента дерева')

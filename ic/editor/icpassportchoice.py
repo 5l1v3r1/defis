@@ -8,12 +8,13 @@
 # --- Подключение библиотек ---
 import wx
 
-from ic.kernel import io_prnt
+from ic.log import log
 
 from ic.bitmap import ic_bmp
 from ic.utils import ic_file
 from ic.utils import ic_util
 
+__version__ = (0, 0, 2, 1)
 
 _ = wx.GetTranslation
 
@@ -26,6 +27,10 @@ def icPassportChoiceDlg(Win_=None, Prj_=None):
     @param Prj_: Объект проекта.
     @return: Возвращает список паспорта выбранного объекта или None  в случае ошибки.
     """
+    if Prj_ is None:
+        from ic.engine import ic_user
+        Prj_ = ic_user.getPrjRoot()
+
     dlg = None
     win_clear = False
     try:
@@ -41,7 +46,7 @@ def icPassportChoiceDlg(Win_=None, Prj_=None):
             # Удаляем созданное родительское окно
             if win_clear:
                 Win_.Destroy()
-            io_prnt.outLog(u'<<<PASSPORT>> <%s> type <%s>' % (result, type(result)))
+            log.info(u'<<<PASSPORT>> <%s> type <%s>' % (result, type(result)))
             return result
     
     finally:
@@ -77,7 +82,7 @@ def icPassportListDlg(Win_=None, Prj_=None, Default_=None):
             # Удаляем созданное родительское окно
             if win_clear:
                 Win_.Destroy()
-            io_prnt.outLog(u'<<<PASSPORTS>> <%s> type <%s>' % (result, type(result)))
+            log.info(u'<<<PASSPORTS>> <%s> type <%s>' % (result, type(result)))
             return result
     
     finally:
@@ -137,7 +142,7 @@ class icPassportChoicePanel(wx.Panel):
 
             self._passport = None
         except:
-            io_prnt.outErr(u'Ошибка создания объекта панели выбора паспорта объекта')
+            log.fatal(u'Ошибка создания объекта панели выбора паспорта объекта')
 
     def OnMouseLeftDown(self, event):
         """
@@ -261,7 +266,7 @@ class icPassportChoiceDialog(wx.Dialog):
             self.SetSizer(self._boxsizer)
             self.SetAutoLayout(True)
         except:
-            io_prnt.outErr(u'Ошибка создания объекта диалогового окна выбора паспорта объекта')
+            log.fatal(u'Ошибка создания объекта диалогового окна выбора паспорта объекта')
 
     def OnOK(self, event):
         """
@@ -358,7 +363,7 @@ class icPassportListPanel(wx.Panel):
 
             self._passports = []
         except:
-            io_prnt.outErr(u'Ошибка создания объекта панели выбора списка паспортов объектов')
+            log.fatal(u'Ошибка создания объекта панели выбора списка паспортов объектов')
 
     def SetPassportList(self, PassportList_=None):
         """
@@ -389,7 +394,7 @@ class icPassportListPanel(wx.Panel):
         Обработчик нажатия на кнопку-инструмент удаления паспорта из списка паспортов.
         """
         selected = self._list_box.GetSelection()
-        if selected >= 0 and selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
+        if 0 <= selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
             self._list_box.Delete(selected)
             del self._passports[selected]
         
@@ -400,7 +405,7 @@ class icPassportListPanel(wx.Panel):
         Обработчик нажатия на кнопку-инструмент изменения паспорта в списке паспортов.
         """
         selected = self._list_box.GetSelection()
-        if selected >= 0 and selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
+        if 0 <= selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
             psp = icPassportChoiceDlg(self, self._Prj)
             if psp:
                 self._list_box.SetString(selected, str(psp))
@@ -413,8 +418,8 @@ class icPassportListPanel(wx.Panel):
         Обработчик нажатия на кнопку-инструмент перемещения вверх паспорта в списке паспортов.
         """
         selected = self._list_box.GetSelection()
-        if selected >= 0 and selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
-            new_pos = selected-1
+        if 0 <= selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
+            new_pos = selected - 1
             if new_pos >= 0:
                 selected_str = self._list_box.GetString(selected)
                 pop_str = self._list_box.GetString(new_pos)
@@ -433,7 +438,7 @@ class icPassportListPanel(wx.Panel):
         Обработчик нажатия на кнопку-инструмент перемещения вниз паспорта в списке паспортов.
         """
         selected = self._list_box.GetSelection()
-        if selected >= 0 and selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
+        if 0 <= selected < self._list_box.GetCount() and selected != wx.NOT_FOUND:
             new_pos = selected+1
             if new_pos < self._list_box.GetCount():
                 selected_str = self._list_box.GetString(selected)
@@ -506,7 +511,7 @@ class icPassportListDialog(wx.Dialog):
             self.SetSizer(self._boxsizer)
             self.SetAutoLayout(True)
         except:
-            io_prnt.outErr(u'Ошибка создания объекта диалогового окна выбора списка паспортов объектов')
+            log.fatal(u'Ошибка создания объекта диалогового окна выбора списка паспортов объектов')
         
     def OnOK(self, event):
         """

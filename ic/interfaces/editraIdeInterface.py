@@ -6,13 +6,16 @@
 """
 
 # Подключение библиотек
-import wx
 import os.path
-from ic.kernel import io_prnt
+import wx
+
 from . import icideinterface
 from . import icdesignerinterface
 from ic.PropertyEditor import icPanelEditor
 from ic.imglib import common
+from ic.log import log
+
+__version__ = (0, 0, 2, 2)
 
 _ = wx.GetTranslation
 
@@ -20,12 +23,12 @@ DEFIS_PANE = 'DefisPanel'
 
 # Шаблоны
 interfaceTemplate = '''
-    def %s(self, evt):
+    def %s(self, event):
         return None
 '''
 
 resmoduleTemplate = '''
-def %s(obj, evt):
+def %s(obj, event):
     return None
 '''
 
@@ -410,7 +413,7 @@ class EditraIDEInterface(icideinterface.icIDEInterface):
         """
         Пост обработчик закрытия главного окна IDE.
         """
-        io_prnt.outLog('Close IDE Editra')
+        log.info('Close IDE Editra')
         res_editor_win = wx.GetApp().GetActiveWindow()
 
         if res_editor_win:
@@ -619,6 +622,7 @@ class EditraIDEInterface(icideinterface.icIDEInterface):
         nb = self.GetDocumentNotebook()
         for i in xrange(nb.GetPageCount()):
             ctrl = nb.GetPage(i)
+            # log.debug(u'IDE. Is opened <%s> in page <%s>' % (fileName, ctrl.GetFileName()))
             if (ctrl.GetFileName() or '').replace('\\', '/') == fileName:
                 self.SetSelection(i)
                 return True
@@ -695,7 +699,7 @@ class EditraIDEInterface(icideinterface.icIDEInterface):
                     doc.GotoLine(pos)
                     return pos
         except:
-            io_prnt.outErr(u'Invalid document type: doc.GetText() - failed')
+            log.fatal(u'Invalid document type: doc.GetText() - failed')
 
     def GetMainPanel(self):
         """
