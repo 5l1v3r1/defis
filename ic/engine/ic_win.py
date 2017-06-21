@@ -791,6 +791,9 @@ class icMainWindow(wx.Frame):
             io_prnt.outErr(u'Ошибка добавления страницы в главное окно.')
             return None
 
+    # Можно использовать и другое наименование метода
+    AddPage = AddOrgPage
+
     def DelOrgPage(self, Index_):
         """
         Удалить страницу.

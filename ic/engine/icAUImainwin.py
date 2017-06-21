@@ -278,6 +278,9 @@ class icAUIMainWinPrototype(ic_win.icMainWindow):
             Page_ = icResourceParser.icCreateObject(res_name, res_ext[1:], parent=self)
         return self.addMainNotebookPage(Page_, Title_, select, Image_, not_dublicate=not_duplicate)
 
+    # Можно использовать и другое наименование метода
+    AddPage = AddOrgPage
+
     def DelOrgPage(self, Index_):
         """
         Удалить страницу.
