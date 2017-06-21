@@ -8,8 +8,8 @@
 # Подключение библиотек
 import os
 import os.path
-# import imp
 import inspect
+import wx
 
 from ic.log import log
 from ic.dlg import ic_dlg
@@ -47,8 +47,59 @@ class %s(%s.%s, form_manager.icFormManager):
         Конструктор.
         \"\"\"
         %s.%s.__init__(self, *args, **kwargs)
+
+    def init(self):
+        \"\"\"
+        Инициализация панели.
+        \"\"\"
+        self.init_img()
+        self.init_ctrl()
+        
+    def init_img(self):
+        \"\"\"
+        Инициализация изображений.
+        \"\"\"
+        pass
+        
+    def init_ctrl(self):
+        \"\"\"
+        Инициализация контролов.
+        \"\"\"
+        pass
         
 %s
+
+%s
+'''
+
+SHOW_PANEL_FUNC_BODY_FMT = u'''
+def %s(title=u''):
+    \"\"\"
+    @param title: Заголовок страницы нотебука главного окна.
+    \"\"\"
+    main_win = ic.getMainWin()
+        
+    panel = %s(main_win)
+    panel.init()
+    main_win.AddPage(panel, title)    
+'''
+
+
+SHOW_DIALOG_FUNC_BODY_FMT = u'''
+def %s(parent=None):
+    \"\"\"
+    @param parent: Родительское окно.
+    @return: True/False.
+    \"\"\"
+    if parent is None:
+        parent = ic.getMainWin()
+
+    dlg = %s(parent)
+    dlg.init()
+    result = dlg.ShowModal()
+    if result == wx.ID_OK:
+        return True
+    return False
 '''
 
 
@@ -127,11 +178,22 @@ def genPyForm_by_wxFBModule(wxFB_module_filename, output_filename=None,
             body_functions = u'\n'.join([u'\n'.join(inspect.getsourcelines(class_method)[0]) for class_method in src_class_events])
             body_functions = body_functions.replace(u'\t', u'    ').replace(u'( ', u'(').replace(u' )', u')')
 
+            # Функция вызова формы
+            frm_body_function = u''
+            frm_function_name = 'show_%s' % ic_str.upper_symbols2_lower(dst_class_name[2:] if dst_class_name.startswith('ic') else dst_class_name)
+            if issubclass(src_class, wx.Panel):
+                frm_body_function = SHOW_PANEL_FUNC_BODY_FMT % (frm_function_name, dst_class_name)
+            elif issubclass(src_class, wx.Dialog):
+                frm_body_function = SHOW_DIALOG_FUNC_BODY_FMT % (frm_function_name, dst_class_name)
+            else:
+                log.warning(u'Не поддерживаемый тип для генерации функции вызова формы <%s>' % src_class.__name__)
+
             py_txt = GEN_PY_MODULE_FMT % (src_class_name,
                                           src_module_name,
                                           dst_class_name, src_module_name, src_class_name,
                                           src_module_name, src_class_name,
-                                          body_functions)
+                                          body_functions,
+                                          frm_body_function)
             log.debug(u'Сохранение файла <%s>' % output_filename)
             result = ic_extend.save_file_text(output_filename, py_txt)
             if result:
