@@ -424,7 +424,7 @@ class NSIListDialogProto ( wx.Dialog ):
 class integerDialogProto ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 509,134 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Целое значение", pos = wx.DefaultPosition, size = wx.Size( 509,134 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		
@@ -483,7 +483,7 @@ class integerDialogProto ( wx.Dialog ):
 class radioChoiceDialogProto ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 566,133 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Выбор элемента", pos = wx.DefaultPosition, size = wx.Size( 566,133 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		
@@ -521,6 +521,85 @@ class radioChoiceDialogProto ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onCancelButtonClick( self, event ):
+		event.Skip()
+	
+	def onOkButtonClick( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class intRangeDialogProto
+###########################################################################
+
+class intRangeDialogProto ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Диапазон номеров", pos = wx.DefaultPosition, size = wx.Size( 536,152 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer21 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer22 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.begin_staticText = wx.StaticText( self, wx.ID_ANY, u"Первый номер:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.begin_staticText.Wrap( -1 )
+		bSizer22.Add( self.begin_staticText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.begin_spinCtrl = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 1000, 1 )
+		bSizer22.Add( self.begin_spinCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer21.Add( bSizer22, 1, wx.EXPAND, 5 )
+		
+		bSizer23 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.end_staticText = wx.StaticText( self, wx.ID_ANY, u"Последний номер:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.end_staticText.Wrap( -1 )
+		bSizer23.Add( self.end_staticText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.end_spinCtrl = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 2, 1000, 2 )
+		bSizer23.Add( self.end_spinCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer21.Add( bSizer23, 1, wx.EXPAND, 5 )
+		
+		bSizer2 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.cancelButton = wx.Button( self, wx.ID_ANY, u"Отмена", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.cancelButton, 0, wx.ALL, 5 )
+		
+		self.okButton = wx.Button( self, wx.ID_ANY, u"ОК", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.okButton.SetDefault() 
+		bSizer2.Add( self.okButton, 0, wx.ALL, 5 )
+		
+		
+		bSizer21.Add( bSizer2, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer21 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.begin_spinCtrl.Bind( wx.EVT_SPINCTRL, self.onBeginSpinCtrl )
+		self.end_spinCtrl.Bind( wx.EVT_SPINCTRL, self.onEndSpinCtrl )
+		self.cancelButton.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.okButton.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onBeginSpinCtrl( self, event ):
+		event.Skip()
+	
+	def onEndSpinCtrl( self, event ):
+		event.Skip()
+	
 	def onCancelButtonClick( self, event ):
 		event.Skip()
 	

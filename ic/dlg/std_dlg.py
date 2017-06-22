@@ -24,8 +24,9 @@ except ImportError:
 from . import icnsilistdlg
 from . import icintegerdlg
 from . import icradiochoicedlg
+from . import icintrangedlg
 
-__version__ = (0, 1, 4, 1)
+__version__ = (0, 1, 5, 1)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -254,6 +255,35 @@ def getRadioChoiceDlg(parent=None, title=None, label=None, choices=()):
 
     dlg = icradiochoicedlg.icRadioChoiceDialog(parent)
     dlg.init(title=title, label=label, choices=choices)
+    dlg.Centre()
+
+    if dlg.ShowModal() == wx.ID_OK:
+        value = dlg.getValue()
+    dlg.Destroy()
+
+    return value
+
+
+def getIntRangeDlg(parent=None, title=None, label_begin=None, label_end=None, min_value=0, max_value=100):
+    """
+    Ввод целого числа в диалоговом окне.
+    @param parent: Родительское окно. Если не определено, то
+        береться wx.GetApp().GetTopWindow()
+    @param title: Заголовок окна.
+    @param label_begin: Текст приглашения ввода первого номера диапазона.
+    @param label_end: Текст приглашения ввода последнего номера диапазона.
+    @param min_value: Минимально-допустимое значение.
+    @param max_value: Максимально-допустимое значение.
+    @return: Введенное значение или None если нажата <отмена>.
+    """
+    value = None
+
+    if parent is None:
+        parent = wx.GetApp().GetTopWindow()
+
+    dlg = icintrangedlg.icIntRangeDialog(parent)
+    dlg.init(title=title, label_begin=label_begin, label_end=label_end,
+             min_value=min_value, max_value=max_value)
     dlg.Centre()
 
     if dlg.ShowModal() == wx.ID_OK:
