@@ -1226,8 +1226,24 @@ class icFormManager(formdatamanager.icFormDataManager):
         @param check: Вкл./выкл.
         @return: True/False. 
         """
+        return self.checkItems_list_ctrl(ctrl, check=check)
+
+    def checkItems_list_ctrl(self, ctrl, check=True, n_begin=-1, n_end=-1):
+        """
+        Установить галки элементов контрола списка.
+        @param ctrl: Объект контрола.
+        @param check: Вкл./выкл.
+        @param n_begin: Номер первого обрабатываемого элемента.
+            Если не определен, то берется самый первый элемент.
+        @param n_end: Номер последнего обрабатываемого элемента.
+        @return: True/False.
+        """
         if isinstance(ctrl, wx.ListCtrl):
-            for i in range(ctrl.GetItemCount()):
+            if n_begin < 0:
+                n_begin = 0
+            if n_end < 0:
+                n_end = ctrl.GetItemCount() - 1
+            for i in range(n_begin, n_end + 1):
                 ctrl.CheckItem(i, check=check)
             return True
 
@@ -1420,3 +1436,40 @@ class icFormManager(formdatamanager.icFormDataManager):
                                                    columns=columns,
                                                    ext_func=ext_func)
 
+    def getButtonLeftBottomPoint(self, button):
+        """
+        Определить точку левого-нижнего края кнопки.
+        Используется для вызова всплывающих меню.
+        @param button: Объект кнопки wx.Button.
+        """
+        if button is None:
+            # Если кнопка не определена, то функция бессмыслена
+            return None
+
+        point = button.GetPosition()
+        point = button.GetParent().ClientToScreen(point)
+        point.SetY(point.y + button.GetSize().y)
+        return wx.Point(point.x, point.y)
+
+    def getToolLeftBottomPoint(self, toolbar, tool):
+        """
+        Определить точку левого-нижнего края кнопки.
+        Используется для вызова всплывающих меню.
+        @param toolbar: Объект панели инструментов wx.ToolBar.
+        @param tool: Объект инструмента панели инструментов wx.ToolBarToolBase.
+        """
+        if tool is None:
+            # Если инструмент не определен, то функция бессмыслена
+            return None
+
+        toolbar_pos = toolbar.GetScreenPosition()
+        toolbar_size = toolbar.GetSize()
+        tool_index = toolbar.GetToolPos(tool.GetId())
+        tool_size = toolbar.GetToolSize()
+        x_offset = 0
+        for i in range(tool_index):
+            prev_tool = toolbar.GetToolByPos(i)
+            prev_ctrl = prev_tool.GetControl() if prev_tool.IsControl() else None
+            x_offset += prev_ctrl.GetSize()[0] if prev_ctrl else tool_size[0]
+
+        return wx.Point(toolbar_pos[0] + x_offset, toolbar_pos[1] + toolbar_size[1])

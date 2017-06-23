@@ -68,7 +68,6 @@ class %s(%s.%s, form_manager.icFormManager):
         pass
         
 %s
-
 %s
 '''
 
