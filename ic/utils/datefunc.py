@@ -9,7 +9,25 @@ import datetime
 
 import ic
 
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 1)
+
+
+def get_first_day_of_month(year, month):
+    """
+    Первый день месяца.
+    @param year: Год.
+    @param month: Месяц.
+    @return: Первый дата месяца.
+    """
+    if not isinstance(year, int):
+        year = int(year)
+    if not isinstance(month, int):
+        month = int(month)
+
+    year = max(datetime.MINYEAR, min(datetime.MAXYEAR, year))
+    month = max(1, min(12, month))
+
+    return datetime.date(day=1, month=month, year=year)
 
 
 def get_last_day_of_month(year, month):

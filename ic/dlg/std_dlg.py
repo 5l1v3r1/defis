@@ -26,7 +26,7 @@ from . import icintegerdlg
 from . import icradiochoicedlg
 from . import icintrangedlg
 
-__version__ = (0, 1, 5, 1)
+__version__ = (0, 1, 5, 2)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -105,7 +105,7 @@ def getMonthDlg(parent=None):
     Выбор месяца в диалоговом окне.
     @param parent: Родительское окно. Если не определено, то
         береться wx.GetApp().GetTopWindow()
-    @return: Выбранный месяц (datetime) или None если нажата <отмена>.
+    @return: Первый день выбранного месяца (datetime) или None если нажата <отмена>.
     """
     selected_month = None
 
