@@ -18,7 +18,7 @@ import wx.lib.imagebrowser
 from ic.log import log
 
 
-__version__ = (0, 1, 1, 1)
+__version__ = (0, 1, 1, 2)
 
 
 def icFileDlg(Win_=None, Title_='', Filter_='', DefaultPath_=''):
@@ -218,7 +218,7 @@ def icAskBox(*args, **kwargs):
     return icAskDlg(*args, **kwargs) == wx.YES
 
 
-def icMsgBox(Title_='', Text_='', ParentWin_=None):
+def icMsgBox(Title_='', Text_='', **kwargs):
     """
     Вывод сообщения.
     @param ParentWin_: Родительское окно.
@@ -226,13 +226,16 @@ def icMsgBox(Title_='', Text_='', ParentWin_=None):
     @param Text_: Текст диалога.
     @return: Код нажатой кнопки (Например: wx.YES или wx.NO).
     """
+    if 'ParentWin_' in kwargs:
+        kwargs['parent'] = kwargs['ParentWin_']
+        del kwargs['ParentWin_']
     try:
-        return wx.MessageBox(Text_, Title_, style=wx.OK, parent=ParentWin_)
+        return wx.MessageBox(Text_, Title_, style=wx.OK, **kwargs)
     except:
         log.fatal()
 
 
-def icErrBox(Title_='', Text_='', ParentWin_=None):
+def icErrBox(Title_='', Text_='', **kwargs):
     """
     Вывод сообщения об ошибке.
     @param ParentWin_: Родительское окно.
@@ -240,13 +243,16 @@ def icErrBox(Title_='', Text_='', ParentWin_=None):
     @param Text_: Текст диалога.
     @return: Код нажатой кнопки (Например: wx.YES или wx.NO).
     """
+    if 'ParentWin_' in kwargs:
+        kwargs['parent'] = kwargs['ParentWin_']
+        del kwargs['ParentWin_']
     try:
-        return wx.MessageBox(Text_, Title_, style=wx.OK | wx.ICON_ERROR, parent=ParentWin_)
+        return wx.MessageBox(Text_, Title_, style=wx.OK | wx.ICON_ERROR, **kwargs)
     except:
         log.fatal()
 
 
-def icFatalBox(Title_='', Text_='', ParentWin_=None):
+def icFatalBox(Title_='', Text_='', **kwargs):
     """
     Вывод сообщения об ошибке вместе с Traceback.
     @param ParentWin_: Родительское окно.
@@ -254,12 +260,15 @@ def icFatalBox(Title_='', Text_='', ParentWin_=None):
     @param Text_: Текст диалога.
     @return: Код нажатой кнопки (Например: wx.YES или wx.NO).
     """
+    if 'ParentWin_' in kwargs:
+        kwargs['parent'] = kwargs['ParentWin_']
+        del kwargs['ParentWin_']
     trace_txt = traceback.format_exc()
     txt = Text_ + trace_txt
-    return icErrBox(Title_, txt, ParentWin_)
+    return icErrBox(Title_, txt, **kwargs)
 
 
-def icWarningBox(Title_='', Text_='', ParentWin_=None):
+def icWarningBox(Title_='', Text_='', **kwargs):
     """
     Вывод сообщения об предупреждении.
     @param ParentWin_: Родительское окно.
@@ -267,8 +276,11 @@ def icWarningBox(Title_='', Text_='', ParentWin_=None):
     @param Text_: Текст диалога.
     @return: Код нажатой кнопки (Например: wx.YES или wx.NO).
     """
+    if 'ParentWin_' in kwargs:
+        kwargs['parent'] = kwargs['ParentWin_']
+        del kwargs['ParentWin_']
     try:
-        return wx.MessageBox(Text_, Title_, style=wx.OK | wx.ICON_WARNING, parent=ParentWin_)
+        return wx.MessageBox(Text_, Title_, style=wx.OK | wx.ICON_WARNING, **kwargs)
     except:
         log.fatal()
 

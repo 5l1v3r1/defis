@@ -1313,8 +1313,8 @@ class icFormManager(formdatamanager.icFormDataManager):
             log.warning(u'В объекте <%s> не обнаружена акселераторная таблица' % win.__class__.__name__)
         return None
 
-    def setTree_TreeListCtrl(self, treelist_ctrl=None, tree_data=None, columns=(),
-                             ext_func=None, do_expand_all=False):
+    def _setTree_TreeListCtrl(self, treelist_ctrl=None, tree_data=None, columns=(),
+                              ext_func=None, do_expand_all=False):
         """
         Установить данные в контрол wx.TreeListCtrl.
         @param treelist_ctrl: Контрол wx.TreeListCtrl.
@@ -1350,6 +1350,33 @@ class icFormManager(formdatamanager.icFormDataManager):
             treelist_ctrl.ExpandAll(treelist_ctrl.GetRootItem())
         return True
 
+    def setTree_TreeListCtrl(self, treelist_ctrl=None, tree_data=None, columns=(),
+                             ext_func=None, do_expand_all=False):
+        """
+        Установить данные в контрол wx.TreeListCtrl.
+        @param treelist_ctrl: Контрол wx.TreeListCtrl.
+        @param tree_data: Данные дерева:
+            Каждый узел дерева - словарь.
+            Дочерние элементы находяться в ключе '__children__' в виде списка.
+            Если корневой узел данных является списком,
+            то в контроле присутствует несколько корневых узлов.
+        @param columns: Кортеж колонок:
+            ('ключ словаря данных 1', ...)
+            Первый ключ будет являться главным.
+        @param ext_func: Дополнительная функция обработки:
+            В качестве аргументов длжна принимать:
+            treelist_ctrl - Контрол wx.TreeListCtrl.
+            item - Текущий обрабатываемый элемент контрола.
+            node - Данные узла, соответствующие элементу контрола.
+        @param do_expand_all: Произвести автоматическое распахивание дерева?
+        @return: True/False.
+        """
+        try:
+            return self._setTree_TreeListCtrl(treelist_ctrl, tree_data, columns,
+                                              ext_func, do_expand_all)
+        except:
+            log.fatal(u'Ошибка установки данных в контрол wx.TreeListCtrl.')
+
     def _appendTree_root(self, treelist_ctrl=None, node=None, columns=(), ext_func=None):
         """
         Внутренняя функция.
@@ -1371,7 +1398,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             ext_func(treelist_ctrl, parent_item, node)
         return parent_item
 
-    def appendBranch_TreeListCtrl(self, treelist_ctrl=None,
+    def _appendBranch_TreeListCtrl(self, treelist_ctrl=None,
                                   parent_item=None, node=None, columns=(),
                                   ext_func=None):
         """
@@ -1435,6 +1462,34 @@ class icFormManager(formdatamanager.icFormDataManager):
                                                    item, child,
                                                    columns=columns,
                                                    ext_func=ext_func)
+
+    def appendBranch_TreeListCtrl(self, treelist_ctrl=None,
+                                  parent_item=None, node=None, columns=(),
+                                  ext_func=None):
+        """
+        Добавить ветку в узел дерева контрола wx.TreeListCtrl.
+        @param treelist_ctrl: Контрол wx.TreeListCtrl.
+        @param parent_item: Родительский элемент, в который происходит добавление.
+            Если не указан, то создается корневой элемент.
+        @param node: Данные узла.
+            Если словарь, то добавляется 1 узел.
+            Если список, то считается что необходимо добавить несколько узлов.
+        @param columns: Кортеж колонок:
+            ('ключ словаря данных 1', ...)
+            Первый ключ будет являться главным.
+        @param ext_func: Дополнительная функция обработки:
+            В качестве аргументов длжна принимать:
+            treelist_ctrl - Контрол wx.TreeListCtrl.
+            item - Текущий обрабатываемый элемент контрола.
+            node - Данные узла, соответствующие элементу контрола.
+        @return: True/False.
+        """
+        try:
+            return self._appendBranch_TreeListCtrl(treelist_ctrl, parent_item,
+                                                   node, columns, ext_func)
+        except:
+            log.fatal(u'Ошибка добавления ветки в узел дерева контрола wx.TreeListCtrl.')
+        return False
 
     def getButtonLeftBottomPoint(self, button):
         """

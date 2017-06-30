@@ -1493,7 +1493,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
         @return: Количество записей.
         """
         if self.dataclass is not None:
-            log.debug(u'\tSQL COUNT: %d' % self.dataclass.select(*args, **kwargs).execute().rowcount)
+            # log.debug(u'\tSQL COUNT: %d' % self.dataclass.select(*args, **kwargs).execute().rowcount)
             return self.dataclass.select(*args, **kwargs).execute().rowcount
         return -1
 

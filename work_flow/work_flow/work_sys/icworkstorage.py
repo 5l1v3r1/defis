@@ -13,7 +13,7 @@ from ic.db import icsqlalchemy
 from . import persistent
 
 # Версия
-__version__ = (0, 0, 0, 2)
+__version__ = (0, 0, 2, 1)
 
 # --- Функции ---
 _WORK_SQL_STORAGE = dict()
@@ -430,6 +430,28 @@ class icWorkSQLStorage(object, icWorkStorageInterface):
                                          parent_uuid=save_rec.get('uuid', ''))
         
         return True
+
+    def isObject(self, Obj_, UUID_):
+        """
+        Проверка существования данных объекта в хранилище по идентификатору.
+        @param Obj_: Объект.
+        @param UUID_: Уникальный идентификатор объекта.
+        @return: True/False.
+        """
+        try:
+            # Проинициализировать все дочерние объекты
+            Obj_.init_children_data()
+
+            tab = self.container.getTable(Obj_.getTableName())
+            try:
+                count = tab.count(tab.c.uuid == UUID_)
+            except:
+                ic.io_prnt.outErr(u'ОШИБКА наличия объекта в хранилище')
+                return False
+            return True if count > 0 else False
+        except:
+            ic.io_prnt.outErr(u'ОШИБКА определения существования объекта <%s>' % UUID_)
+            return False
 
     def loadObject(self, Obj_, UUID_):
         """

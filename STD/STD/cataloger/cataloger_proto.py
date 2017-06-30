@@ -38,7 +38,7 @@ import shutil
 from ic.log import log
 from . import level_proto
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icCatalogerProto(object):
@@ -119,12 +119,13 @@ class icCatalogerProto(object):
         self.logic_catalogs[logic_catalog_name] = index_series
         return True
 
-    def put_object(self, obj):
+    def put_object(self, obj, do_remove=False):
         """
         Разместить объект в каталоге.
         Размещение производиться по признакам объекта
         по уровням физического каталога.
         @param obj: Размещаемый объект.
+        @param do_remove: Произвести перенос объекта?
         @return: True/False.
         """
         phys_path = list()
@@ -132,7 +133,7 @@ class icCatalogerProto(object):
             folder_name = level.getFolderName(obj)
             phys_path.append(folder_name)
 
-        return self.put_obj_path(obj, phys_path)
+        return self.put_obj_path(obj, phys_path, do_remove=do_remove)
 
     def logic2physic_path(self, logic_path, logic_catalog_name):
         """
@@ -155,7 +156,7 @@ class icCatalogerProto(object):
             phys_path[idx] = logic_path[i]
         return phys_path
 
-    def put_obj_path(self, obj, path, logic_catalog_name=None):
+    def put_obj_path(self, obj, path, logic_catalog_name=None, do_remove=False):
         """
         Размещение объекта в каталоге по пути.
         @param obj: Размещаемый объект.
@@ -165,6 +166,7 @@ class icCatalogerProto(object):
             если размещение производится по логическому каталогу.
             Если None, то считаем что размещение производиться
             по физическому каталогу.
+        @param do_remove: Произвести перенос объекта?
         @return: True/False.
         """
         phys_path = path
@@ -173,14 +175,15 @@ class icCatalogerProto(object):
             if phys_path is None:
                 return False
 
-        return self.put_obj_physic_path(obj, phys_path)
+        return self.put_obj_physic_path(obj, phys_path, do_remove=do_remove)
 
-    def put_obj_physic_path(self, obj, physic_path):
+    def put_obj_physic_path(self, obj, physic_path, do_remove=False):
         """
         Размещение объекта в физическом каталоге по физическому пути.
         @param obj: Размещаемый объект
         @param physic_path: Физический путь в физическом каталоге.
             Путь каталога - список имен папок.
+        @param do_remove: Произвести перенос объекта?
         @return: True/False.
         """
         self.last_catalog_objpath = None
@@ -205,11 +208,25 @@ class icCatalogerProto(object):
             try:
                 if not os.path.exists(real_path):
                     os.makedirs(real_path)
-                if os.path.exists(filename):
+                if os.path.exists(filename) and not os.path.samefile(obj, filename):
                     # Удалить если уже сущетсвует такой файл в каталоге
                     log.warning(u'Файл <%s> уже существует в каталоге. Файл из каталога будет удален' % filename)
                     os.remove(filename)
-                shutil.copyfile(obj, filename)
+                if not os.path.samefile(obj, filename):
+                    shutil.copyfile(obj, filename)
+                    log.info(u'Копирование <%s> -> <%s> ... ok' % (obj, filename))
+
+                    if do_remove:
+                        # Перенести можно только не совпадающие объекты
+                        # После удачного переноса скана в каталог
+                        # удалить файл в папке
+                        try:
+                            log.info(u'Удаление файла <%s>' % obj)
+                            os.remove(obj)
+                        except:
+                            log.fatal(u'Ошибка удаления файла <%s>' % obj)
+                else:
+                    log.warning(u'Попытка не корректного копирования файла <%s> -> <%s>' % (obj, filename))
                 # Запомнить полное имя последнего размещенного в каталоге файла
                 self.last_catalog_objpath = filename
             except:

@@ -39,7 +39,7 @@ from work_flow.work_sys import form_generator
 from STD.queries import filter_convert
 
 # Версия
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 3, 1)
 
 
 # Спецификация
@@ -860,6 +860,17 @@ class icBusinessObjPrototype(icBusinessObjInterface):
             self.setRequisiteValue(requisite_name, requisite_value)
         # Сохранить объект
         storage.saveObject(self)
+
+    def is_obj(self, UUID_=None):
+        """
+        Проверка на существование данных документа в хранилище.
+        @param UUID_: Идентификатор документа.
+        @return: True/False.
+        """
+        if UUID_ is None:
+             UUID_ = self.uuid   # Запомнить идентификатор документа
+        storage = self.getWorkStorage()
+        return storage.isObject(self, UUID_)
 
     def getAllUUID(self, order_sort=None):
         """
