@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 4, 1)
+__version__ = (0, 1, 5, 2)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1528,3 +1528,46 @@ class icFormManager(formdatamanager.icFormDataManager):
             x_offset += prev_ctrl.GetSize()[0] if prev_ctrl else tool_size[0]
 
         return wx.Point(toolbar_pos[0] + x_offset, toolbar_pos[1] + toolbar_size[1])
+
+    def setNotebookPage_image(self, notebook_ctrl, n_page=-1, img=None):
+        """
+        Установить картинку-иконку на странице wx.Notebook.
+        @param notebook_ctrl: Объект wx.Notebook.
+        @param n_page: Индекс страницы. Если < 0, то берется текущая выбранная.
+        @param img: Объект образа. Если None, то картинка убирается.
+        @return: True - картинка установлена. False - не устанолена по какой либо причине.
+        """
+        if notebook_ctrl is None:
+            # Если объект не определен, то функция бессмыслена
+            log.warning(u'Не определен объект wx.Notebook для установки иконки страницы')
+            return False
+        elif not issubclass(notebook_ctrl.__class__, wx.Notebook):
+            log.warning(u'Объект не класса wx.Notebook в функции установки иконки страницы')
+            return False
+
+        if n_page < 0:
+            n_page = notebook_ctrl.GetSelection()
+        if n_page == wx.NOT_FOUND:
+            log.warning(u'Не определена страница для установки иконки')
+            return False
+
+        try:
+            if img is None:
+                # Убрать иконку
+                notebook_ctrl.SetPageImage(n_page, wx.NOT_FOUND)
+            else:
+                # ВНИМАНИЕ! В wx.Notebook не определен метод HasImageList
+                # Для проверки наличия проверяем что возвращает GetImageList
+                notebook_img_list = notebook_ctrl.GetImageList()
+                if notebook_img_list:
+                    img_idx = notebook_img_list.Add(img)
+                else:
+                    img_size = img.GetSize()
+                    notebook_img_list = wx.ImageList(*img_size)
+                    img_idx = notebook_img_list.Add(img)
+                    notebook_ctrl.AssignImageList(notebook_img_list)
+                notebook_ctrl.SetPageImage(n_page, img_idx)
+            return True
+        except:
+            log.fatal(u'Ошибка установки иконки страницы объекта wx.Notebook')
+        return False
