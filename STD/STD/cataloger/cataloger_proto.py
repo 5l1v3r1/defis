@@ -38,7 +38,7 @@ import shutil
 from ic.log import log
 from . import level_proto
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 
 class icCatalogerProto(object):
@@ -212,7 +212,7 @@ class icCatalogerProto(object):
                     # Удалить если уже сущетсвует такой файл в каталоге
                     log.warning(u'Файл <%s> уже существует в каталоге. Файл из каталога будет удален' % filename)
                     os.remove(filename)
-                if not os.path.samefile(obj, filename):
+                if not os.path.exists(filename) or not os.path.samefile(obj, filename):
                     shutil.copyfile(obj, filename)
                     log.info(u'Копирование <%s> -> <%s> ... ok' % (obj, filename))
 

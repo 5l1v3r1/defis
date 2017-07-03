@@ -56,6 +56,8 @@ from py_compile import compile as CompileFile
 from imp import load_source as LoadSource
 
 
+__version__ = (0, 1, 1, 2)
+
 _ = wx.GetTranslation
 
 # --- Функции пользователя ---
@@ -125,7 +127,10 @@ def icCopyFile(FileName_, NewFileName_, Rewrite_=True):
 
         # --- Реализация копирования файла ---
         MakeDirs(os.path.dirname(NewFileName_))
-        shutil.copyfile(FileName_, NewFileName_)
+        if os.path.exists(FileName_) and os.path.exists(NewFileName_) and os.path.samefile(FileName_, NewFileName_):
+            log.warning(u'Попытка скопировать файл <%s> самого в себя' % FileName_)
+        else:
+            shutil.copyfile(FileName_, NewFileName_)
         return True
     except:
         log.fatal(u'Failed copy file %s to %s.' % (FileName_, NewFileName_))
