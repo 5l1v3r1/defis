@@ -508,5 +508,5 @@ class UserResource(resManager.ResourceManagerInterface):
         Словарь {имя пользователя: описание пользователя}.
         """
         if self._user_res:
-            return dict([(name, self._user_res[name]['description']) for name in self._user_res.keys()])
+            return dict([(name, self._user_res[name].get('description', u'')) for name in self._user_res.keys()])
         return dict()
