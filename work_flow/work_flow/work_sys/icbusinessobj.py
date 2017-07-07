@@ -39,7 +39,7 @@ from work_flow.work_sys import form_generator
 from STD.queries import filter_convert
 
 # Версия
-__version__ = (0, 0, 3, 1)
+__version__ = (0, 0, 4, 1)
 
 
 # Спецификация
@@ -871,6 +871,18 @@ class icBusinessObjPrototype(icBusinessObjInterface):
              UUID_ = self.uuid   # Запомнить идентификатор документа
         storage = self.getWorkStorage()
         return storage.isObject(self, UUID_)
+
+    def delete_obj(self, UUID_=None):
+        """
+        Удаление данных документа из хранилища.
+        @param UUID_: Идентификатор документа.
+        @return: True/False.
+        """
+        if UUID_ is None:
+             UUID_ = self.uuid   # Запомнить идентификатор документа
+        # ВНИМАНИЕ! Не определен метод в icWorkStorage! Поэтому используем метод
+        # в icObjPersistent. Надо бы дописать метод в icWorkStorage
+        return self.delete(UUID_)
 
     def getAllUUID(self, order_sort=None):
         """

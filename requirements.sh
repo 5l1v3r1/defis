@@ -161,3 +161,9 @@ apt-cache show python-odf | grep Version
 
 apt-cache show libreoffice-java-common | grep Package
 apt-cache show libreoffice-java-common | grep Version
+
+# Установка ic.pth
+sudo cp ./ic.pth /usr/lib/python2.7/dist-packages
+echo +++++++++++++++++++++++++++++++
+echo |   Проект DEFIS установлен   |
+echo +++++++++++++++++++++++++++++++
