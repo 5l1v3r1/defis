@@ -12,10 +12,23 @@ import smtplib
 
 from ic.log import log
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 1)
 
 EMAIL_ADR_DELIMETER = u';'
 DEFAULT_ENCODING = 'utf-8'
+
+# Защита соединения
+SMTP_PROTECT_NO = u'NO'                 # Нет
+SMTP_PROTECT_STARTTLS = u'STARTTLS'     # STARTTLS
+SMTP_PROTECT_SSL_TLS = u'SSL/TLS'       # SSL/TLS
+
+# Метод аутентификации
+SMTP_AUTHENT_NO = u'NO'                     # Без аутентификации
+SMTP_AUTHENT_UNDEFENDED = u'UNDEFENDED'     # Обычный пароль
+SMTP_AUTHENT_ENCRYPTED = u'ENCRYPTED'       # Зашифрованный пароль
+SMTP_AUTHENT_KERBEROS = u'Kerberos/GSSAPI'  # Kerberos/GSSAPI
+SMTP_AUTHENT_NTLM = u'NTLM'                 # NTLM
+SMTP_AUTHENT_OAUTH2 = u'OAuth2'             # OAuth2
 
 
 class icEMailSender(object):
@@ -29,7 +42,8 @@ class icEMailSender(object):
                  login=None, password=None, enable_send=True,
                  encoding='utf-8',
                  outbox_dir=None, auto_del_files=False,
-                 prev_send_cmd=None, post_send_cmd=None):
+                 prev_send_cmd=None, post_send_cmd=None,
+                 connect_protect=None, authent=None):
         """
         Конструктор.
         @param from_adr: Адрес отправителя.
@@ -48,6 +62,8 @@ class icEMailSender(object):
         @param auto_del_files: Автоматически удалять прикрепляемые файлы после отправки?
         @param prev_send_cmd: Комманда, выполняемая перед отправкой письма.
         @param post_send_cmd: Комманда, выполняемая после отправки письма.
+        @param connect_protect: Защита соединения.
+        @param authent: Метод аутентификации.
         """
         self.from_adr = from_adr
         self.to_adr = to_adr.split(EMAIL_ADR_DELIMETER) if type(to_adr) in (str, unicode) else to_adr
@@ -66,6 +82,11 @@ class icEMailSender(object):
 
         self.prev_send_cmd = prev_send_cmd
         self.post_send_cmd = post_send_cmd
+
+        # Защита соединения
+        self.connect_protect = connect_protect
+        # Метод аутентификации
+        self.authent = authent
 
     def _encode(self, txt, from_codepage, to_codepage):
         """
@@ -112,7 +133,8 @@ class icEMailSender(object):
     def send_mail(self, from_adr=None, to_adr=None,
                   subject=None, body=None, attache_files=None,
                   smtp_server=None, smtp_port=None,
-                  login=None, password=None):
+                  login=None, password=None,
+                  connect_protect=None, authent=None):
         """
         Функция отправки  письма. Если какой  параметр функции
             None, то этот параметр берется из внутренних настроек отправщика.
@@ -135,7 +157,8 @@ class icEMailSender(object):
             result = self._send_mail(from_adr, to_adr,
                                      subject, body, attache_files,
                                      smtp_server, smtp_port,
-                                     login, password)
+                                     login, password,
+                                     connect_protect, authent)
         except:
             log.fatal(u'Ошибка отправки письма')
             result = False
@@ -148,7 +171,8 @@ class icEMailSender(object):
     def _send_mail(self, from_adr=None, to_adr=None,
                    subject=None, body=None, attache_files=None,
                    smtp_server=None, smtp_port=None,
-                   login=None, password=None):
+                   login=None, password=None,
+                   connect_protect=None, authent=None):
         """
         Функция отправки  письма. Если какой  параметр функции
             None, то этот параметр берется из внутренних настроек отправщика.
@@ -179,6 +203,8 @@ class icEMailSender(object):
         smtp_port = self.smtp_port if smtp_port is None else smtp_port
         login = self.login if login is None else login
         password = self.password if password is None else password
+        connect_protect = self.connect_protect if connect_protect is None else connect_protect
+        authent = self.authent if authent is None else authent
 
         # Проверка типов входных аргументов
         assert type(from_adr) in (str, unicode)
@@ -216,16 +242,25 @@ class icEMailSender(object):
         try:
             smtp = smtplib.SMTP(smtp_server, smtp_port)
             smtp.set_debuglevel(0)
-            if login:
+            if connect_protect == SMTP_PROTECT_STARTTLS:
+                # ВНИМАНИЕ! Если используем защиту связи STARTTLS, то необходимо
+                # перевести сервер в режим с помощью метода .starttls()
+                smtp.starttls()
+
+            if login and authent != SMTP_AUTHENT_NO:
+                log.info(u'SMTP. %s. login: <%s> password: <%s>' % (authent, login, password))
                 smtp.login(login, password)
 
+            to_adr = [to.strip() for to in to_adr]
+            log.info(u'Отправка письма с адреса <%s> на адрес <%s>' % (from_adr, to_adr))
+            # log.debug(msg_txt)
             smtp.sendmail(from_adr, to_adr, msg_txt)
             smtp.close()
 
             log.info(u'Письмо от %s к %s отправленно' % (from_adr, to_adr))
 
         except smtplib.SMTPException:
-            log.fatal(u'Ошибка отправки письма')
+            log.fatal(u'SMTP. Ошибка отправки письма')
             return False
 
         if attache_files and self.auto_del_files:
