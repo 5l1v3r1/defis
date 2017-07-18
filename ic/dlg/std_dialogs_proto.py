@@ -492,6 +492,8 @@ class radioChoiceDialogProto ( wx.Dialog ):
 		choice_radioBoxChoices = [ u"Item1", u"Item2", u"item 3", u"item 4", u"item5" ]
 		self.choice_radioBox = wx.RadioBox( self, wx.ID_ANY, u"Title", wx.DefaultPosition, wx.DefaultSize, choice_radioBoxChoices, 1, wx.RA_SPECIFY_ROWS )
 		self.choice_radioBox.SetSelection( 0 )
+		self.choice_radioBox.SetMinSize( wx.Size( -1,80 ) )
+		
 		bSizer19.Add( self.choice_radioBox, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		bSizer2 = wx.BoxSizer( wx.HORIZONTAL )

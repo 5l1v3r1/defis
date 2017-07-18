@@ -39,7 +39,7 @@ class icRadioChoiceDialog(std_dialogs_proto.radioChoiceDialogProto):
     def getValue(self):
         return self._item_idx
 
-    def init(self, title=None, label=None, choices=()):
+    def init(self, title=None, label=None, choices=(), do_fit_dlg=True):
         """
         Инициализация диалогового окна.
         @param title: Заголовок окна.
@@ -48,6 +48,8 @@ class icRadioChoiceDialog(std_dialogs_proto.radioChoiceDialogProto):
             Максимальное количество элементов выбора 5.
             При большем количестве элементов необходимо использовать 
             другую диалоговую форму выбора.
+        @param do_fit_dlg: Переразмерить диалоговое окно для удаления
+            не заполненной области отсутствующих элементов?
         """
         if title:
             self.SetTitle(title)
@@ -62,6 +64,11 @@ class icRadioChoiceDialog(std_dialogs_proto.radioChoiceDialogProto):
                     self.choice_radioBox.SetItemLabel(i, choices[i])
                 else:
                     self.choice_radioBox.ShowItem(i, False)
+
+        # Т.к не все элементы отображаются переразмерить окно для того чтобы
+        # не было пустого места
+        if do_fit_dlg:
+            self.Fit()
 
     def onCancelButtonClick(self, event):
         self._item_idx = -1
