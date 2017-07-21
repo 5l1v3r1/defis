@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 5, 2)
+__version__ = (0, 1, 5, 3)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1258,11 +1258,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             Либо None в случае ошибки.
         """
         if isinstance(ctrl, wx.ListCtrl):
-            result = list()
-            for i in range(ctrl.GetItemCount()):
-                if ctrl.IsChecked(i):
-                    result.append(i)
-            return result
+            return [i for i in range(ctrl.GetItemCount()) if ctrl.IsChecked(i)]
 
         log.warning(u'Объект типа <%s> не поддерживается вкл./выкл. элментов контрола' % ctrl.__class__.__name__)
         return None
