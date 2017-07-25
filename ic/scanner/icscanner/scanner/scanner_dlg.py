@@ -18,7 +18,7 @@ from ic import config
 from . import scanner_dlg_proto
 from . import scan_manager
 
-__version__ = (0, 1, 3, 4)
+__version__ = (0, 1, 3, 6)
 
 
 class icScanOptions:
@@ -64,7 +64,10 @@ class icScanOptions:
             sFileName = self.genOptFileName()
 
         ini_dict = ic_ini.Ini2Dict(sFileName)
-        self.setExtOptions(**ini_dict['SCAN_OPTIONS'])
+        if ini_dict:
+            self.setExtOptions(**ini_dict['SCAN_OPTIONS'])
+        else:
+            log.warning(u'Параметры сканирования не загружены из конфигурационного файла')
 
     def saveOptions(self, sFileName=None):
         """
@@ -306,7 +309,7 @@ class icScanAdministrator(icScanOptions):
             # Перенос отсканированных файлов в результирующую папку
             if self.scan_dir:
                 for scan_filename in scan_filenames:
-                    if scan_filename:
+                    if scan_filename and os.path.exists(scan_filename):
                         log.debug(u'Перенос файла <%s> в результирующую папку <%s>' % (scan_filename, self.scan_dir))
                         self.copyToScanDir(scan_filename, self.scan_dir)
                     else:
