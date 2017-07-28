@@ -24,6 +24,10 @@ apt-cache show ttf-mscorefonts-installer | grep Package
 apt-cache show ttf-mscorefonts-installer | grep Version
 sudo apt-get install ttf-mscorefonts-installer
 
+apt-cache show python-apt | grep Package
+apt-cache show python-apt | grep Version
+sudo apt-get install python-apt
+
 # Работа с консолью
 apt-cache show python-dialog | grep Package
 apt-cache show python-dialog | grep Version
@@ -107,6 +111,10 @@ apt-cache show indicator-applet-complete | grep Version
 
 apt-cache show ttf-mscorefonts-installer | grep Package
 apt-cache show ttf-mscorefonts-installer | grep Version
+
+apt-cache show python-apt | grep Package
+apt-cache show python-apt | grep Version
+
 
 echo
 echo Работа с консолью

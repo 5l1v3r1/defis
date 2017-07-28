@@ -597,14 +597,14 @@ def getHomePath():
     elif os_platform == 'linux':
         home_path = os.environ['HOME']
     else:
-        log.warning(u'Not supported OS platform <%s>' % os_platform)
+        log.warning(u'Не поддерживаемая ОС <%s>' % os_platform)
         return None
     return os.path.normpath(home_path)
 
 
 def getProfilePath(bAutoCreatePath=True):
     """
-    Папка профиля программы.
+    Папка профиля программы DEFIS.
     @param bAutoCreatePath: Создать автоматически путь если его нет?
     @return: Путь до ~/.defis
     """
@@ -623,7 +623,7 @@ def getProfilePath(bAutoCreatePath=True):
 
 def getPrjProfilePath(bAutoCreatePath=True):
     """
-    Папка профиля проекта.
+    Папка профиля прикладного проекта.
     @param bAutoCreatePath: Создать автоматически путь если его нет?
     @return: Путь до ~/.defis/имя_проекта/
     """
