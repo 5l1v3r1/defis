@@ -10,7 +10,7 @@ import wx
 from wx.lib.agw import flatmenu
 
 # Версия
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 1)
 
 # --- Спецификации ---
 SPC_IC_FLATMENU = {'label': 'menu',    # Надпись
@@ -107,4 +107,42 @@ class icFlatMenuPrototype(flatmenu.FlatMenu):
         self.SetOwnerHeight(button.GetSize().y)
         return self.Popup(wx.Point(point.x, point.y), parent)
 
-    # --- Свойства ---
+    def getToolLeftBottomPoint(self, toolbar, tool):
+        """
+        Определить точку левого-нижнего края кнопки.
+        Используется для вызова всплывающих меню.
+        @param toolbar: Объект панели инструментов wx.ToolBar.
+        @param tool: Объект инструмента панели инструментов wx.ToolBarToolBase.
+        """
+        if tool is None:
+            # Если инструмент не определен, то функция бессмыслена
+            return None
+
+        toolbar_pos = toolbar.GetScreenPosition()
+        toolbar_size = toolbar.GetSize()
+        tool_index = toolbar.GetToolPos(tool.GetId())
+        tool_size = toolbar.GetToolSize()
+        x_offset = 0
+        for i in range(tool_index):
+            prev_tool = toolbar.GetToolByPos(i)
+            prev_ctrl = prev_tool.GetControl() if prev_tool.IsControl() else None
+            x_offset += prev_ctrl.GetSize()[0] if prev_ctrl else tool_size[0]
+
+        return wx.Point(toolbar_pos[0] + x_offset, toolbar_pos[1] + toolbar_size[1])
+
+    def popupByTool(self, tool, toolbar=None):
+        """
+        Вызвать всплывающее меню по инструменту панели инструментов.
+        @param tool: Объект инструмента панели инструментов wx.ToolBarToolBase.
+        @param toolbar: Объект панели инструментов wx.ToolBar.
+        """
+        if tool is None:
+            # Если инструмент не определен, то функция бессмыслена
+            return None
+
+        if toolbar is None:
+            toolbar = tool.GetToolBar()
+
+        point = self.getToolLeftBottomPoint(toolbar, tool)
+        parent = toolbar.GeParent()
+        return self.Popup(wx.Point(point.x, point.y), parent)
