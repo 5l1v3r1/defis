@@ -144,5 +144,5 @@ class icFlatMenuPrototype(flatmenu.FlatMenu):
             toolbar = tool.GetToolBar()
 
         point = self.getToolLeftBottomPoint(toolbar, tool)
-        parent = toolbar.GeParent()
+        parent = toolbar.GetParent()
         return self.Popup(wx.Point(point.x, point.y), parent)
