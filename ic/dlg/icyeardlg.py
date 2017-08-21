@@ -9,6 +9,11 @@ import datetime
 import wx
 from . import std_dialogs_proto
 
+__version__ = (0, 0, 1, 1)
+
+MIN_YEAR = 1940
+MAX_YEAR = MIN_YEAR + 100
+
 
 class icYearDialog(std_dialogs_proto.yearDialogProto):
     """
@@ -22,6 +27,20 @@ class icYearDialog(std_dialogs_proto.yearDialogProto):
         std_dialogs_proto.yearDialogProto.__init__(self, *args, **kwargs)
 
         self._selected_year = None
+
+        self.init_year_choice()
+
+    def init_year_choice(self):
+        """
+        Инициализация контрола выбора годов.
+        """
+        # Заполнить список выбора
+        year_choices = [str(i_year) for i_year in range(MIN_YEAR, MAX_YEAR)]
+        self.year_choice.AppendItems(year_choices)
+        # Выбрать текущий системный год
+        today = datetime.date.today()
+        cur_year_idx = year_choices.index(str(today.year))
+        self.year_choice.SetSelection(cur_year_idx)
 
     def getSelectedYear(self):
         return self._selected_year
@@ -37,7 +56,8 @@ class icYearDialog(std_dialogs_proto.yearDialogProto):
         event.Skip()
 
     def onOkButtonClick(self, event):
-        self._selected_year = self.yearChoiceControl.get_selected_year()
+        year_idx = self.year_choice.GetSelection()
+        self._selected_year = int(self.year_choice.GetString(year_idx))
         self.EndModal(wx.ID_OK)
         event.Skip()
 

@@ -81,10 +81,10 @@ class yearDialogProto ( wx.Dialog ):
 		self.m_staticText2.Wrap( -1 )
 		bSizer5.Add( self.m_staticText2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		m_choice1Choices = []
-		self.m_choice1 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
-		self.m_choice1.SetSelection( 0 )
-		bSizer5.Add( self.m_choice1, 1, wx.ALL|wx.EXPAND, 5 )
+		year_choiceChoices = []
+		self.year_choice = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, year_choiceChoices, 0 )
+		self.year_choice.SetSelection( 0 )
+		bSizer5.Add( self.year_choice, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		bSizer3.Add( bSizer5, 1, wx.EXPAND, 5 )
