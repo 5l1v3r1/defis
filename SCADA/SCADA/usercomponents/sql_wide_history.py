@@ -23,9 +23,11 @@ from . import history
 # --- Спецификация ---
 SPC_IC_SQLWIDEHISTORY = {'table': None,     # Таблица БД
                          'get_tab_name': None,  # Метод определения имени таблицы
+                         'rec_filter': None,    # Дополнительная функция фильтрации исторических данных
                          '__parent__': icwidget.SPC_IC_SIMPLE,
                          '__attr_help__': {'table': u'Паспорт таблицы хранения исторических данных',
                                            'get_tab_name': u'Метод определения имени таблицы',
+                                           'rec_filter': u'Дополнительная функция фильтрации исторических данных',
                                            },
                          }
 
@@ -50,7 +52,7 @@ ic_class_spc = {'type': 'SQLWideHistory',
                 '__lists__': {},
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description', '_uuid'],
                                    icDefInf.EDT_USER_PROPERTY: ['table'],
-                                   icDefInf.EDT_PY_SCRIPT: ['get_tab_name'],
+                                   icDefInf.EDT_PY_SCRIPT: ['get_tab_name', 'rec_filter'],
                                    },
                 '__parent__': SPC_IC_SQLWIDEHISTORY,
                 }
@@ -72,7 +74,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 1)
 
 
 # Функции редактирования
@@ -167,6 +169,9 @@ class icSQLWideHistory(icwidget.icSimple, history.icWideHistoryProto):
         # Объект таблицы исторических данных.
         self._table = None
 
+        # Дополнительный фильтр записей
+        self.rec_filter = component.get('rec_filter', None)
+
     def getTablePsp(self):
         """
         Паспорт таблицы исторических данных.
@@ -208,7 +213,36 @@ class icSQLWideHistory(icwidget.icSimple, history.icWideHistoryProto):
             self._table = None
         return self._table
 
-    def get(self, start_dt, stop_dt):
+    def _do_record_filter(self, rec_filter, records):
+        """
+        Произвести фильтрацию записей по функции-фильтру.
+        @param rec_filter: Функция дополнительного фильтра записей.
+            Если фукция задается текстовым блоком кода:
+            В качестве аргумента функция принимает текущую запись в виде словаря.
+            В пространстве имен есть переменная RECORD, указывающая на текущую запись.
+            Функция возвращает True для записи, которая попадает в результирующий список,
+            False - если не попадает.
+        @return: Отфильтрованный список записей.
+        """
+        if not rec_filter:
+            # Если фильтр не указан, то возвращаем исходный список записей
+            return records
+
+        if type(rec_filter) in (str, unicode):
+            # Если функция задается строкой, то необходимо правильно обработать
+            # с помощью функии ic_eval
+            self.evalSpace['self'] = self
+
+            result = list()
+            for record in records:
+                self.evalSpace['RECORD'] = record
+                if util.ic_eval(rec_filter, evalSpace=self.evalSpace):
+                    result.append(record)
+            return result
+
+        return [record for record in records if rec_filter(record)]
+
+    def get(self, start_dt, stop_dt, rec_filter=None):
         """
         Получить исторические данные указанного диапазона.
         ВНИМАНИЕ! в таблице исторических данных должно ОБЯЗАТЕЛЬНО
@@ -217,19 +251,34 @@ class icSQLWideHistory(icwidget.icSimple, history.icWideHistoryProto):
         @param start_dt: Начальное дата-время диапазона кеширования.
         @type stop_dt: datetime.datetime.
         @param stop_dt: Конечная дата-время диапазона кеширования.
+        @param rec_filter: Функция дополнительного фильтра записей.
+            Если функция не указана, то берется значение 'rec_filter' из спецификации.
+            Если фукция задается текстовым блоком кода:
+            В качестве аргумента функция принимает текущую запись в виде словаря.
+            В пространстве имен есть переменная RECORD, указывающая на текущую запись.
+            Функция возвращает True для записи, которая попадает в результирующий список,
+            False - если не попадает.
         @return: Список записей широкого формата указанного диапазона.
             Или None в случае ошибки.
         """
+        if rec_filter is None:
+            rec_filter = self.rec_filter
+
         tab = self.getTable()
         log.debug(u'Чтение исторических данных из таблицы <%s>' % tab.getDBTableName())
         if tab:
             recordset = tab.select(tab.dataclass.c.dt.between(start_dt, stop_dt))
-            return [dict(record) for record in recordset]
+            records = [dict(record) for record in recordset]
+
+            if rec_filter:
+                return self._do_record_filter(rec_filter, records)
+            else:
+                return records
         else:
             log.warning(u'Не определена таблица хранения исторических данных в объекте <%s>' % self.name)
         return list()
 
-    def get_tag_data(self, tag_name, start_dt, stop_dt):
+    def get_tag_data(self, tag_name, start_dt, stop_dt, rec_filter=None):
         """
         Получить исторические данные указанного диапазона по определенному тегу.
         @param tag_name: Имя тега.
@@ -237,11 +286,18 @@ class icSQLWideHistory(icwidget.icSimple, history.icWideHistoryProto):
         @param start_dt: Начальное дата-время диапазона кеширования.
         @type stop_dt: datetime.datetime.
         @param stop_dt: Конечная дата-время диапазона кеширования.
+        @param rec_filter: Функция дополнительного фильтра записей.
+            Если функция не указана, то берется значение 'rec_filter' из спецификации.
+            Если фукция задается текстовым блоком кода:
+            В качестве аргумента функция принимает текущую запись в виде словаря.
+            В пространстве имен есть переменная RECORD, указывающая на текущую запись.
+            Функция возвращает True для записи, которая попадает в результирующий список,
+            False - если не попадает.
         @return: Список записей {'dt': дата-время из указанного диапазона,
                                  'data': значение тега}.
             Или None в случае ошибки.
         """
-        records = self.get(start_dt, stop_dt)
+        records = self.get(start_dt, stop_dt, rec_filter=rec_filter)
         tag_data = [(rec.get('dt', None), rec.get(tag_name, 0)) for rec in records]
         # Обязательно отсортировать по времени
         tag_data.sort()
