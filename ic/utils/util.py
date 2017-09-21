@@ -455,6 +455,9 @@ def ic_eval(expr, logType=-1, evalSpace=None, msg='', globSpace=None, compileKey
             return coderror.IC_EVAL_OK, ret
         except:
             io_prnt.outErr(msg)
+            io_prnt.outWarning(u'''ВНИМАНИЕ! 
+            Если GetManager(self) возвращает None, 
+            то возможна ошибка в не корректном определении manager_class в модуле ресурса''')
 
     if globSpace is None:
         globSpace = globals()
@@ -491,6 +494,9 @@ def ic_eval(expr, logType=-1, evalSpace=None, msg='', globSpace=None, compileKey
             if msg is not None:
                 ret = u'EXEC[EVAL] EXCEPTION IN %s: exec(%s)' % (msg, expr)
                 io_prnt.outErr(ret)
+                io_prnt.outWarning(u'''ВНИМАНИЕ! 
+                Если GetManager(self) возвращает None, 
+                то возможна ошибка в не корректном определении manager_class в модуле ресурса''')
             return coderror.IC_EVAL_ERROR, ret
     #############################################
     #   Компилируем и выполняем, если выражение еще
@@ -521,6 +527,9 @@ def ic_eval(expr, logType=-1, evalSpace=None, msg='', globSpace=None, compileKey
                 if msg is not None:
                     ret = u'EXEC EXCEPTION IN %s: exec(%s)' % (msg, expr)
                     io_prnt.outErr(ret)
+                    io_prnt.outWarning(u'''ВНИМАНИЕ! 
+                    Если GetManager(self) возвращает None, 
+                    то возможна ошибка в не корректном определении manager_class в модуле ресурса''')
     return bSuccess, ret
 
 
