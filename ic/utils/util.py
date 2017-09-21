@@ -434,6 +434,7 @@ def ic_eval(expr, logType=-1, evalSpace=None, msg='', globSpace=None, compileKey
     @type globSpace: C{dictionary}
     @type compileKey: C{int}
     @param compileKey: Идентификатор компилированного выражения.
+    @return: Код ошибки из модуля coderror, Возвращаемое значение вычисляемого выржения.
     """
     # В режиме отладки если определены точки остонова в выражении,
     # вызовы перенаправляются в служебный модуль, в котором соответствующие

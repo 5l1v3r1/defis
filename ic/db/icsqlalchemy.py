@@ -1135,7 +1135,10 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
         tab.del_where(icsqlalchemy.and_(tab.c.type == sprav_type,
                                         tab.c.cod == cod))
         """
-        return self.dataclass.delete(*args, **kwargs).execute()
+        try:
+            return self.dataclass.delete(*args, **kwargs).execute()
+        except:
+            log.fatal(u'Ошибка удаления записей из таблицы по условию')
 
     def del_where_transact(self, where, transaction=None):
         """

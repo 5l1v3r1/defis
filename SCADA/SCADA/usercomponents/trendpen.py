@@ -259,7 +259,9 @@ class icTrendPen(icwidget.icSimple, icTrendPenProto):
             return False
 
         try:
-            psp = history.passport()
+            psp = history.GetPassport()
+            if not isinstance(psp, tuple):
+                psp = tuple(psp)
             self.current_history_psp = psp
             if psp not in self.history_registry:
                 self.history_registry[psp] = history

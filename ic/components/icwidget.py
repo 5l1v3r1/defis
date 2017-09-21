@@ -1106,10 +1106,11 @@ class icSimple(icobject.icObject):
         @param subkey: Имя уточняющего ключа.
         @type bReUse: C{bool}
         @param bReUse: Признак посторного использования компилированного выражения.
+        @return: Код ошибки из модуля coderror, Возвращаемое значение вычисляемого выржения.
         """
         expr = self.resource[attr]
         if self.GetUUID() and bReUse:
-            compileKey = self.GetUUIDAttr(attr,subkey)
+            compileKey = self.GetUUIDAttr(attr, subkey)
         else:
             compileKey = None
 
@@ -1137,6 +1138,7 @@ class icSimple(icobject.icObject):
         @param subkey: Имя уточняющего ключа.
         @type bReUse: C{bool}
         @param bReUse: Признак повторного использования компилированного выражения.
+        @return: Код ошибки из модуля coderror, Возвращаемое значение вычисляемого выржения.
         """
         if self.GetUUID() and bReUse:
             compileKey = self.GetUUIDAttr(subkey)

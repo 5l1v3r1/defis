@@ -232,11 +232,11 @@ class icSQLWideHistory(icwidget.icSimple, history.icWideHistoryProto):
             # Если функция задается строкой, то необходимо правильно обработать
             # с помощью функии ic_eval
             self.evalSpace['self'] = self
-
             result = list()
             for record in records:
                 self.evalSpace['RECORD'] = record
-                if util.ic_eval(rec_filter, evalSpace=self.evalSpace):
+                err_code, expr_result = self.eval_expr(rec_filter)
+                if err_code == coderror.IC_CTRL_OK and expr_result:
                     result.append(record)
             return result
 
