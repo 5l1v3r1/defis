@@ -211,6 +211,9 @@ class icTrendPen(icwidget.icSimple, icTrendPenProto):
         #   На этапе генерации их не всегда можно определить.
         icTrendPenProto.__init__(self)
 
+        # Паспорт текущего объекта исторических данных
+        self.current_history_psp = None
+
     def getLegend(self):
         """
         Надпись в легенде.
@@ -229,7 +232,9 @@ class icTrendPen(icwidget.icSimple, icTrendPenProto):
         """
         Паспорт объекта исторических данных - источника данных.
         """
-        return self.getICAttr('history')
+        if self.current_history_psp is None:
+            return self.getICAttr('history')
+        return self.current_history_psp
 
     def getHistory(self):
         """
@@ -242,6 +247,25 @@ class icTrendPen(icwidget.icSimple, icTrendPenProto):
         history_obj = self.GetKernel().Create(psp)
         self.history_registry[psp] = history_obj
         return history_obj
+
+    def setHistory(self, history):
+        """
+        Установить объект исторических данных - источника данных.
+        @param history: Объект исторических данных - источника данных.
+        @return: True/False.
+        """
+        if history is None:
+            log.warning(u'Не определен объект исторических данных')
+            return False
+
+        try:
+            psp = history.passport()
+            self.current_history_psp = psp
+            self.history_registry[psp] = history
+            return True
+        except:
+            log.fatal(u'Ошибка установки объекта исторических данных - источника данных для пера тренда.')
+        return False
 
     def getTagName(self):
         """
