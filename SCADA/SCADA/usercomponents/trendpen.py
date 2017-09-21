@@ -261,10 +261,11 @@ class icTrendPen(icwidget.icSimple, icTrendPenProto):
         try:
             psp = history.passport()
             self.current_history_psp = psp
-            self.history_registry[psp] = history
+            if psp not in self.history_registry:
+                self.history_registry[psp] = history
             return True
         except:
-            log.fatal(u'Ошибка установки объекта исторических данных - источника данных для пера тренда.')
+            log.fatal(u'Ошибка установки объекта исторических данных для пера тренда.')
         return False
 
     def getTagName(self):

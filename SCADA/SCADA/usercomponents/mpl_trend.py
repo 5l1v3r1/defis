@@ -269,6 +269,19 @@ class icMPLTrendProto(wx.Panel):
         """
         return list()
 
+    def setHistory(self, history):
+        """
+        Поменять источник данных для всех перьев тренда.
+        @param history: Объект исторических данных - источника данных.
+        @return: True/False.
+        """
+        pens = self.getPens()
+
+        result = True
+        for pen in pens:
+            result = result and pen.setHistory(history)
+        return result
+
 
 class icMPLTrend(icwidget.icWidget, icMPLTrendProto):
     """
