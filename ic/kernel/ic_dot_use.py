@@ -38,8 +38,14 @@ class icMetaDotUsePrototype(object):
         kernel = ic_user.getKernel()
         if kernel:
             if 'context' in kwarg:
-                # Контекст создаваемому объекту передается явно
-                context = kwarg['context']
+                if isinstance(kwarg['context'], dict):
+                    # В случае если передается контекст в виде словаря
+                    # необходимо создать объект контекста
+                    context = icwidget.icResObjContext(kernel)
+                    context.update(kwarg['context'])
+                else:
+                    # Контекст создаваемому объекту передается явно
+                    context = kwarg['context']
                 del kwarg['context']
             else:
                 # Надо определить контекст
