@@ -546,6 +546,27 @@ def upper_symbols2_lower(txt):
     return ''.join([('_'+symb.lower() if symb.isupper() and i else symb.lower()) for i, symb in enumerate(list(txt))])
 
 
+def get_str_digit(txt):
+    """
+    Получить из строки текста все цифры в виде строки.
+    @param txt: Текст. Например '12ASD321'.
+    @return: Текст с цифрами. Например '12321'
+    """
+    return u''.join([symb for symb in txt if symb.isdigit()])
+
+
+def get_str_digit_as_int(txt):
+    """
+    Получить из строки текста все цифры в виде целого числа.
+    @param txt: Текст. Например '12ASD321'.
+    @return: Целое число. Например 12321. Если цифр нет, то возвращается 0.
+    """
+    num_txt = get_str_digit(txt)
+    if num_txt:
+        return int(num_txt)
+    return 0
+
+
 DEFIS_LOGO_TXT = u'''
                  µ»µµµµ»»»»»»,,,,,,,,,,,.
                ╔╦╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫╫NU
