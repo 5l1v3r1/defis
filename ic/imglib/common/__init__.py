@@ -27,7 +27,7 @@
 import wx
 import imp
 
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 4, 2)
 
 # Ищем путь до модуля ic
 fp, icpath, description = imp.find_module('ic')
@@ -648,7 +648,7 @@ def img_init():
     icoFormEditor = wx.Icon(path+'ic.ico', wx.BITMAP_TYPE_ICO)
     icoFrame = wx.Icon(path+'application_form.ico', wx.BITMAP_TYPE_ICO)
     icoDialog = wx.Icon(path+'dialog.ico', wx.BITMAP_TYPE_ICO)
-    icoReportBrowser = wx.Icon(path+'reports-stack.ico', wx.BITMAP_TYPE_ICO)
+    icoReportBrowser = wx.Icon(path+'report_stack.ico', wx.BITMAP_TYPE_ICO)
     icoIC = wx.Icon(path+'ic.ico', wx.BITMAP_TYPE_ICO)
 
     # Картинки для редактора форм
@@ -773,8 +773,8 @@ def img_init():
     imgEdtUser = wx.Image(path + 'user.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtUsers = wx.Image(path + 'users.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtReport = wx.Image(path + 'report.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-    imgEdtReportXML = wx.Image(path + 'report-excel.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-    imgEdtReports = wx.Image(path + 'ic_report.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+    imgEdtReportXML = wx.Image(path + 'page_excel.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+    imgEdtReports = wx.Image(path + 'report_stack.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtResource = wx.Image(path + 'plugin_edit.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtModule = wx.Image(path + 'python.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtComponent = wx.Image(path + 'attribute.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
