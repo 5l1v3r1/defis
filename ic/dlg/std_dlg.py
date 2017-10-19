@@ -25,8 +25,9 @@ from . import icnsilistdlg
 from . import icintegerdlg
 from . import icradiochoicedlg
 from . import icintrangedlg
+from . import iccheckboxdlg
 
-__version__ = (0, 1, 5, 2)
+__version__ = (0, 1, 6, 1)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -284,6 +285,35 @@ def getIntRangeDlg(parent=None, title=None, label_begin=None, label_end=None, mi
     dlg = icintrangedlg.icIntRangeDialog(parent)
     dlg.init(title=title, label_begin=label_begin, label_end=label_end,
              min_value=min_value, max_value=max_value)
+    dlg.Centre()
+
+    if dlg.ShowModal() == wx.ID_OK:
+        value = dlg.getValue()
+    dlg.Destroy()
+
+    return value
+
+
+def getCheckBoxDlg(parent=None, title=None, label=None, choices=()):
+    """
+    Выбор элементов wxCheckBox.
+    @param parent: Родительское окно. Если не определено, то
+        береться wx.GetApp().GetTopWindow()
+    @param title: Заголовок окна.
+    @param label: Текст приглашения ввода.
+    @param choices: Список выбора.
+        Максимальное количество элементов выбора 7.
+        При большем количестве элементов необходимо использовать
+        другую диалоговую форму выбора.
+    @return: Индекс выбранного эдемента или None если нажата <отмена>.
+    """
+    value = None
+
+    if parent is None:
+        parent = wx.GetApp().GetTopWindow()
+
+    dlg = iccheckboxdlg.icCheckBoxDialog(parent)
+    dlg.init(title=title, label=label, choices=choices)
     dlg.Centre()
 
     if dlg.ShowModal() == wx.ID_OK:
