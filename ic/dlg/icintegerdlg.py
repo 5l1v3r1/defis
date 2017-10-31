@@ -12,7 +12,10 @@ try:
 except ValueError:
     import std_dialogs_proto
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 2, 1)
+
+DEFAULT_MIN_VALUE = 0
+DEFAULT_MAX_VALUE = 500
 
 
 class icIntegerDialog(std_dialogs_proto.integerDialogProto):
@@ -31,7 +34,8 @@ class icIntegerDialog(std_dialogs_proto.integerDialogProto):
     def getValue(self):
         return self._integer_value
 
-    def init(self, title=None, label=None, min_value=0, max_value=100):
+    def init(self, title=None, label=None,
+             min_value=DEFAULT_MIN_VALUE, max_value=DEFAULT_MAX_VALUE):
         """
         Инициализация диалогового окна.
         @param title: Заголовок окна.
