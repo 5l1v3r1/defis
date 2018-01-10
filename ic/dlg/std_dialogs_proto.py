@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Feb 16 2016)
+## Python code generated with wxFormBuilder (version Dec 21 2016)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -436,7 +436,7 @@ class integerDialogProto ( wx.Dialog ):
 		self.label_staticText.Wrap( -1 )
 		bSizer19.Add( self.label_staticText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.value_spinCtrl = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 100, 0 )
+		self.value_spinCtrl = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 500, 0 )
 		bSizer19.Add( self.value_spinCtrl, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		

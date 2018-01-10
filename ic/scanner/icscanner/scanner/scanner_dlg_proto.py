@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jun 17 2015)
+## Python code generated with wxFormBuilder (version Feb 16 2016)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -334,6 +334,178 @@ class icScannerDlgProto ( wx.Dialog ):
 		pass
 	
 	def onOkButtonClick( self, event ):
+		pass
+	
+
+###########################################################################
+## Class icLoadSheetsDlgProto
+###########################################################################
+
+class icLoadSheetsDlgProto ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Загрузка листов в лоток", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE|wx.STAY_ON_TOP )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer17 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_staticText14 = wx.StaticText( self, wx.ID_ANY, u"Подготовьте", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText14.Wrap( -1 )
+		self.m_staticText14.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer18.Add( self.m_staticText14, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.sheets_spinCtrl = wx.SpinCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 1000, 0 )
+		self.sheets_spinCtrl.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer18.Add( self.sheets_spinCtrl, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText15 = wx.StaticText( self, wx.ID_ANY, u"листов", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		self.m_staticText15.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer18.Add( self.m_staticText15, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer17.Add( bSizer18, 1, wx.EXPAND, 5 )
+		
+		bSizer19 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_staticText16 = wx.StaticText( self, wx.ID_ANY, u"для сканирования.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText16.Wrap( -1 )
+		self.m_staticText16.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer19.Add( self.m_staticText16, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText17 = wx.StaticText( self, wx.ID_ANY, u"Загрузите листы в лоток.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText17.Wrap( -1 )
+		self.m_staticText17.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer19.Add( self.m_staticText17, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer17.Add( bSizer19, 1, wx.EXPAND, 5 )
+		
+		bSizer20 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.cancel_button = wx.Button( self, wx.ID_ANY, u"Отмена", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.cancel_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer20.Add( self.cancel_button, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.next_button = wx.Button( self, wx.ID_ANY, u"Далее >>", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.next_button.SetDefault() 
+		self.next_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer20.Add( self.next_button, 0, wx.ALL, 5 )
+		
+		
+		bSizer17.Add( bSizer20, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer17 )
+		self.Layout()
+		bSizer17.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.cancel_button.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.next_button.Bind( wx.EVT_BUTTON, self.onNextButtonClick )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onCancelButtonClick( self, event ):
+		pass
+	
+	def onNextButtonClick( self, event ):
+		pass
+	
+
+###########################################################################
+## Class icVerifyScanDlgProto
+###########################################################################
+
+class icVerifyScanDlgProto ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Проверка результата сканирования", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE|wx.STAY_ON_TOP )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer21 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer22 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_staticText18 = wx.StaticText( self, wx.ID_ANY, u"Проверка предварительного результата сканирования", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText18.Wrap( -1 )
+		self.m_staticText18.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer22.Add( self.m_staticText18, 0, wx.ALL, 5 )
+		
+		
+		bSizer21.Add( bSizer22, 1, wx.EXPAND, 5 )
+		
+		bSizer23 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.preview_button = wx.Button( self, wx.ID_ANY, u"Предварительный просмотр ...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.preview_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer23.Add( self.preview_button, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.rescan_button = wx.Button( self, wx.ID_ANY, u"Пересканировать", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.rescan_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer23.Add( self.rescan_button, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.cancel_button = wx.Button( self, wx.ID_ANY, u"Отмена", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.cancel_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer23.Add( self.cancel_button, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.next_button = wx.Button( self, wx.ID_ANY, u"Далее >>", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.next_button.SetDefault() 
+		self.next_button.SetFont( wx.Font( 14, 74, 90, 90, False, "Sans" ) )
+		
+		bSizer23.Add( self.next_button, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer21.Add( bSizer23, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer21 )
+		self.Layout()
+		bSizer21.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.preview_button.Bind( wx.EVT_BUTTON, self.onPreviewButtonClick )
+		self.rescan_button.Bind( wx.EVT_BUTTON, self.onReScanButtonClick )
+		self.cancel_button.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.next_button.Bind( wx.EVT_BUTTON, self.onNextButtonClick )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onPreviewButtonClick( self, event ):
+		pass
+	
+	def onReScanButtonClick( self, event ):
+		pass
+	
+	def onCancelButtonClick( self, event ):
+		pass
+	
+	def onNextButtonClick( self, event ):
 		pass
 	
 

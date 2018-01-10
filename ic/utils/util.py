@@ -33,13 +33,14 @@ import copy
 import cPickle
 import sets
 
-from ic.log.iclog import LogLastError
-from ic.log.iclog import MsgLastError
+# from ic.log.iclog import LogLastError
+# from ic.log.iclog import MsgLastError
 import ic.kernel.icContext as icContext
 from ic.kernel import io_prnt
 from ic.dlg import ic_dlg
 from . import coderror
 from . import ic_uuid
+from ic.log import log
 import ic
 
 __version__ = (1, 0, 1, 2)
@@ -710,7 +711,7 @@ def SetFilter(dataset, flt=None):
             except:
                 pass
     except:
-        LogLastError('SetFilter Error')
+        log.fatal(u'SetFilter Error')
 
 
 def ic_import(dict_names, evalSpace = {}, isDebug = False):
@@ -759,11 +760,11 @@ def ic_import(dict_names, evalSpace = {}, isDebug = False):
                     else:
                         evalSpace[nm] = getattr(sys.modules[key], nm)
             except:
-                MsgLastError(None, _('Import error <%s> in <%s>.') % (nm, key))
+                log.fatal(_('Import error <%s> in <%s>.') % (nm, key))
                 return False
 
         except:
-            MsgLastError(None, _('Import module error: %s') % key)
+            log.fatal(_('Import module error: %s') % key)
             return False
 
     return True

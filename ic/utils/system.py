@@ -5,7 +5,11 @@
 Общесистемные функции.
 """
 
+import sys
+import locale
 import platform
+
+__version__ = (0, 0, 0, 2)
 
 
 def getPlatform():
@@ -21,3 +25,12 @@ def isWindowsPlatform():
 
 def isLinuxPlatform():
     return getPlatform() == 'linux'
+
+
+def getTerminalCodePage():
+    """
+    Кодировка коммандной оболочки по умолчанию.
+    @return:
+    """
+    cmd_encoding = sys.stdout.encoding if isWindowsPlatform() else locale.getpreferredencoding()
+    return cmd_encoding

@@ -12,6 +12,8 @@ from ic.contrib import dicttoxml
 from ic.log import log
 from ic.convert import simple_dict2xml
 
+__version__ = (0, 0, 1, 1)
+
 
 def load_xml_content(xml_filename, is_change_keys=True):
     """

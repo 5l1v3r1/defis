@@ -26,13 +26,16 @@ import traceback
 import os
 import os.path
 import sane
+import wx
 from reportlab.pdfgen import canvas
 
 from ic.std.log import log
 from ic.std.utils import ic_file
 from ic import config
 
-__version__ = (0, 0, 4, 1)
+from . import ext_scan_dlg
+
+__version__ = (0, 1, 1, 6)
 
 # Режимы сканирования
 GREY_SCAN_MODE = 'Grey'
@@ -97,7 +100,6 @@ class icScanManager(object):
     """
     Менеджер управления сканированием.
     """
-
     def init(self):
         """
         Инициализация.
@@ -157,8 +159,12 @@ class icScanManager(object):
         @param device_name: Имя устройства сканирования.
         @return: Объект устройства сканирования.
         """
-        self.scan_device_obj = sane.open(device_name)
-        self.init_options_order()
+        try:
+            self.scan_device_obj = sane.open(device_name)
+            self.init_options_order()
+        except:
+            log.fatal(u'Ошибка открытия устройства сканирования <%s>' % device_name)
+            self.scan_device_obj = None
         return self.scan_device_obj
 
     def close(self):
@@ -232,9 +238,16 @@ class icScanManager(object):
             log.fatal(u'Устройство сканирования не открыто')
             return None
 
+    def getMaxSheets(self):
+        """
+        Максимальное количество листов, помещаемых в лоток сканера.
+        @return: Максимальное количество листов, помещаемых в лоток сканера.
+        """
+        return config.get_glob_var('DEFAULT_SCANNER_MAX_SHEETS')
+
     def isDuplexOption(self):
         """
-        Проверка включена ли опция дуплекса
+        Проверка включена ли опция дуплекса.
         @return: True/False.
         """
         options = self.options
@@ -439,25 +452,93 @@ class icScanManager(object):
     def scan_pack(self, scan_filenames=()):
         """
         Сканировать документы в пакетном режиме и сохранить их в файлы.        
-        @param scan_filenames: Имена файлов скана с указанием количества страниц 
+        @param scan_filenames: Имена файлов скана с указанием количества листов
             и признаком 2-стороннего сканирования.
             Например:
                 ('D:/tmp/scan001', 3, True), ('D:/tmp/scan002', 1, False), ('D:/tmp/scn003', 2, True), ...
         @return: Список имен файлов скана. None - в случае ошибки.
         """
         result = list()
+        # Счетчик отсканированных листов
+        tray_sheet_count = 0
+        # Объем лотка в листах
+        max_sheets = self.getMaxSheets()
+
+        # В пакетном режиме не используем диалоговое окно
+        # Но в случае режима склеивания документа по частям диалоговые окна используются
+        # Объект приложения для управления диалоговыми окнами
+        wx_app = None
+
         for scan_filename, n_pages, is_duplex in scan_filenames:
-            # Вкл./Выкл. 2-стороннее сканирование
-            self.setDuplexOption(is_duplex)
-            if n_pages == 1:
-                scan_result = self.singleScan(scan_filename)
-                result.append(scan_filename if scan_result and os.path.exists(scan_filename) else None)
-            elif n_pages > 1:
-                scan_result = self.multiScan(scan_filename, n_pages)
+            tray_sheet_count += n_pages if not is_duplex else n_pages/2
+
+            if tray_sheet_count <= max_sheets:
+                # Пока счетчик сканирования не превысил ограничение объема лотка,
+                # то продолжаем обычное сканирование
+                scan_result = self.scan_pack_part(scan_filename, n_pages, is_duplex)
                 result.append(scan_filename if scan_result and os.path.exists(scan_filename) else None)
             else:
-                log.warning(u'Не корректное количество страниц <%s> в пакетном режиме сканирования' % n_pages)
+                log.debug(u'Включение режима сканирования документа <%s> по частям. Количество страниц [%d] Текущий счетчик %d. ' % (scan_filename, n_pages, tray_sheet_count))
+                if wx_app is None:
+                    # Внимание! Приложение создается для
+                    # управления диалоговыми окнами
+                    wx_app = wx.PySimpleApp()
+                    # ВНИМАНИЕ! Выставить русскую локаль
+                    # Это необходимо для корректного отображения календарей,
+                    # форматов дат, времени, данных и т.п.
+                    locale = wx.Locale()
+                    locale.Init(wx.LANGUAGE_RUSSIAN)
+
+                # Если в лотке кончилась бумага, то надо запустить процедуру склейки последнего
+                # документа
+                glue_result = self.scan_glue(scan_filename, n_pages, is_duplex)
+                # М.б. нажата <Отмена> или какая то ошибка
+                result.append(scan_filename if glue_result and os.path.exists(scan_filename) else None)
+
+                # ВНИМАНИЕ! После успешно отсканированного большого документа
+                # сбрасываем счетчик отсканированных листов
+                tray_sheet_count = 0
+
+        # ВНИМАНИЕ! Т.к. взаимодействие построено на модальных диалоговых
+        # окнах, то MainLoop делать не надо иначе основное приложение зависает
+        # if wx_app:
+        #    wx_app.MainLoop()
+
         return result
+
+    def scan_pack_part(self, scan_filename, n_pages, is_duplex):
+        """
+        Сканирование одной части пакета.
+        @param scan_filename: Имя результирующего файла скана.
+        @param n_pages: Количество листов.
+        @param is_duplex: Двустороннее сканирование?
+        @return: True/False.
+        """
+        # Вкл./Выкл. 2-стороннее сканирование
+        self.setDuplexOption(is_duplex)
+        if n_pages == 1:
+            scan_result = self.singleScan(scan_filename)
+            return scan_result
+        elif n_pages > 1:
+            scan_result = self.multiScan(scan_filename, n_pages)
+            return scan_result
+        else:
+            log.warning(u'Не корректное количество страниц <%s> в пакетном режиме сканирования' % n_pages)
+        return False
+
+    def scan_glue(self, scan_filename, n_pages, is_duplex):
+        """
+        Запуск режима склеивания документа из частей.
+        @param scan_filename: Имя результирующего файла скана.
+        @param n_pages: Количество страниц.
+        @param is_duplex: Двустороннее сканирование?
+        @return: True/False.
+        """
+        # Вкл./Выкл. 2-стороннее сканирование
+        self.setDuplexOption(is_duplex)
+        n_sheets = n_pages/2 if is_duplex else n_pages
+        return ext_scan_dlg.scan_glue_mode(self, scan_filename, n_sheets, is_duplex,
+                                           self.getMaxSheets())
 
 
 def test():

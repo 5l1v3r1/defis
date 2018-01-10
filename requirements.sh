@@ -80,6 +80,10 @@ apt-cache show python-reportlab | grep Package
 apt-cache show python-reportlab | grep Version
 sudo apt-get install python-reportlab
 
+apt-cache show python-pypdf2 | grep Package
+apt-cache show python-pypdf2 | grep Version
+sudo apt-get install python-pypdf2
+
 apt-cache show python-odf | grep Package
 apt-cache show python-odf | grep Version
 sudo apt-get install python-odf python-odf-doc
@@ -163,6 +167,9 @@ apt-cache show python-sane | grep Version
 
 apt-cache show python-reportlab | grep Package
 apt-cache show python-reportlab | grep Version
+
+apt-cache show python-pypdf2 | grep Package
+apt-cache show python-pypdf2 | grep Version
 
 apt-cache show python-odf | grep Package
 apt-cache show python-odf | grep Version
