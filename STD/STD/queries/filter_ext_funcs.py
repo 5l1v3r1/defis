@@ -8,7 +8,12 @@
 import datetime
 from STD.dlg import dlg
 
+__version__ = (0, 0, 1, 3)
+
 DEFAULT_DATE_FMT = '%Y.%m.%d'
+
+DEFAULT_BEGIN_DATE_FMT = '%Y.%m.%d 00:00:00'
+DEFAULT_END_DATE_FMT = '%Y.%m.%d 23:59:59'
 
 
 def get_args_sys_date():
@@ -16,8 +21,11 @@ def get_args_sys_date():
     Получение аргументов текущей даты.
     @return: Словарь заполненных аргументов.
     """
-    now_date = datetime.datetime.now().strftime(DEFAULT_DATE_FMT)
-    return dict(arg_1=now_date)
+    now_date = datetime.datetime.now()
+    # next_date = now_date + datetime.timedelta(days=1)
+    str_now_date = now_date.strftime(DEFAULT_BEGIN_DATE_FMT)
+    # str_next_date = next_date.strftime(DEFAULT_BEGIN_DATE_FMT)
+    return dict(arg_1=str_now_date)
 
 
 def get_args_sys_month():
@@ -126,7 +134,8 @@ def get_args_sys_date_datetime():
     @return: Словарь заполненных аргументов.
     """
     today = datetime.date.today()
-    return dict(arg_1=today)
+    tomorrow = today + datetime.timedelta(days=1)
+    return dict(arg_1=today, arg_2=tomorrow)
 
 
 def get_args_sys_month_datetime():

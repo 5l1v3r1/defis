@@ -54,7 +54,7 @@ from . import filter_ext_funcs as exf
 from ic.imglib import logic_img as img_lib
 
 # Version
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 3)
 
 
 # Constants
@@ -1389,8 +1389,8 @@ DEFAULT_ENV_DATETIME_FUNCS = {
     # --- Дополнительные функции ---
 
     'datetime_sys_date': {
-        'name': 'equal',
-        'func': equal,
+        'name': 'between',
+        'func': between,
         'description': u'Текущая системная дата',
         'args': [],
         'get_args': exf.get_args_sys_date_datetime,
