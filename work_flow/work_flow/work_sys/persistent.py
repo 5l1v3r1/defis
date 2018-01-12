@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 2, 3)
 
 
 class icObjPersistentPrototype:
@@ -1321,7 +1321,8 @@ class icObjPersistent(icObjPersistentPrototype):
 
     def getDataDict(self, filter_requisite_data=None):
         """
-        Нобор записей.Каждая запись в виде словаря.
+        Набор записей.Каждая запись в виде словаря.
+        Этот метод также имеет название getDataset и getRecordset.
         @param filter_requisite_data: Словарь значений реквизитов фильтров.
             Если None, то берется текущий фильтр бизнес объектов.
             Для создания фильтров надо пользоваться
@@ -1342,6 +1343,10 @@ class icObjPersistent(icObjPersistentPrototype):
         result = self.getTable().getConnection().execute(query)
         io_prnt.outLog(u'\tResult: [%s]' % result.rowcount)
         return self._resultFilter2Dataset(result.fetchall())
+
+    # Другие наименования метода
+    getDataset = getDataDict
+    getRecordset = getDataDict
 
     def findRequisiteData(self, **find_requisite_data):
         """
