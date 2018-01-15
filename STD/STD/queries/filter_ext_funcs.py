@@ -8,7 +8,7 @@
 import datetime
 from STD.dlg import dlg
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 DEFAULT_DATE_FMT = '%Y.%m.%d'
 
@@ -146,6 +146,17 @@ def get_args_yesterday_datetime():
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     return dict(arg_1=yesterday, arg_2=today)
+
+
+def get_args_two_days_ago_datetime():
+    """
+    Получение аргументов позавчерашней даты.
+    @return: Словарь заполненных аргументов.
+    """
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    two_days_ago = today - datetime.timedelta(days=2)
+    return dict(arg_1=two_days_ago, arg_2=yesterday)
 
 
 def get_args_sys_month_datetime():
