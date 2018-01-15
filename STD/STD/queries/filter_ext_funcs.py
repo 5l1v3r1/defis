@@ -8,7 +8,7 @@
 import datetime
 from STD.dlg import dlg
 
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 2, 3)
 
 DEFAULT_DATE_FMT = '%Y.%m.%d'
 
@@ -205,7 +205,8 @@ def get_args_choice_date_datetime():
     """
     choice_date = dlg.getDateDlg()
     if choice_date:
-        return dict(arg_1=choice_date)
+        next_date = choice_date + datetime.timedelta(days=1)
+        return dict(arg_1=choice_date, arg_2=next_date)
     return {}
 
 
