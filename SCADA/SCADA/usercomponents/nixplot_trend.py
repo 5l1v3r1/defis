@@ -76,8 +76,8 @@ ic_class_spc = {'type': 'NixplotTrend',
 
 #   Имя иконки класса, которые располагаются в директории
 #   ic/components/user/images
-ic_class_pic = ic_bmp.createLibraryBitmap('chart_line.png')
-ic_class_pic2 = ic_bmp.createLibraryBitmap('chart_line.png')
+ic_class_pic = ic_bmp.createLibraryBitmap('diagramm.png')
+ic_class_pic2 = ic_bmp.createLibraryBitmap('diagramm.png')
 
 #   Путь до файла документации
 ic_class_doc = ''
