@@ -32,3 +32,11 @@ class icSCADANodeProto(object):
         log.error(u'Функция записи данных по адресу не реализована в <%s>' % self.__class__.__name__)
         return None
 
+    def read_values(self, addresses):
+        """
+        Чтение значений по адресам.
+        @param addresses: Список адресов значений в узле.
+        @return: Список запрашиваемых значений или None в случае ошибки чтения.
+        """
+        log.error(u'Функция чтения списка данных по адресу не реализована в <%s>' % self.__class__.__name__)
+        return None

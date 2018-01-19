@@ -2,202 +2,101 @@
 # -*- coding: utf-8 -*-
 
 """
-Компонент тега SCADA системы.
+Абстрактный класс тега SCADA системы.
 """
 
-from ic.components import icwidget
-from ic.PropertyEditor.ExternalEditors.passportobj import icObjectPassportUserEdt as pspEdt
-
-from ic.utils import util
-from ic.PropertyEditor import icDefInf
-
 from ic.log import log
-
-from ic.bitmap import ic_bmp
-from ic.utils import coderror
-from ic.dlg import ic_dlg
+from ic.components import icwidget
 
 # --- Спецификация ---
 # Типы данных тега
-INT_TAG_TYPE = 'int'
-FLOAT_TAG_TYPE = 'float'
-STR_TAG_TYPE = 'str'
-DT_TAG_TYPE = 'datetime'
+INT_TAG_TYPE = 'IntSCADATag'
+FLOAT_TAG_TYPE = 'FloatSCADATag'
+STR_TAG_TYPE = 'StrSCADATag'
+DT_TAG_TYPE = 'DateTimeSCADATag'
 TAG_TYPES = (INT_TAG_TYPE, FLOAT_TAG_TYPE, STR_TAG_TYPE, DT_TAG_TYPE)
 
-SPC_IC_SCADA_TAG = {'data_type': STR_TAG_TYPE,
-                    'node': None,
+SPC_IC_SCADA_TAG = {'node': None,
                     'scan_class': None,
 
                     'address': '',
-                    'min_value': '',
-                    'max_value': '',
-                    'scale_value': '',
-                    'offset_value': '',
-                    'units': '',
 
                     '__parent__': icwidget.SPC_IC_SIMPLE,
 
-                    '__attr_hlp__': {'data_type': u'Тип данных тега',
-                                     'node': u'Узел-источник данных',
+                    '__attr_hlp__': {'node': u'Узел-источник данных',
                                      'scan_class': u'Класс сканирования',
-                                     'min_value': u'Минимальное значение',
-                                     'max_value': u'Максимальное знаение',
-                                     'scale_value': u'Масштаб',
-                                     'offset_value': u'Смещение',
-                                     'units': u'Единицы измерения',
                                      'address': u'Адрес в контроллере/узле SCADA',
                                      },
                     }
 
 
-#   Тип компонента
-ic_class_type = icDefInf._icUserType
-
-#   Имя класса
-ic_class_name = 'icSCADATag'
-
-#   Спецификация на ресурсное описание класса
-ic_class_spc = {'type': 'SCADATag',
-                'name': 'default',
-                'child': [],
-                'activate': True,
-                '_uuid': None,
-
-                '__events__': {},
-                '__lists__': {'data_type': list(TAG_TYPES),
-                              },
-                '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description', '_uuid', 'units'],
-                                   icDefInf.EDT_USER_PROPERTY: ['node', 'scan_class'],
-                                   icDefInf.EDT_PY_SCRIPT: ['min_value', 'max_value',
-                                                            'scale_value', 'offset_value',
-                                                            'address'],
-                                   },
-                '__parent__': SPC_IC_SCADA_TAG,
-                }
-
-#   Имя иконки класса, которые располагаются в директории
-#   ic/components/user/images
-ic_class_pic = ic_bmp.createLibraryBitmap('tag-hash.png')
-ic_class_pic2 = ic_bmp.createLibraryBitmap('tag-hash.png')
-
-#   Путь до файла документации
-ic_class_doc = ''
-ic_class_spc['__doc__'] = ic_class_doc
-
-#   Список компонентов, которые могут содержаться в компоненте
-ic_can_contain = []
-
-#   Список компонентов, которые не могут содержаться в компоненте, если не определен
-#   список ic_can_contain
-ic_can_not_contain = None
-
-#   Версия компонента
-__version__ = (0, 0, 0, 1)
-
-
-# Функции редактирования
-def get_user_property_editor(attr, value, pos, size, style, propEdt, *arg, **kwarg):
+class icSCADATagProto(object):
     """
-    Стандартная функция для вызова пользовательских редакторов свойств (EDT_USER_PROPERTY).
+    Абстрактный класс тега SCADA системы.
     """
-    ret = None
-    if attr in ('node', 'scan_class'):
-        ret = pspEdt.get_user_property_editor(value, pos, size, style, propEdt)
-
-    if ret is None:
-        return value
-
-    return ret
-
-
-def property_editor_ctrl(attr, value, propEdt, *arg, **kwarg):
-    """
-    Стандартная функция контроля.
-    """
-    if attr in ('node',):
-        ret = str_to_val_user_property(attr, value, propEdt)
-        if ret:
-            parent = propEdt
-            if not ret[0][0] in ('OPCNode',):
-                ic_dlg.icMsgBox(u'ВНИМАНИЕ!',
-                                u'Выбранный объект не является узлом/контроллером SCADA.', parent)
-                return coderror.IC_CTRL_FAILED_IGNORE
-            return coderror.IC_CTRL_OK
-        elif ret in (None, ''):
-            return coderror.IC_CTRL_OK
-    elif attr in ('scan_class',):
-        ret = str_to_val_user_property(attr, value, propEdt)
-        if ret:
-            parent = propEdt
-            if not ret[0][0] in ('ScanClass',):
-                ic_dlg.icMsgBox(u'ВНИМАНИЕ!',
-                                u'Выбранный объект не является КЛАССОМ СКАНИРОВАНИЯ.', parent)
-                return coderror.IC_CTRL_FAILED_IGNORE
-            return coderror.IC_CTRL_OK
-        elif ret in (None, ''):
-            return coderror.IC_CTRL_OK
-
-
-def str_to_val_user_property(attr, text, propEdt, *arg, **kwarg):
-    """
-    Стандартная функция преобразования текста в значение.
-    """
-    if attr in ('node', 'scan_class'):
-        return pspEdt.str_to_val_user_property(text, propEdt)
-
-
-class icSCADATag(icwidget.icSimple):
-    """
-    Компонент тега SCADA системы.
-
-    @type component_spc: C{dictionary}
-    @cvar component_spc: Спецификация компонента.
-
-        - B{type='defaultType'}:
-        - B{name='default'}:
-
-    """
-
-    component_spc = ic_class_spc
-
-    def __init__(self, parent, id=-1, component=None, logType=0, evalSpace=None,
-                 bCounter=False, progressDlg=None):
+    def __init__(self, *args, **kwargs):
         """
-        Конструктор базового класса пользовательских компонентов.
-
-        @type parent: C{wx.Window}
-        @param parent: Указатель на родительское окно.
-        @type id: C{int}
-        @param id: Идентификатор окна.
-        @type component: C{dictionary}
-        @param component: Словарь описания компонента.
-        @type logType: C{int}
-        @param logType: Тип лога (0 - консоль, 1- файл, 2- окно лога).
-        @param evalSpace: Пространство имен, необходимых для вычисления внешних выражений.
-        @type evalSpace: C{dictionary}
-        @type bCounter: C{bool}
-        @param bCounter: Признак отображения в ProgressBar-е. Иногда это не нужно -
-            для создания объектов полученных по ссылки. Т. к. они не учтены при подсчете
-            общего количества объектов.
-        @type progressDlg: C{wx.ProgressDialog}
-        @param progressDlg: Указатель на идикатор создания формы.
+        Контсруктор.
         """
-        component = util.icSpcDefStruct(self.component_spc, component, True)
-        icwidget.icSimple.__init__(self, parent, id, component, logType, evalSpace)
-
         # Объект узла-источника данных SCADA.
         self._node = None
 
         # Объект класса сканирования данных SCADA.
         self._scan_class = None
 
+        # Текущее значение тега
+        self._cur_value = None
+
+        # Предыдущее значение тега
+        # Для анализа скорости изменения значения
+        self._prev_value = None
+
+    def readValue(self):
+        """
+        Прочитать из узла-источника данных SCADA текущее значение тега.
+        @return: Текущее значение тега.
+        """
+
+        node = self.getNode()
+        if node:
+            address = self.getAddress()
+            new_value = node.read_value(address)
+            if new_value:
+                # Запомнить предыдущее значение
+                self._prev_value = self._cur_value
+                # Обновить текущее значение
+                self._cur_value = new_value
+            # else:
+            #     log.warning(u'Ошибка чтения значения SCADA тега <%s>' % self.name)
+        return self._cur_value
+
+    def getCurValue(self, do_read=False):
+        """
+        Текущее значение тега.
+        @param do_read: Произвести автоматическое чтение из источника данных?
+        @return: Текущее значение тега.
+        """
+        if do_read:
+            self.readValue()
+        return self._cur_value
+
+    # Другое наименование метода
+    getValue = getCurValue
+
+    def getPrevValue(self):
+        """
+        Предыдущее значение тега.
+        @return: Предыдущее значение тега.
+        """
+        return self._prev_value
+
     def getNodePsp(self):
         """
         Паспорт узла-источника данных SCADA.
         @return: Паспорт или None в случае ошибки.
         """
-        return self.getICAttr('node')
+        log.error(u'Функция getNodePsp не реализована в <%s>' % self.__class__.__name__)
+        return None
 
     def getNode(self, node_psp=None):
         """
@@ -207,25 +106,16 @@ class icSCADATag(icwidget.icSimple):
         @return: Объект узла-источника данных SCADA или
             None в случае ошибки.
         """
-        if node_psp is None and self._node is not None:
-            # Если объект таблицы уже определен, то просто вернуть его
-            return self._node
-
-        psp = self.getNodePsp() if node_psp is None else node_psp
-        if psp is not None:
-            # Получить зарегистрированный объект. Если его нет, то он создасться
-            self._node = self.GetKernel().getObjectByPsp(psp)
-        else:
-            log.warning(u'Не определен паспрот при получении объекта УЗЛА-ИСТОЧНИКА ДАННЫХ SCADA')
-            self._node = None
-        return self._node
+        log.error(u'Функция getNode не реализована в <%s>' % self.__class__.__name__)
+        return None
 
     def getScanClassPsp(self):
         """
         Паспорт класса сканирования данных SCADA.
         @return: Паспорт или None в случае ошибки.
         """
-        return self.getICAttr('scan_class')
+        log.error(u'Функция getScanClassPsp не реализована в <%s>' % self.__class__.__name__)
+        return None
 
     def getScanClass(self, scan_class_psp=None):
         """
@@ -235,45 +125,10 @@ class icSCADATag(icwidget.icSimple):
         @return: Объект класса сканирования данных SCADA или
             None в случае ошибки.
         """
-        if scan_class_psp is None and self._scan_class is not None:
-            # Если объект таблицы уже определен, то просто вернуть его
-            return self._scan_class
-
-        psp = self.getScanClassPsp() if scan_class_psp is None else scan_class_psp
-        if psp is not None:
-            # Получить зарегистрированный объект. Если его нет, то он создасться
-            self._scan_class = self.GetKernel().getObjectByPsp(psp)
-        else:
-            log.warning(u'Не определен паспрот при получении объекта КЛАССА СКАНИРОВАНИЯ')
-            self._scan_class = None
-        return self._scan_class
-
-    def getMinValue(self):
-        """
-        Минимальное значение.
-        """
-        return self.getICAttr('min_value')
-
-    def getMaxValue(self):
-        """
-        Максимальное значение.
-        """
-        return self.getICAttr('max_value')
-
-    def getScaleValue(self):
-        """
-        Коэфициент масштабирования значения.
-        """
-        return self.getICAttr('scale_value')
-
-    def getOffsetValue(self):
-        """
-        Смещение значения.
-        """
-        return self.getICAttr('offset_value')
+        return None
 
     def getAddress(self):
         """
         Адрес в источнике данных/контроллере/узле SCADA.
         """
-        return self.getICAttr('address')
+        return None

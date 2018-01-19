@@ -3,8 +3,11 @@
 
 """
 Компонент класса сканирования тегов SCADA системы.
+
+Классы сканирования определяют частоту обновления тегов и обработку событий.
 """
 
+import time
 from ic.components import icwidget
 
 from ic.utils import util
@@ -15,9 +18,14 @@ from ic.log import log
 from ic.bitmap import ic_bmp
 
 # --- Спецификация ---
-SPC_IC_SCAN_CLASS = {
+SPC_IC_SCAN_CLASS = {'tick': 60,
+
                      '__parent__': icwidget.SPC_IC_SIMPLE,
-                    }
+
+                     '__attr_hlp__': {'tick': u'Период сканирования в секундах',
+                                      }
+
+                     }
 
 
 #   Тип компонента
@@ -36,6 +44,7 @@ ic_class_spc = {'type': 'ScanClass',
                 '__events__': {},
                 '__lists__': {},
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description', '_uuid'],
+                                   icDefInf.EDT_NUMBER: ['tick'],
                                    },
                 '__parent__': SPC_IC_SCAN_CLASS,
                 }
@@ -98,3 +107,32 @@ class icScanClass(icwidget.icSimple):
         """
         component = util.icSpcDefStruct(self.component_spc, component, True)
         icwidget.icSimple.__init__(self, parent, id, component, logType, evalSpace)
+
+        #   По спецификации создаем соответствующие атрибуты (кроме служебных атрибутов)
+        lst_keys = [x for x in component.keys() if not x.startswith('__')]
+
+        for key in lst_keys:
+            setattr(self, key, component[key])
+
+        # Время начала периода сканирования
+        self._prev_time = None
+
+    def isOverTick(self, cur_time=None):
+        """
+        Проверка на окончание текущего периода сканирования
+        @param cur_time: Текущее проверяемое время.
+            Если текущее время не определено, то берется time.time()
+        @return: True - очередной период сканирования закончен/ False - период сканирования не закончен.
+        """
+        if cur_time is None:
+            cur_time = time.time()
+
+        if self._prev_time is None:
+            self._prev_time = cur_time
+
+        if (cur_time - self._prev_time) >= self.tick:
+            # Т.к. очередной период сканирования закончен, то
+            # запоминаем начало следующего периода сканирования
+            self._prev_time = cur_time
+            return True
+        return False

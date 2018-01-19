@@ -2,13 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Компонент события SCADA системы.
-
-При сканировании события выполняется блок кода experssion,
-который должен возвращать True/False.
-В случае expression == True выполняется блок кода onAction.
-
-Сканирование события можно отключить переключателем enable.
+Компонент временного тега SCADA системы.
 """
 
 from ic.components import icwidget
@@ -23,49 +17,46 @@ from ic.bitmap import ic_bmp
 from ic.utils import coderror
 from ic.dlg import ic_dlg
 
+from . import scada_tag
+
 # --- Спецификация ---
-SPC_IC_SCADA_EVENT = {'enable': True,
-                      'expression': None,
-                      'onAction': None,
+SPC_IC_DT_SCADA_TAG = {'min_value': None,
+                       'max_value': None,
 
-                      'scan_class': None,
+                       '__parent__': scada_tag.SPC_IC_SCADA_TAG,
 
-                      '__parent__': icwidget.SPC_IC_SIMPLE,
-
-                      '__attr_hlp__': {'scan_class': u'Класс сканирования',
-                                       'enable': u'Вкл./Выкл. проверки события',
-                                       'expression': u'Выражение проверки появления события',
-                                       'onAction': u'Блок кода обработки события',
-                                       },
-                      }
+                       '__attr_hlp__': {'min_value': u'Минимальное значение',
+                                        'max_value': u'Максимальное знаение',
+                                        },
+                       }
 
 #   Тип компонента
 ic_class_type = icDefInf._icUserType
 
 #   Имя класса
-ic_class_name = 'icSCADAEvent'
+ic_class_name = 'icDateTimeSCADATag'
 
 #   Спецификация на ресурсное описание класса
-ic_class_spc = {'type': 'SCADAEvent',
+ic_class_spc = {'type': 'DateTimeSCADATag',
                 'name': 'default',
                 'child': [],
                 'activate': True,
                 '_uuid': None,
 
-                '__events__': {'onAction': (None, 'OnAction', False)},
+                '__events__': {},
                 '__lists__': {},
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description', '_uuid'],
-                                   icDefInf.EDT_CHECK_BOX: ['enable'],
-                                   icDefInf.EDT_USER_PROPERTY: ['scan_class'],
-                                   icDefInf.EDT_PY_SCRIPT: ['expression'],
+                                   icDefInf.EDT_USER_PROPERTY: ['node', 'scan_class'],
+                                   icDefInf.EDT_PY_SCRIPT: ['min_value', 'max_value'
+                                                            'address'],
                                    },
-                '__parent__': SPC_IC_SCADA_EVENT,
+                '__parent__': SPC_IC_DT_SCADA_TAG,
                 }
 
 #   Имя иконки класса, которые располагаются в директории
 #   ic/components/user/images
-ic_class_pic = ic_bmp.createLibraryBitmap('flag.png')
-ic_class_pic2 = ic_bmp.createLibraryBitmap('flag.png')
+ic_class_pic = ic_bmp.createLibraryBitmap('tag_orange.png')
+ic_class_pic2 = ic_bmp.createLibraryBitmap('tag_orange.png')
 
 #   Путь до файла документации
 ic_class_doc = ''
@@ -88,7 +79,7 @@ def get_user_property_editor(attr, value, pos, size, style, propEdt, *arg, **kwa
     Стандартная функция для вызова пользовательских редакторов свойств (EDT_USER_PROPERTY).
     """
     ret = None
-    if attr in ('scan_class',):
+    if attr in ('node', 'scan_class'):
         ret = pspEdt.get_user_property_editor(value, pos, size, style, propEdt)
 
     if ret is None:
@@ -101,7 +92,18 @@ def property_editor_ctrl(attr, value, propEdt, *arg, **kwarg):
     """
     Стандартная функция контроля.
     """
-    if attr in ('scan_class',):
+    if attr in ('node',):
+        ret = str_to_val_user_property(attr, value, propEdt)
+        if ret:
+            parent = propEdt
+            if not ret[0][0] in ('OPCNode',):
+                ic_dlg.icMsgBox(u'ВНИМАНИЕ!',
+                                u'Выбранный объект не является узлом/контроллером SCADA.', parent)
+                return coderror.IC_CTRL_FAILED_IGNORE
+            return coderror.IC_CTRL_OK
+        elif ret in (None, ''):
+            return coderror.IC_CTRL_OK
+    elif attr in ('scan_class',):
         ret = str_to_val_user_property(attr, value, propEdt)
         if ret:
             parent = propEdt
@@ -118,13 +120,13 @@ def str_to_val_user_property(attr, text, propEdt, *arg, **kwarg):
     """
     Стандартная функция преобразования текста в значение.
     """
-    if attr in ('scan_class',):
+    if attr in ('node', 'scan_class'):
         return pspEdt.str_to_val_user_property(text, propEdt)
 
 
-class icSCADAEvent(icwidget.icSimple):
+class icDateTimeSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
     """
-    Компонент события SCADA системы.
+    Компонент временного тега SCADA системы.
 
     @type component_spc: C{dictionary}
     @cvar component_spc: Спецификация компонента.
@@ -161,64 +163,35 @@ class icSCADAEvent(icwidget.icSimple):
         component = util.icSpcDefStruct(self.component_spc, component, True)
         icwidget.icSimple.__init__(self, parent, id, component, logType, evalSpace)
 
-        #   По спецификации создаем соответствующие атрибуты (кроме служебных атрибутов)
-        lst_keys = [x for x in component.keys() if not x.startswith('__')]
+        scada_tag.icSCADATagProto.__init__(self)
 
-        for key in lst_keys:
-            setattr(self, key, component[key])
+    def getNodePsp(self):
+        """
+        Паспорт узла-источника данных SCADA.
+        @return: Паспорт или None в случае ошибки.
+        """
+        return self.getICAttr('node')
 
-        # Объект класса сканирования данных SCADA.
-        self._scan_class = None
+    def getNode(self, node_psp=None):
+        """
+        Объект узла-источника данных SCADA.
+        @param node_psp: Паспорт узла-источника данных SCADA.
+            Если не определено, то задается функцией self.getNodePsp.
+        @return: Объект узла-источника данных SCADA или
+            None в случае ошибки.
+        """
+        if node_psp is None and self._node is not None:
+            # Если объект таблицы уже определен, то просто вернуть его
+            return self._node
 
-    def OnAction(self, event=None):
-        """
-        Выполнения блока кода - обработчика события.
-        """
-        context = self.GetContext()
-        context['SCADA_ENGINE'] = self.parent
-        return self.eval_attr('onAction')
-
-    def doExpression(self):
-        """
-        Выполнить и проверить выполнение условия возникновения события.
-        @return: True/False.
-        """
-        context = self.GetContext()
-        context['SCADA_ENGINE'] = self.parent
-        if self.isICAttrValue('expression'):
-            result = self.eval_attr('expression')
-            if result[0] == coderror.IC_EVAL_OK:
-                return result[1]
-            else:
-                log.warning(u'Ошибка обработки условия возникновения события ОБЪЕКТА <%s>. Результат: %s' % (self.name,
-                                                                                                             result))
+        psp = self.getNodePsp() if node_psp is None else node_psp
+        if psp is not None:
+            # Получить зарегистрированный объект. Если его нет, то он создасться
+            self._node = self.GetKernel().getObjectByPsp(psp)
         else:
-            log.warning(u'Не определено выражение проверки условия возникновения события ОБЪЕКТА <%s>.' % self.name)
-        return False
-
-    def Enable(self, enable=True):
-        """
-        Вкл./ Выкл. обработки события.
-        @param enable: Признак Вкл./ Выкл. обработки события.
-        """
-        self.enable = enable
-
-    def do(self):
-        """
-        Проверить и обработать событие.
-        @return: True/False.
-        """
-        if not self.enable:
-            # Обработка события выключена.
-            return False
-
-        exp_result = self.doExpression()
-        if exp_result:
-            # Да событие возникло
-            # Обрабатываем
-            self.OnAction()
-            return True
-        return False
+            log.warning(u'Не определен паспрот при получении объекта УЗЛА-ИСТОЧНИКА ДАННЫХ SCADA')
+            self._node = None
+        return self._node
 
     def getScanClassPsp(self):
         """
@@ -247,3 +220,24 @@ class icSCADAEvent(icwidget.icSimple):
             log.warning(u'Не определен паспрот при получении объекта КЛАССА СКАНИРОВАНИЯ')
             self._scan_class = None
         return self._scan_class
+
+    def getMinValue(self):
+        """
+        Минимальное значение.
+        """
+        return self.getICAttr('min_value')
+
+    def getMaxValue(self):
+        """
+        Максимальное значение.
+        """
+        return self.getICAttr('max_value')
+
+    def getAddress(self):
+        """
+        Адрес в источнике данных/контроллере/узле SCADA.
+        """
+        address = self.getICAttr('address')
+        if not address:
+            log.warning(u'Не определен адрес тега <%s>' % self.name)
+        return address
