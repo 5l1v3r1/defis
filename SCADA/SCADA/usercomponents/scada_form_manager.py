@@ -10,7 +10,7 @@ from ic.engine import form_manager
 
 from ic.log import log
 
-__version__ = (0, 0, 2, 4)
+__version__ = (0, 0, 2, 5)
 
 # Период сканирования формы/панели SCADA системы по умолчанию
 DEFAULT_SCAN_TICK = -1
@@ -80,12 +80,20 @@ class icSCADAFormManager(form_manager.icFormManager):
                 else:
                     if hasattr(ctrl, 'data_name'):
                         address = getattr(ctrl, 'data_name')
-                        if ADDRESS_DELIMETER not in address:
-                            log.error(u'Ошибка адресации <%s> в контроле <%s>. Адреса указываются как <Имя_движка.Имя_объекта_в_движке>' % (address, ctrlname))
-                        else:
+                        if self.is_address(address):
                             # Сразу разделить адрес на имя движка и имя объекта
                             result[ctrlname] = tuple(address.split(ADDRESS_DELIMETER))
+                        else:
+                            log.error(u'Ошибка адресации <%s> в контроле <%s>. Адреса указываются как <Имя_движка.Имя_объекта_в_движке>' % (address, ctrlname))
         return result
+
+    def is_address(self, value):
+        """
+        Проверка является ли строковое значение адресом SCADA объекта.
+        @param value: Проверяемое значение.
+        @return: True - это адрес объекта / False - нет.
+        """
+        return (ADDRESS_DELIMETER in value) and (value.count(ADDRESS_DELIMETER) == 1)
 
     def startEngines(self):
         """
