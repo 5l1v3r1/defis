@@ -136,3 +136,10 @@ class icScanClass(icwidget.icSimple):
             self._prev_time = cur_time
             return True
         return False
+
+    def getTick(self):
+        """
+        Значение периода сканирования в секундах.
+        @return: Значение периода сканирования в секундах.
+        """
+        return self.tick

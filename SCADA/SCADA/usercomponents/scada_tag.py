@@ -62,10 +62,7 @@ class icSCADATagProto(object):
             address = self.getAddress()
             new_value = node.read_value(address)
             if new_value:
-                # Запомнить предыдущее значение
-                self._prev_value = self._cur_value
-                # Обновить текущее значение
-                self._cur_value = new_value
+                self.setCurValue(new_value)
             # else:
             #     log.warning(u'Ошибка чтения значения SCADA тега <%s>' % self.name)
         return self._cur_value
@@ -82,6 +79,18 @@ class icSCADATagProto(object):
 
     # Другое наименование метода
     getValue = getCurValue
+
+    def setCurValue(self, value):
+        """
+        Установить текущее значение тега.
+        @param value: Текущее значение тега.
+        @return: True/False.
+        """
+        # Переместить текущее значение в предыдущее
+        self._prev_value = self._cur_value
+        # Обновить текущее значение
+        self._cur_value = value
+        return True
 
     def getPrevValue(self):
         """

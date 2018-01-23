@@ -59,8 +59,8 @@ ic_class_spc = {'type': 'SCADAEngine',
 
 #   Имя иконки класса, которые располагаются в директории
 #   ic/components/user/images
-ic_class_pic = ic_bmp.createLibraryBitmap('control_panel.png')
-ic_class_pic2 = ic_bmp.createLibraryBitmap('control_panel.png')
+ic_class_pic = ic_bmp.createLibraryBitmap('recycle.png')
+ic_class_pic2 = ic_bmp.createLibraryBitmap('recycle.png')
 
 #   Путь до файла документации
 ic_class_doc = ''
@@ -243,6 +243,7 @@ class icSCADAEngine(icwidget.icSimple):
 
         self.exit_run = False
         thread.start_new(self.run, ())
+        return True
 
     def stop(self):
         """
@@ -250,6 +251,7 @@ class icSCADAEngine(icwidget.icSimple):
         @return: True/False.
         """
         self.exit_run = True
+        return True
 
     def isRunning(self):
         """
@@ -265,31 +267,96 @@ class icSCADAEngine(icwidget.icSimple):
         self.is_running = True
         while not self.exit_run:
             start_tick = time.time()
-            for scan_class_psp, scan_class in self._scan_classes.items():
-                if scan_class.isOverTick(start_tick):
-                    self.run_tick(scan_class_psp)
+
+            scan_classes_psp = self.get_active_scan_classes_psp(start_tick)
+
+            # Подготовка тегов для чтения
+            read_tags = self.get_refreshable_tags(*scan_classes_psp)
+            # Чтение тегов
+            self.read_tags(*read_tags)
+
+            # События
+            self.do_events(*scan_classes_psp)
+
+            # Аварии
+            self.do_alarms(*scan_classes_psp)
+
         self.is_running = False
 
-    def run_tick(self, scan_class_psp):
+    def get_active_scan_classes_psp(self, ctrl_tick):
         """
-        Функция выполнения одного периода сканирования.
-        @param scan_class_psp: Паспорт объекта класса сканирования.
+        Список паспортов классов сканирования, которые необходимо обновить.
+        @param ctrl_tick: Контрольное значение времени,
+            для определения необходимости обработки.
+        @return: Список паспортов классов сканирования.
+        """
+        return [scan_class_psp for scan_class_psp, scan_class in self._scan_classes.items() if scan_class.isOverTick(ctrl_tick)]
+
+    def get_refreshable_tags(self, *scan_classes_psp):
+        """
+        Список всех тегов, которые пора прочитать/обновить значения.
+        @param scan_classes_psp: Список паспортов классов сканирования,
+            которые необходимо обновить.
+        @return: Список тегов, которые необходимо обновить/прочитать из источника данных.
+        """
+        read_tags = list()
+        for scan_class_psp in scan_classes_psp:
+            tags = self._scan_tags.get(scan_class_psp, list())
+            read_tags += tags
+        return read_tags
+
+    def read_tags(self, *tags):
+        """
+        Запустить процедуру чтение тегов.
+        @param tags: Список читаемх тегов.
         @return: True/False.
         """
-        if not scan_class_psp:
-            log.warning(u'Не определен паспорт класса сканирования в цикле обработки')
+        if not tags:
+            log.warning(u'Не определен список тегов для чтения')
             return False
 
-        # Теги
-        tags = self._scan_tags.get(scan_class_psp, list())
+        # Подготовка списка узлов
+        tag_nodes = [tag.getNode() for tag in tags]
+        nodes = list()
+        for tag_node in tag_nodes:
+            if tag_node not in nodes:
+                nodes.append(tag_node)
+
+        # Подготовка списка тегов
+        node_tags = [list() for node in nodes]
         for tag in tags:
-            tag.readValue()
-        # События
-        events = self._scan_events.get(scan_class_psp, list())
-        for event in events:
-            event.do()
-        # Аварии
-        # alarms = self._scan_alarms.get(scan_class_psp, list())
-        # for alarm in alarms:
-        #    alarm.readValue()
+            tag_node = tag.getNode()
+            i_node = nodes.index(tag_node)
+            node_tags[i_node].append(tag)
+
+        # Запустить процедуру чтения данных
+        for i, node in enumerate(nodes):
+            node.readTags(node_tags[i])
+
+        return True
+
+    def do_events(self, *scan_classes_psp):
+        """
+        Обработка событий.
+        @param scan_classes_psp: Список паспортов классов сканирования,
+            которые необходимо обновить.
+        @return: True/False.
+        """
+        for scan_class_psp in scan_classes_psp:
+            events = self._scan_events.get(scan_class_psp, list())
+            for event in events:
+                event.do()
+        return True
+
+    def do_alarms(self, *scan_classes_psp):
+        """
+        Обработка аварий.
+        @param scan_classes_psp: Список паспортов классов сканирования,
+            которые необходимо обновить.
+        @return: True/False.
+        """
+        # for scan_class_psp in scan_classes_psp:
+        #     alarms = self._scan_alarms.get(scan_class_psp, list())
+        #     for alarm in alarms:
+        #         alarm.do()
         return True

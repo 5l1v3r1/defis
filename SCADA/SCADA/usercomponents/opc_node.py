@@ -282,6 +282,31 @@ class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
             log.fatal(u'Ошибка чтения значения по адресам %s в <%s>' % (addresses, self.__class__.__name__))
         return None
 
+    def readTags(self, *tags):
+        """
+        Прочитать список тегов.
+        @param tags: Список объектов тегов.
+        @return: True/False.
+        """
+        if not tags:
+            log.warning(u'Не определен список тегов для чтения')
+            return False
+
+        # Контроль что все теги соответствуют узлу
+        is_my_tags_list = [tag.getNode() == self for tag in tags]
+        is_my_tags = all(is_my_tags_list)
+        if not is_my_tags:
+            not_my_tags = [tags[i].name for i, is_my_tag in enumerate(is_my_tags_list) if not is_my_tag]
+            log.error(u'Не соответствие читаемых тегов %s OPC источнику данных' % not_my_tags)
+            return False
+
+        adresses = [tag.getAddress() for tag in tags]
+
+        values = self.read_values()
+        for i, value in enumerate(values):
+            tags[i].setCurValue(value)
+        return True
+
     # def write_value(self, address, value):
     #     """
     #     Запись значения по адресу.

@@ -536,7 +536,7 @@ def copyToDir(FileName_, DestDir_, Rewrite_=True):
         то выдать сообщение о подтверждении перезаписи файла.
     @return: Возвращает результат выполнения операции True/False.
     """
-    return icCopyFile(FileName_, DestDir_+'/'+BaseName(FileName_), Rewrite_)
+    return icCopyFile(FileName_, os.path.join(DestDir_, BaseName(FileName_)), Rewrite_)
 
 
 def delAllFilesFilter(DelDir_, *Filter_):
