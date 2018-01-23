@@ -20,11 +20,14 @@
 @type ICFontStyle: C{List}
 @var ICFontStyle: Список названий стилей шрифтов ['regular', 'bold', 'italic', 'boldItalic'].
 """
+
 import wx
 from ic.dlg.msgbox import MsgBox
 from ic.log.iclog import *
 from ic.utils.util import icSpcDefStruct
 from . import icwidget as icwidget
+
+__version__ = (0, 0, 1, 1)
 
 SPC_IC_FONT = {'type': 'Font',
                'name': 'defaultFont',
@@ -32,7 +35,7 @@ SPC_IC_FONT = {'type': 'Font',
                'family': None,
                'faceName': '',
                'style': None,
-               'underline': 0
+               'underline': False
                }
 
 ICFontFamily = ['default', 'serif', 'sansSerif', 'monospace']
@@ -133,6 +136,16 @@ class icFont(wx.Font):
 
         return style, weight
 
+    def bool_underline(self, underline):
+        """
+        Преобразование подчеркивания в логическую переменную.
+        @param underline:
+        @return:
+        """
+        if type(underline) in (str, unicode):
+            return underline == 'Underlined'
+        return bool(underline)
+
     def __init__(self, component):
         """
         По ресурсному описанию генерируется шрифт.
@@ -140,7 +153,9 @@ class icFont(wx.Font):
         component = icSpcDefStruct(SPC_IC_FONT, component)
         size = int(component['size'])
         faceName = component['faceName']
-        underline = component['underline']
+        underline = self.bool_underline(component['underline'])
+        log.debug(u'Шрифт %s : %s' % (underline, type(underline)))
+
         if component['family'] is not None:
             family = self._familyId(component['family'])
         else:
@@ -152,7 +167,8 @@ class icFont(wx.Font):
             style = wx.NORMAL
             weight = wx.NORMAL
 
-        wx.Font.__init__(self, size, family, style, weight, underline, faceName, encoding = wx.FONTENCODING_CP1251)
+        # wx.Font.__init__(self, size, family, style, weight, underline, faceName, encoding=wx.FONTENCODING_CP1251)
+        wx.Font.__init__(self, size, family, style, weight, underline, faceName, encoding=wx.FONTENCODING_UTF8)
 
 
 def test(par=0):

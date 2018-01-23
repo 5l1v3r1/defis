@@ -228,6 +228,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
                 'position': (0, 0),
                 'span': (1, 1),
                 'child': [],
+
                 '__attr_types__': {icDefInf.EDT_NUMBER: ['vgap, hgap'],
                                    icDefInf.EDT_CHOICE: ['layout', 'alignment']},
                 '__parent__': SPC_IC_BASE,
@@ -241,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 1, 1)
+__version__ = (1, 0, 2, 1)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -1008,6 +1009,25 @@ class icSimple(icobject.icObject):
                     return find_obj
         # Все таки не нашли
         return None
+
+    def getAllChildrenNames(self):
+        """
+        Список всех дочерних объектов. Рекурсивно.
+        """
+        children = list()
+        if self.IsSizer():
+            children = self.objectList
+        else:
+            children = self.component_lst
+
+        children_names = [child.name for child in children]
+
+        for child in children:
+            if child.isChildren():
+                child_names = child.getAllChildrenNames()
+                if child_names:
+                    children_names += child_names
+        return children_names
 
     def isChildren(self):
         """

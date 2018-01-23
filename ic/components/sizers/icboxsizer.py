@@ -76,8 +76,11 @@ SPC_IC_BOXSIZER = {'type': 'BoxSizer',
                    'flag': 0,
                    'border': 0,
 
+                   '__lists__': {'layout': ['vertical', 'horizontal']},
                    '__attr_types__': {},
                    '__parent__': icwidget.SPC_IC_SIZER,
+                   '__attr_hlp__': {'layout': u'Ориентация сайзера',
+                                    }
                    }
 
 
@@ -137,7 +140,7 @@ ic_can_contain = None
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (1, 0, 0, 2)
+__version__ = (1, 0, 1, 1)
 
 
 class icBoxSizer(icwidget.icSizer, wx.BoxSizer):

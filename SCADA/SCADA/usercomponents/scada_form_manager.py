@@ -10,8 +10,10 @@ from ic.engine import form_manager
 
 from ic.log import log
 
+__version__ = (0, 0, 2, 4)
+
 # Период сканирования формы/панели SCADA системы по умолчанию
-DEFAULT_SCAN_TICK = 60
+DEFAULT_SCAN_TICK = -1
 
 ADDRESS_DELIMETER = u'.'
 
@@ -38,13 +40,13 @@ class icSCADAFormManager(form_manager.icFormManager):
 
         self.timer = None
 
+        # Признак автозапуска и автоостанова всех движков при создании/закрытии окна
+        self.auto_run = False
+
         try:
             self.Bind(wx.EVT_TIMER, self.onTimerTick)
         except:
-            log.fatal(u'Ошибка связки обработчика события таймера')
-
-        # Признак автозапуска и автоостанова всех движков при создании/закрытии окна
-        self.auto_run = False
+            log.fatal(u'Ошибка связи обработчика события таймера')
 
     def get_panel_obj_addresses(self, panel, data_dict=None, *ctrl_names):
         """
@@ -60,7 +62,8 @@ class icSCADAFormManager(form_manager.icFormManager):
         """
         result = dict() if data_dict is None else data_dict
         if not ctrl_names:
-            ctrl_names = self.__accord.values()
+            ctrl_names = self.getAllChildrenNames()
+            # log.debug(u'Обрабатываемые контролы формы <%s>: %s' % (self.name, ctrl_names))
 
         for ctrlname in dir(panel):
             if ctrl_names and ctrlname not in ctrl_names:
@@ -121,24 +124,35 @@ class icSCADAFormManager(form_manager.icFormManager):
     def startTimer(self):
         """
         Запуск таймера обновления данных.
+        @return: True/False.
         """
-        self.timer = wx.Timer(self)
-        self.timer.Start(self.scan_tick)
+        if self.scan_tick > 0:
+            self.timer = wx.Timer(self)
+            self.timer.Start(self.scan_tick)
+            return True
+        else:
+            self.timer = None
+            log.warning(u'Не указан период сканирования панели SCADA системы')
+        return False
 
     def stopTimer(self):
         """
         Останов таймера обновления данных.
+        @return: True/False.
         """
         if self.timer:
             self.timer.Stop()
             self.timer = None
+            return True
+        return False
 
     def onTimerTick(self, event):
         """
-        Обработчик одного тика таймераю
+        Обработчик одного тика таймера.
         """
-        # print('Timer tick...ok')
-        self.refresh()
+        if self.timer is not None:
+            # Если таймер запущен, то обновлять форму
+            self.updateValues()
 
     def findSCADAEngine(self, engine_name):
         """
@@ -153,22 +167,25 @@ class icSCADAFormManager(form_manager.icFormManager):
         log.warning(u'Движок SCADA не найден среди обрабатываемых %s' % engine_names)
         return None
 
-    def refresh(self):
+    def updateValues(self):
         """
-        Обновить вид.
+        Обновить значения контролов.
         """
-        obj_addresses = self.get_panel_obj_addresses(panel=self)
+        try:
+            obj_addresses = self.get_panel_obj_addresses(panel=self)
 
-        for ctrlname, address in obj_addresses.items():
-            engine_name, obj_name = address
-            engine = self.findSCADAEngine(engine_name)
-            if engine:
-                obj = engine.FindObjectByName(obj_name)
-                if obj:
-                    value = obj.getCurValue()
-                    ctrl = getattr(self, ctrlname)
-                    ctrl.setValue(value)
-                else:
-                    log.warning(u'Объект <%s> не найден в движке <%s>' % (obj_name, engine_name))
+            for ctrlname, address in obj_addresses.items():
+                engine_name, obj_name = address
+                engine = self.findSCADAEngine(engine_name)
+                if engine:
+                    obj = engine.FindObjectByName(obj_name)
+                    if obj:
+                        value = obj.getCurValue()
+                        ctrl = getattr(self, ctrlname)
+                        ctrl.setValue(value)
+                    else:
+                        log.warning(u'Объект <%s> не найден в движке <%s>' % (obj_name, engine_name))
+        except:
+            log.fatal(u'Ошибка обновления значений контролов формы SCADA системы')
 
 

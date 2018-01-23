@@ -246,7 +246,7 @@ class icSCADAPanel(icwxpanel.icWXPanel, scada_form_manager.icSCADAFormManager):
         if self.auto_run:
             self.startEngines()
 
-        self.refresh()
+        # self.updateValues()
 
     def onClose(self, event):
         """
