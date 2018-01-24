@@ -5,6 +5,8 @@
 Компонент временного тега SCADA системы.
 """
 
+import datetime
+
 from ic.components import icwidget
 from ic.PropertyEditor.ExternalEditors.passportobj import icObjectPassportUserEdt as pspEdt
 
@@ -70,7 +72,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 # Функции редактирования
@@ -241,3 +243,21 @@ class icDateTimeSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
         if not address:
             log.warning(u'Не определен адрес тега <%s>' % self.name)
         return address
+
+    def normValueInto(self, value):
+        """
+        Преобразование типа значения для установки внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        if isinstance(value, datetime.datetime):
+            return value
+        return value
+
+    def normValueOut(self, value):
+        """
+        Преобразование типа значения для получения из внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        return value

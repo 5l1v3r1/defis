@@ -7,10 +7,11 @@
 
 import wx
 from ic.engine import form_manager
+from ic.components import icwidget
 
 from ic.log import log
 
-__version__ = (0, 0, 2, 5)
+__version__ = (0, 0, 3, 2)
 
 # Период сканирования формы/панели SCADA системы по умолчанию
 DEFAULT_SCAN_TICK = -1
@@ -48,7 +49,24 @@ class icSCADAFormManager(form_manager.icFormManager):
         except:
             log.fatal(u'Ошибка связи обработчика события таймера')
 
-    def get_panel_obj_addresses(self, panel, data_dict=None, *ctrl_names):
+        # Кэш соответствий {Имя контрола: Адрес тега}
+        self._obj_addresses_cache = None
+
+    def get_panel_obj_addresses(self, *ctrl_names):
+        """
+        Получить адреса объектов указанных в data_name свойстве контролов панели.
+        Адреса объектов указываются как <Имя_движка.Имя_объекта_в_движке>.
+        @param ctrl_names: Взять только контролы с именами...
+            Если имена контролов не определены,
+            то обрабатываются контролы,
+            указанные в соответствиях (accord).
+        @return: Заполненный словарь соответствий {Имя контрола: Адрес тега}
+        """
+        if self._obj_addresses_cache is None:
+            self._obj_addresses_cache = self._get_panel_obj_addresses(None, *ctrl_names)
+        return self._obj_addresses_cache
+
+    def _get_panel_obj_addresses(self, data_dict=None, *ctrl_names):
         """
         Получить адреса объектов указанных в data_name свойстве контролов панели.
         Адреса объектов указываются как <Имя_движка.Имя_объекта_в_движке>.
@@ -63,28 +81,23 @@ class icSCADAFormManager(form_manager.icFormManager):
         result = dict() if data_dict is None else data_dict
         if not ctrl_names:
             ctrl_names = self.getAllChildrenNames()
-            # log.debug(u'Обрабатываемые контролы формы <%s>: %s' % (self.name, ctrl_names))
 
-        for ctrlname in dir(panel):
-            if ctrl_names and ctrlname not in ctrl_names:
-                # Если нельзя автоматически добавлять новые
-                # данные и этих данных нет в заполняемом словаре,
-                # то пропустить обработку
-                continue
-
-            ctrl = getattr(panel, ctrlname)
-            if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
-                if issubclass(ctrl.__class__, wx.Panel):
-                    data = self.get_panel_obj_addresses(ctrl, data_dict, *ctrl_names)
+        for ctrlname in ctrl_names:
+            ctrl = self.FindObjectByName(ctrlname)
+            if issubclass(ctrl.__class__, icwidget.icWidget) and ctrl.isEnabled():
+                if issubclass(ctrl.__class__, self.__class__):
+                    data = ctrl._get_panel_obj_addresses(data_dict, *ctrl_names)
                     result.update(data)
                 else:
-                    if hasattr(ctrl, 'data_name'):
-                        address = getattr(ctrl, 'data_name')
+                    address = ctrl.getDataName()
+                    if address:
                         if self.is_address(address):
                             # Сразу разделить адрес на имя движка и имя объекта
                             result[ctrlname] = tuple(address.split(ADDRESS_DELIMETER))
                         else:
                             log.error(u'Ошибка адресации <%s> в контроле <%s>. Адреса указываются как <Имя_движка.Имя_объекта_в_движке>' % (address, ctrlname))
+                    else:
+                        log.warning(u'Контрол <%s> не может принимать данные' % ctrlname)
         return result
 
     def is_address(self, value):
@@ -93,21 +106,21 @@ class icSCADAFormManager(form_manager.icFormManager):
         @param value: Проверяемое значение.
         @return: True - это адрес объекта / False - нет.
         """
-        return (ADDRESS_DELIMETER in value) and (value.count(ADDRESS_DELIMETER) == 1)
+        return bool(value) and (ADDRESS_DELIMETER in value) and (value.count(ADDRESS_DELIMETER) == 1)
 
     def startEngines(self):
         """
         Запуск движков.
         @return: True-все движки успешно запущены / False - ошибка запуска.
         """
-        return all([engine.start() for engine in self.scada_engines])
+        return all([engine.start(self) for engine in self.scada_engines])
 
     def stopEngines(self):
         """
         Останов движков.
         @return: True-все движки успешно остановлены / False - ошибка останова.
         """
-        return all([engine.stop() for engine in self.scada_engines])
+        return all([engine.stop(self) for engine in self.scada_engines])
 
     def addSCADAEngine(self, scada_engine):
         """
@@ -135,8 +148,14 @@ class icSCADAFormManager(form_manager.icFormManager):
         @return: True/False.
         """
         if self.scan_tick > 0:
+            # Обновить данные в начале запуска в любом случае
+            # self.updateValues()
+
             self.timer = wx.Timer(self)
-            self.timer.Start(self.scan_tick)
+            # ВНИМАНИЕ! Период сканирования задается в секундах,
+            # а таймер работает с миллисекундами. Необходимо сделать преобразование
+            milliseconds = self.scan_tick * 1000
+            self.timer.Start(milliseconds)
             return True
         else:
             self.timer = None
@@ -180,7 +199,9 @@ class icSCADAFormManager(form_manager.icFormManager):
         Обновить значения контролов.
         """
         try:
-            obj_addresses = self.get_panel_obj_addresses(panel=self)
+            log.debug(u'Старт процедуры обновления значений контролов')
+            obj_addresses = self.get_panel_obj_addresses()
+            log.debug(u'Список обрабатываемых контролов %s' % obj_addresses.keys())
 
             for ctrlname, address in obj_addresses.items():
                 engine_name, obj_name = address
@@ -189,11 +210,28 @@ class icSCADAFormManager(form_manager.icFormManager):
                     obj = engine.FindObjectByName(obj_name)
                     if obj:
                         value = obj.getCurValue()
-                        ctrl = getattr(self, ctrlname)
+                        ctrl = self.FindObjectByName(ctrlname)
                         ctrl.setValue(value)
                     else:
                         log.warning(u'Объект <%s> не найден в движке <%s>' % (obj_name, engine_name))
+            log.debug(u'Конец процедуры обновления значений контролов')
         except:
             log.fatal(u'Ошибка обновления значений контролов формы SCADA системы')
 
+    def start(self):
+        """
+        Функция общего запуска.
+        @return: True/False.
+        """
+        result_engines = self.startEngines()
+        result_timer = self.startTimer()
+        return result_engines and result_timer
 
+    def stop(self):
+        """
+        Функция общего останова.
+        @return: True/False.
+        """
+        result_timer = self.stopTimer()
+        result_engines = self.stopEngines()
+        return result_engines and result_timer

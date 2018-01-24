@@ -75,7 +75,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 4)
 
 
 class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
@@ -217,7 +217,17 @@ class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
         Топик.
         """
         if not self._topic:
-            self._topic = self.getICAttr('topic')
+            topic = self.getICAttr('topic')
+            topic = topic.strip()
+
+            # Проверка наличия обрамляющих сигнатур топика
+            if node.DO_CONTROL_TOPIC_SIGNATURES:
+                if not topic.startswith(node.TOPIC_BEGIN_SIGNATURE):
+                    topic = node.TOPIC_BEGIN_SIGNATURE + topic
+                if not topic.endswith(node.TOPIC_END_SIGNATURE):
+                    topic = topic + node.TOPIC_END_SIGNATURE
+
+            self._topic = topic
         return self._topic
 
     def read_value(self, address):
@@ -300,9 +310,10 @@ class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
             log.error(u'Не соответствие читаемых тегов %s OPC источнику данных' % not_my_tags)
             return False
 
-        adresses = [tag.getAddress() for tag in tags]
+        topic = self.getTopic()
+        addresses = [topic+tag.getAddress() for tag in tags]
 
-        values = self.read_values()
+        values = self.read_values(addresses)
         for i, value in enumerate(values):
             tags[i].setCurValue(value)
         return True

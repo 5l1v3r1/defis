@@ -7,6 +7,13 @@
 
 from ic.log import log
 
+__version__ = (0, 0, 1, 2)
+
+# Проверка наличия обрамляющих сигнатур топика
+DO_CONTROL_TOPIC_SIGNATURES = True
+TOPIC_BEGIN_SIGNATURE = u'['
+TOPIC_END_SIGNATURE = u']'
+
 
 class icSCADANodeProto(object):
     """

@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 2, 1)
+__version__ = (1, 0, 3, 2)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -1212,6 +1212,13 @@ class icSimple(icobject.icObject):
         else:
             return attr_val is not None
 
+    def getDataName(self):
+        """
+        Наименование данных из контекста/источника данных.
+        @return: Наименование данных из контекста/источника данных.
+        """
+        return self.getICAttr('data_name')
+
     def getICAttr(self, attr, bExpectedExpr=False, subkey='', bReUse=True):
         """
         Функция вычисляет значение атрибута. Если атрибут вычисляемый,
@@ -1374,6 +1381,12 @@ class icSimple(icobject.icObject):
             res = self.GetResource()
 
         return resource.find_child_resource(child_name, res)
+
+    def IsSizer(self):
+        """
+        Возвращает признак сайзера.
+        """
+        return False
 
 
 class icBase(icSimple, icShape):
@@ -1689,6 +1702,15 @@ class icWidget(icBase, icEvent):
         self.enable = component['enable']
         if not self.enable:
             wx.CallAfter(self.Enable, False)
+
+    def isEnabled(self):
+        """
+        Объект включен?
+        @return: True/False.
+        """
+        if hasattr(self, 'IsEnabled'):
+            return self.IsEnabled()
+        return self.enable
 
     def DirectRefresh(self):
         """

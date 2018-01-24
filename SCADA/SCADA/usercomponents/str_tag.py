@@ -85,7 +85,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 # Функции редактирования
@@ -267,4 +267,23 @@ class icStrSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
                 src_encoding = DEFAULT_ENCODING if src_encoding is None else src_encoding
                 dst_encoding = DEFAULT_ENCODING if dst_encoding is None else dst_encoding
                 value = value.encode(src_encoding).decode(dst_encoding)
+        return value
+
+    def normValueInto(self, value):
+        """
+        Преобразование типа значения для установки внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        # Работаем только с Юникодом
+        if isinstance(value, unicode):
+            return value
+        return unicode(value, DEFAULT_ENCODING)
+
+    def normValueOut(self, value):
+        """
+        Преобразование типа значения для получения из внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
         return value

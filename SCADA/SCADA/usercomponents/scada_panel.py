@@ -255,7 +255,7 @@ class icSCADAPanel(icwxpanel.icWXPanel, scada_form_manager.icSCADAFormManager):
         if self.on_close:
             self.eval_attr('onClose')
 
-        if self.auto_run:
-            self.stopEngines()
+        # Останавливать движки в любом случае
+        self.stopEngines()
 
         event.Skip()

@@ -75,12 +75,15 @@ ic_can_contain = ['IntSCADATag', 'FloatSCADATag', 'BoolSCADATag', 'StrSCADATag',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 2)
 
 
 # Классы тегов
 TAG_CLASSES = (int_tag.icIntSCADATag, float_tag.icFloatSCADATag, bool_tag.icBoolSCADATag,
                str_tag.icStrSCADATag, datetime_tag.icDateTimeSCADATag)
+
+# Таймаут ожидания запуска движка в секундах
+ENGINE_START_TIMEOUT = 5
 
 
 class icSCADAEngine(icwidget.icSimple):
@@ -220,6 +223,14 @@ class icSCADAEngine(icwidget.icSimple):
             scan_obj_dict[scan_class_psp].append(obj)
         return scan_obj_dict
 
+    def _log_scan_objects(self, scan_dict):
+        """
+        """
+        for psp in scan_dict.keys():
+            log.info(u'\t\tКласс сканирования <%s>' % psp[0][1])
+            for obj in scan_dict[psp]:
+                log.info(u'\t\t\tОбъект <%s>' % obj.name)
+
     def init_scan_objects(self):
         """
         Инициализация сканируемых объектов.
@@ -234,23 +245,83 @@ class icSCADAEngine(icwidget.icSimple):
         # Аварии
         self._scan_alarms = self._init_scan_objects(self.getChildrenAlarms())
 
-    def start(self):
+        log.info(u'Информация о сканируемых объектах в <%s>:' % self.getName())
+        if not self._scan_classes:
+            log.warning(u'\tНе определены классы сканирования')
+        else:
+            log.info(u'\tКлассы сканирования: %s' % [psp[0][1] for psp in self._scan_classes.keys()])
+        if not self._scan_tags:
+            log.warning(u'\tНе определены сканируемые теги')
+        else:
+            log.info(u'\tСканируемые теги:')
+            self._log_scan_objects(self._scan_tags)
+        if not self._scan_events:
+            log.warning(u'\tНе определены сканируемые события')
+        else:
+            log.info(u'\tСканируемые события:')
+            self._log_scan_objects(self._scan_events)
+        if not self._scan_alarms:
+            log.warning(u'\tНе определены сканируемые аварии')
+        else:
+            log.info(u'\tСканируемые аварии:')
+            self._log_scan_objects(self._scan_alarms)
+
+    def start(self, update_panels=None):
         """
         Запуск основного цикла обработки тегов.
+        @param update_panels: Принудительно обновить панели.
+            Может задаваться как списком так и объектом.
         @return: True/False.
         """
         self.init_scan_objects()
 
         self.exit_run = False
         thread.start_new(self.run, ())
-        return True
 
-    def stop(self):
+        # Ожидание запуска движка
+        start_time = time.time()
+        stop_time = start_time + ENGINE_START_TIMEOUT
+        cur_time = time.time()
+
+        log.debug(u'Начало ожидания запуска')
+        while not self.is_running and cur_time < stop_time:
+            cur_time = time.time()
+        log.debug(u'Окончание ожидания запуска. Ожидание %s секунд.' % (cur_time - start_time))
+
+        # После удачного запуска движка принудительно обновить панели вызывающие их
+        self.update_panels(update_panels)
+
+        return self.is_running
+
+    def update_panels(self, update_panels=None):
+        """
+        Принудительно обновить панели.
+        @param update_panels: Принудительно обновить панели.
+            Может задаваться как списком так и объектом.
+        @return: True/False.
+        """
+        try:
+            if update_panels:
+                if type(update_panels) in (list, tuple):
+                    # Список панелей
+                    for panel in update_panels:
+                        panel.updateValues()
+                else:
+                    update_panels.updateValues()
+                return True
+        except:
+            log.fatal(u'Ошибка обновления данных панели <%s>' % update_panels)
+        return False
+
+    def stop(self, update_panels=None):
         """
         Остановка основного цикла обработки тегов.
+        @param update_panels: Принудительно обновить панели.
+            Может задаваться как списком так и объектом.
         @return: True/False.
         """
         self.exit_run = True
+        # Обновление пока не реализовано
         return True
 
     def isRunning(self):
@@ -264,7 +335,8 @@ class icSCADAEngine(icwidget.icSimple):
         """
         Функция основного цикла обработки.
         """
-        self.is_running = True
+        log.info(u'Запуск цикла обработки <%s>' % self.getName())
+        self.is_running = False
         while not self.exit_run:
             start_tick = time.time()
 
@@ -281,7 +353,11 @@ class icSCADAEngine(icwidget.icSimple):
             # Аварии
             self.do_alarms(*scan_classes_psp)
 
+            # Движок считается запущенным после удачного первого цикла обработки
+            self.is_running = True
+
         self.is_running = False
+        log.info(u'Останов цикла обработки <%s>' % self.getName())
 
     def get_active_scan_classes_psp(self, ctrl_tick):
         """
@@ -312,7 +388,7 @@ class icSCADAEngine(icwidget.icSimple):
         @return: True/False.
         """
         if not tags:
-            log.warning(u'Не определен список тегов для чтения')
+            # log.warning(u'Не определен список тегов для чтения')
             return False
 
         # Подготовка списка узлов
@@ -331,7 +407,7 @@ class icSCADAEngine(icwidget.icSimple):
 
         # Запустить процедуру чтения данных
         for i, node in enumerate(nodes):
-            node.readTags(node_tags[i])
+            node.readTags(*node_tags[i])
 
         return True
 

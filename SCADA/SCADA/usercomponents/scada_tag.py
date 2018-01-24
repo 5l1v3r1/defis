@@ -75,7 +75,7 @@ class icSCADATagProto(object):
         """
         if do_read:
             self.readValue()
-        return self._cur_value
+        return self.normValueOut(self._cur_value)
 
     # Другое наименование метода
     getValue = getCurValue
@@ -89,8 +89,24 @@ class icSCADATagProto(object):
         # Переместить текущее значение в предыдущее
         self._prev_value = self._cur_value
         # Обновить текущее значение
-        self._cur_value = value
+        self._cur_value = self.normValueInto(value)
         return True
+
+    def normValueInto(self, value):
+        """
+        Преобразование типа значения для установки внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        return value
+
+    def normValueOut(self, value):
+        """
+        Преобразование типа значения для получения из внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        return value
 
     def getPrevValue(self):
         """

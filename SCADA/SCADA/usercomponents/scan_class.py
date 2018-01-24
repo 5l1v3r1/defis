@@ -66,7 +66,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 1)
 
 
 class icScanClass(icwidget.icSimple):
@@ -128,7 +128,10 @@ class icScanClass(icwidget.icSimple):
             cur_time = time.time()
 
         if self._prev_time is None:
+            # Если это первый запуск, то считаем что период закончился
+            # и надо обновить данные
             self._prev_time = cur_time
+            return True
 
         if (cur_time - self._prev_time) >= self.tick:
             # Т.к. очередной период сканирования закончен, то

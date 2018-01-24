@@ -78,7 +78,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 # Функции редактирования
@@ -261,3 +261,21 @@ class icIntSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
         if not address:
             log.warning(u'Не определен адрес тега <%s>' % self.name)
         return address
+
+    def normValueInto(self, value):
+        """
+        Преобразование типа значения для установки внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        if isinstance(value, int):
+            return value
+        return int(value)
+
+    def normValueOut(self, value):
+        """
+        Преобразование типа значения для получения из внутреннего значения.
+        @param value: Текущее значение тега.
+        @return: Преобразованное значение.
+        """
+        return value
