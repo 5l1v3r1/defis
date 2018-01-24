@@ -270,5 +270,6 @@ def test(par=0):
     print(u'>> pos=%s, size=%s' % (btn1.GetPosition(), btn1.GetSize()))
     app.MainLoop()
 
+
 if __name__ == '__main__':
     test()

@@ -94,7 +94,7 @@ ic_can_contain = -1
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (1, 0, 0, 6)
+__version__ = (1, 0, 1, 1)
 
 DESIGN_BORDER_CLR = (112, 146, 190)
 
@@ -142,7 +142,7 @@ class icWXPanel(icWidget, wx.Panel):
         self.boundStep = 0
         icSpcDefStruct(SPC_IC_PANEL, component)
         icWidget.__init__(self, parent, id, component, logType, evalSpace)
-        log.debug('Widget context kernel <%s> ' % self.context.kernel)
+        # log.debug('Widget context kernel <%s> ' % self.context.kernel)
 
         self.components = {}
         pos = component['position']
@@ -210,9 +210,9 @@ class icWXPanel(icWidget, wx.Panel):
                 try:
                     self.evalSpace['_dict_obj'][key].ObjDestroy()
                 except:
-                    pass
+                    log.fatal(u'Ошибка разрушения объекта <%s>' % key)
         except:
-            pass
+            log.fatal(u'Ошибка закрытия панели')
 
     def Draw(self, dc):
         """

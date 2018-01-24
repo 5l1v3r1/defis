@@ -11,6 +11,8 @@ from wx.lib.agw import aui
 from ic.log import log
 from ic.dlg import ic_dlg
 
+__version__ = (0, 0, 1, 2)
+
 
 class icAUINotebook(aui.AuiNotebook):
     """
@@ -52,6 +54,7 @@ class icAUINotebook(aui.AuiNotebook):
         # У объекта страницы поменять хозяина
         # Чтобы органайзер синхронно переразмеривался с главным окном
         if Page_.GetParent() != self:
+            log.debug(u'Смена родителя <%s> страницы <%s>' % (Page_.GetParent(), Page_.__class__.__name__))
             Page_.Reparent(self)
         return self.AddPage(Page_, Title_, Select_, Image_)
 

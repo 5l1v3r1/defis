@@ -9,6 +9,7 @@
 import wx
 from wx.lib.agw import aui
 
+from ic.log import log
 from ic.utils import util
 from ic.utils import ic_file
 from ic.kernel import io_prnt
@@ -20,6 +21,8 @@ from . import icAUInotebook
 from . import ic_user
 
 from ic.components import icResourceParser
+
+__version__ = (0, 0, 1, 2)
 
 # Основные константы
 # Градиент заголовков AUI панелей
@@ -149,6 +152,7 @@ class icAUIMainWinPrototype(ic_win.icMainWindow):
         """
         Обработчик закрытия страницы главного нотебука.
         """
+        log.debug(u'Закрытие страницы главного нотебука')
         event.Skip()
 
     def onClosedPage(self, event):
@@ -275,7 +279,12 @@ class icAUIMainWinPrototype(ic_win.icMainWindow):
             # По умолчанию ресурс форм: *.frm
             if not res_ext:
                 res_ext = '.frm'
-            Page_ = icResourceParser.icCreateObject(res_name, res_ext[1:], parent=self)
+
+            # Создание объекта страницы
+            main_notebook = self.GetMainNotebook()
+            page_parent = main_notebook if main_notebook else self
+            Page_ = icResourceParser.icCreateObject(res_name, res_ext[1:],
+                                                    parent=page_parent)
         return self.addMainNotebookPage(Page_, Title_, select, Image_, not_dublicate=not_duplicate)
 
     # Можно использовать и другое наименование метода

@@ -108,7 +108,7 @@ import ic.utils.graphicUtils as graphicUtils
 import ic.utils.resource as resource
 import ic.utils.util as util
 from ic.utils import ic_uuid
-from ic.log.iclog import *
+from ic.log import log
 from . import icEvents
 import ic.dlg.msgbox as msg
 import ic.kernel.icobject as icobject
@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 3, 2)
+__version__ = (1, 0, 3, 3)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -1529,6 +1529,7 @@ class icSizer(icBase):
         Возвращает ссылку на родительский объект - для сайзера в библиотеке
         ic возвращается ссылка на компонент, на котором размещается сайзер.
         """
+        # log.debug(u'Получение родительского объекта сайзера <%s>' % self.__name)
         return self.parent
 
     def Add(self, obj, proportion=0, flag=0, border=0):
@@ -1795,7 +1796,7 @@ class icWidget(icBase, icEvent):
                 try:
                     bSkip = bool(val)
                 except:
-                    LogLastError('')
+                    log.fatal()
                     bSkip = True
         if bSkip:
             evt.Skip()
