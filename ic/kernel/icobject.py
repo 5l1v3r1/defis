@@ -19,7 +19,7 @@ from ic.log import log
 from ic.utils import wxfunc
 
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 def check_wx_dead_object(func):
@@ -504,7 +504,15 @@ class icObject(object):
         Возвращает паспорт объекта.
         """
         return self.__passport
-        
+
+    def isSamePassport(self, passport):
+        """
+        Проверка на тотже паспорт что и у объекта.
+        @param passport: Проверяемый паспорт.
+        @return: True - паспорт соответствует паспорту объекта / False - нет.
+        """
+        return self.__passport == passport
+
     def GetUniqId(self):
         """
         Возвращает уникальный идентификатор объекта в приложении.

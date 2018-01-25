@@ -154,7 +154,7 @@ class icFont(wx.Font):
         size = int(component['size'])
         faceName = component['faceName']
         underline = self.bool_underline(component['underline'])
-        log.debug(u'Шрифт %s : %s' % (underline, type(underline)))
+        # log.debug(u'Шрифт %s : %s' % (underline, type(underline)))
 
         if component['family'] is not None:
             family = self._familyId(component['family'])

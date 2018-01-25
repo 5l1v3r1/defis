@@ -75,7 +75,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 4)
+__version__ = (0, 0, 1, 5)
 
 
 class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
@@ -301,9 +301,11 @@ class icOPCNode(icwidget.icSimple, node.icSCADANodeProto):
         if not tags:
             log.warning(u'Не определен список тегов для чтения')
             return False
+        # else:
+        #     log.debug(u'Чтение тегов %s из OPC <%s>' % (str(tags), self.getName()))
 
         # Контроль что все теги соответствуют узлу
-        is_my_tags_list = [tag.getNode() == self for tag in tags]
+        is_my_tags_list = [tag.getNode().GetPassport() == self.GetPassport() for tag in tags]
         is_my_tags = all(is_my_tags_list)
         if not is_my_tags:
             not_my_tags = [tags[i].name for i, is_my_tag in enumerate(is_my_tags_list) if not is_my_tag]

@@ -45,7 +45,11 @@ SPC_IC_STATIC_BOXSIZER = {'type': 'StaticBoxSizer',
                           'flag': 0,
                           'border': 0,
 
+                          '__lists__': {'layout': ['vertical', 'horizontal']},
                           '__parent__': icwidget.SPC_IC_SIZER,
+
+                          '__attr_hlp__': {'layout': u'Ориентация сайзера',
+                                           }
                           }
 
 # -------------------------------------------
@@ -81,7 +85,7 @@ ic_can_contain = None
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (1, 0, 0, 2)
+__version__ = (1, 0, 1, 2)
 
 
 class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
@@ -115,13 +119,13 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
         orient = component['layout']
                 
         if orient == 'vertical':
-            self.orient = orient = wx.VERTICAL
+            self.orient = wx.VERTICAL
         else:
-            self.orient = orient = wx.HORIZONTAL
+            self.orient = wx.HORIZONTAL
             
         statbox = wx.StaticBox(parent, -1, component['label'], size=self.size)
         statbox.Enable(False)
-        wx.StaticBoxSizer.__init__(self, statbox, orient)
+        wx.StaticBoxSizer.__init__(self, statbox, self.orient)
         self.objectList = []
 
         #   Создаем дочерние компоненты
@@ -149,6 +153,12 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
             kernel = self.GetKernel()
             kernel.parse_resource(parent, self.child, self, context=self.evalSpace,
                                   bCounter=bCounter, progressDlg=progressDlg)
+
+            # Добавляем в сайзер дочерние элементы
+            for child in self.component_lst:
+                self.Add(child, child.proportion, child.flag, child.border)
+                self.regObject(child)
+
             try:
                 if not self.parent_sizer:
                     parent.SetSizer(self)
@@ -157,12 +167,8 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
                         parent.EnableScrolling(* self.enableScr)
                         self.SetVirtualSizeHints(parent)
             except:
-                io_prnt.outErr(u'###.... Ошибка при привязке сайзера')
+                io_prnt.outErr(u'Ошибка при привязке сайзера')
 
-            # Добавляем в сайзер дочерние элементы
-            for wxw in self.component_lst:
-                self.Add(wxw, wxw.proportion, wxw.flag, wxw.border)
-        
     def DrawShape(self, dc=None):
         """
         Рисует представление для StaticBoxSizer.
@@ -195,3 +201,31 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
 
             #   Востанавливаем
             dc.SetPen(oldpen)
+
+    def Add(self, obj, proportion=0, flag=0, border=0):
+        """
+        Вызов стандартной функции добавления элементов сайзера.
+        ВНИМАНИЕ! Если пользоваться не стандартной функцией,
+        а определенной в icSizer, то при закрытии формы возникает
+        исключение <Segmentation fault>.
+        Выявлена проблема только методом исключения.
+        @param obj: Окно, которое будет добавлено в sizer.
+            Его первоначальный размер (либо явно заданный пользователем,
+            либо вычисляемый внутри себя при использовании wxDefaultSize)
+            интерпретируется как минимальный, а во многих случаях и начальный размер.
+        @param proportion: Хотя значение этого параметра не определено в wxSizer,
+            оно используется в wxBoxSizer, чтобы указать, может ли дочерний элемент
+            изменять свой размер в основной ориентации wxBoxSizer,
+            где 0 означает, что оно не изменяется, а значение больше нуля равно
+            интерпретируется относительно значения других детей одного и
+            того же wxBoxSizer.
+            Например, у вас может быть горизонтальный wxBoxSizer с тремя детьми,
+            два из которых должны изменить свой размер с помощью sizer.
+            Затем два растяжимых окна получат значение 1 каждый, чтобы заставить
+            их расти и сжиматься одинаково с горизонтальным размером sizer.
+        @param flag: OR-сочетание флагов, влияющих на поведение sizer.
+            Подробнее см. Список флагов wxSizer.
+        @param border: Определяет ширину границы, если параметр флага установлен
+            для включения любого флага границы.
+        """
+        return wx.StaticBoxSizer.Add(self, obj, proportion, flag, border)

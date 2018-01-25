@@ -34,7 +34,7 @@ from . import scada_alarm
 
 # --- Спецификация ---
 SPC_IC_SCADA_ENGINE = {'__parent__': icwidget.SPC_IC_SIMPLE,
-                      }
+                       }
 
 
 #   Тип компонента
@@ -75,7 +75,7 @@ ic_can_contain = ['IntSCADATag', 'FloatSCADATag', 'BoolSCADATag', 'StrSCADATag',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 3, 1)
 
 
 # Классы тегов
@@ -390,24 +390,27 @@ class icSCADAEngine(icwidget.icSimple):
         if not tags:
             # log.warning(u'Не определен список тегов для чтения')
             return False
+        # else:
+        #     log.debug(u'Чтение тегов %s в движке <%s>' % (str(tags), self.getName()))
 
         # Подготовка списка узлов
         tag_nodes = [tag.getNode() for tag in tags]
-        nodes = list()
+        nodes = dict()
         for tag_node in tag_nodes:
-            if tag_node not in nodes:
-                nodes.append(tag_node)
+            tag_node_name = tag_node.getName()
+            if tag_node_name not in nodes:
+                nodes[tag_node_name] = tag_node
 
         # Подготовка списка тегов
-        node_tags = [list() for node in nodes]
+        node_tags = dict([(node_name, list()) for node_name in nodes.keys()])
         for tag in tags:
             tag_node = tag.getNode()
-            i_node = nodes.index(tag_node)
-            node_tags[i_node].append(tag)
+            tag_node_name = tag_node.getName()
+            node_tags[tag_node_name].append(tag)
 
         # Запустить процедуру чтения данных
-        for i, node in enumerate(nodes):
-            node.readTags(*node_tags[i])
+        for node_name, node in nodes.items():
+            node.readTags(*node_tags[node_name])
 
         return True
 
