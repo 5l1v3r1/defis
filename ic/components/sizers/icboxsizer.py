@@ -65,6 +65,8 @@ import ic.kernel.io_prnt as io_prnt
 import ic.imglib.common as common
 import ic.PropertyEditor.icDefInf as icDefInf
 
+from ic.log import log
+
 SPC_IC_BOXSIZER = {'type': 'BoxSizer',
                    'name': 'DefaultName',
                    'child': [],
@@ -140,7 +142,7 @@ ic_can_contain = None
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (1, 0, 1, 1)
+__version__ = (1, 0, 2, 1)
 
 
 class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
@@ -166,14 +168,16 @@ class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
         icSpcDefStruct(SPC_IC_BOXSIZER, component)
         icwidget.icSizer.__init__(self, parent, id, component, logType, evalSpace, sizer=sizer)
         orient = component['layout']
-        #   Картеж задающий вид прокутки (bHoriz, bVert)
+
+        # Кортеж задающий ориентацию (bHoriz, bVert)
         self.enableScr = None
         if orient == 'vertical':
-            self.orient = orient = wx.VERTICAL
+            self.orient = wx.VERTICAL
         else:
-            self.orient = orient = wx.HORIZONTAL
-        
-        wx.BoxSizer.__init__(self, orient)
+            self.orient = wx.HORIZONTAL
+
+        wx.BoxSizer.__init__(self, self.orient)
+
         self.objectList = []
         #   Создаем дочерние компоненты
         if 'child' in component:
@@ -200,18 +204,21 @@ class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
             kernel = self.GetKernel()
             kernel.parse_resource(parent, self.child, self, context=self.evalSpace,
                                   bCounter=bCounter, progressDlg=progressDlg)
+
+            # Добавляем в сайзер дочерние элементы
+            for child in self.component_lst:
+                log.debug(u'Добавляем в сайзер <%s> элемент <%s>' % (self.name, child.name))
+                self.Add(child, child.proportion, child.flag, child.border)
+
             try:
                 if not self.parent_sizer:
+                    log.debug(u'Привязка сайзера <%s> к <%s>' % (self.name, parent.name))
                     parent.SetSizer(self)
                     if self.enableScr:
-                        parent.EnableScrolling(* self.enableScr)
+                        parent.EnableScrolling(*self.enableScr)
                         self.SetVirtualSizeHints(parent)
             except:
                 io_prnt.outErr(u'Ошибка при привязке сайзера')
-
-            # Добавляем в сайзер дочерние элементы
-            for wxw in self.component_lst:
-                self.Add(wxw, wxw.proportion, wxw.flag, wxw.border)
 
     def DrawShape(self, dc=None):
         """
@@ -247,6 +254,34 @@ class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
                     
             #   Востанавливаем
             dc.SetPen(oldpen)
+
+    def Add(self, obj, proportion=0, flag=0, border=0):
+        """
+        Вызов стандартной функции добавления элементов сайзера.
+        ВНИМАНИЕ! Если пользоваться не стандартной функцией,
+        а определенной в icSizer, то при закрытии формы возникает
+        исключение <Segmentation fault>.
+        Выявлена проблема только методом исключения.
+        @param obj: Окно, которое будет добавлено в sizer.
+            Его первоначальный размер (либо явно заданный пользователем,
+            либо вычисляемый внутри себя при использовании wxDefaultSize)
+            интерпретируется как минимальный, а во многих случаях и начальный размер.
+        @param proportion: Хотя значение этого параметра не определено в wxSizer,
+            оно используется в wxBoxSizer, чтобы указать, может ли дочерний элемент
+            изменять свой размер в основной ориентации wxBoxSizer,
+            где 0 означает, что оно не изменяется, а значение больше нуля равно
+            интерпретируется относительно значения других детей одного и
+            того же wxBoxSizer.
+            Например, у вас может быть горизонтальный wxBoxSizer с тремя детьми,
+            два из которых должны изменить свой размер с помощью sizer.
+            Затем два растяжимых окна получат значение 1 каждый, чтобы заставить
+            их расти и сжиматься одинаково с горизонтальным размером sizer.
+        @param flag: OR-сочетание флагов, влияющих на поведение sizer.
+            Подробнее см. Список флагов wxSizer.
+        @param border: Определяет ширину границы, если параметр флага установлен
+            для включения любого флага границы.
+        """
+        return wx.BoxSizer.Add(self, obj, proportion, flag, border)
 
 
 def test(par=0):
