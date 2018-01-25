@@ -142,7 +142,7 @@ ic_can_contain = None
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (1, 0, 2, 1)
+__version__ = (1, 0, 2, 2)
 
 
 class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
@@ -207,12 +207,12 @@ class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
 
             # Добавляем в сайзер дочерние элементы
             for child in self.component_lst:
-                log.debug(u'Добавляем в сайзер <%s> элемент <%s>' % (self.name, child.name))
+                # log.debug(u'Добавляем в сайзер <%s> элемент <%s>' % (self.name, child.name))
                 self.Add(child, child.proportion, child.flag, child.border)
-
+                self.regObject(child)
             try:
                 if not self.parent_sizer:
-                    log.debug(u'Привязка сайзера <%s> к <%s>' % (self.name, parent.name))
+                    # log.debug(u'Привязка сайзера <%s> к <%s>' % (self.name, parent.name))
                     parent.SetSizer(self)
                     if self.enableScr:
                         parent.EnableScrolling(*self.enableScr)

@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 3, 4)
+__version__ = (1, 0, 3, 5)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -1524,13 +1524,20 @@ class icSizer(icBase):
 
         return wx.Rect(x, y, sx, sy)
 
-    def getParent(self):
+    def GetParent(self):
         """
         Возвращает ссылку на родительский объект - для сайзера в библиотеке
         ic возвращается ссылка на компонент, на котором размещается сайзер.
         """
         # log.debug(u'Получение родительского объекта сайзера <%s>' % self.__name)
         return self.parent
+
+    def regObject(self, obj):
+        """
+        Зарегистрировать объект во внутренних списках виджета.
+        @param obj: Объект.
+        """
+        self.objectList.append(obj)
 
     def Add(self, obj, proportion=0, flag=0, border=0):
         """
@@ -1568,7 +1575,7 @@ class icSizer(icBase):
         if bCreate:
             self.AddItem(item)
             self.itemList.append(item)
-            self.objectList.append(obj)
+            self.regObject(obj)
             obj.contaningSizer = self
 
         return bCreate
