@@ -15,8 +15,8 @@
 
 import wx
 from ic.utils.util import icSpcDefStruct
-from ic.components.icwidget import icBase, icSizer, icParentShapeType, icSelectedShapeType,  SPC_IC_SIZER, SPC_IC_BASE
-import ic.imglib.common as common
+from ic.components import icwidget
+from ic.imglib import common
 import ic.PropertyEditor.icDefInf as icDefInf
 
 SPC_IC_SIZER_SPACE = {'type': 'SizerSpace',
@@ -25,7 +25,7 @@ SPC_IC_SIZER_SPACE = {'type': 'SizerSpace',
                       'position': (-1, -1),
                       'size': (0, 0),
 
-                      '__parent__': SPC_IC_BASE,
+                      '__parent__': icwidget.SPC_IC_BASE,
                       }
 
 # -------------------------------------------
@@ -61,10 +61,10 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (1, 0, 0, 4)
+__version__ = (1, 0, 1, 2)
 
 
-class icSpaceSizer(icBase):
+class icSpaceSizer(icwidget.icBase):
     """
     Компонент обладающий только размером. Используется только в сайзерах.
     """
@@ -87,7 +87,7 @@ class icSpaceSizer(icBase):
         @type evalSpace: C{dictionary}
         """
         icSpcDefStruct(SPC_IC_SIZER_SPACE, component)
-        icBase.__init__(self, parent, id, component, logType, evalSpace)
+        icwidget.icBase.__init__(self, parent, id, component, logType, evalSpace)
 
         #   Указатель на сайзер, куда добавляется компонент
         self.contaningSizer = None
@@ -116,11 +116,11 @@ class icSpaceSizer(icBase):
         """
         return self.size
 
-    def SetSize(self, sz):
+    def SetSize(self, size):
         """
         Устанавливает новые размеры.
         """
-        self.size = sz
+        self.size = size
         
     def GetPosition(self):
         """

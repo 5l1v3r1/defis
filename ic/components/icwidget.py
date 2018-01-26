@@ -163,9 +163,9 @@ SPC_IC_BASE = {'name': 'base',
                'size': (-1, -1),
                'position': (-1, -1),
                'span': (1, 1),
-               'proportion': 0,
-               'flag': 0,
-               'border': 0,
+               'proportion': 1,
+               'flag': wx.GROW | wx.EXPAND,
+               'border': 5,
                '__attr_types__': {icDefInf.EDT_POINT: ['position', 'span'],
                                   icDefInf.EDT_SIZE: ['size'],
                                   icDefInf.EDT_COMBINE: ['flag'],
@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 4, 4)
+__version__ = (1, 0, 4, 5)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None

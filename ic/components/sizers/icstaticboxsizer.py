@@ -33,6 +33,9 @@ import ic.imglib.common as common
 import ic.PropertyEditor.icDefInf as icDefInf
 from ic.log import log
 
+from . import icspacesizer
+
+
 SPC_IC_STATIC_BOXSIZER = {'type': 'StaticBoxSizer',
                           'name': 'DefaultName',
                           'child': [],
@@ -229,4 +232,7 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
         @param border: Определяет ширину границы, если параметр флага установлен
             для включения любого флага границы.
         """
+        if isinstance(obj, icspacesizer.icSpaceSizer):
+            size = tuple(obj.GetSize())
+            return wx.StaticBoxSizer.AddSpacer(self, size, proportion, flag, border)
         return wx.StaticBoxSizer.Add(self, obj, proportion, flag, border)

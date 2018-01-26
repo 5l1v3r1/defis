@@ -27,7 +27,7 @@
 import wx
 import imp
 
-__version__ = (0, 0, 4, 2)
+__version__ = (0, 0, 4, 3)
 
 # Ищем путь до модуля ic
 fp, icpath, description = imp.find_module('ic')
@@ -668,7 +668,7 @@ def img_init():
     imgEdtStaticBoxSizer = wx.Image(path + 'layout-2.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtImport = wx.Image(path + 'import.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtCell = wx.Image(path + 'table-select.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-    imgEdtSizerSpacer = wx.Image(path + 'layout.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+    imgEdtSizerSpacer = wx.Image(path + 'arrow-resize.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtSeparator = wx.Image(path + 'ui-separator.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtTextField = wx.Image(path + 'ui-text-field.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     imgEdtButton = wx.Image(path + 'ui-button.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()

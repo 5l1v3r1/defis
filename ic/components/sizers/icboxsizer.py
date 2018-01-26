@@ -67,6 +67,8 @@ import ic.PropertyEditor.icDefInf as icDefInf
 
 from ic.log import log
 
+from . import icspacesizer
+
 SPC_IC_BOXSIZER = {'type': 'BoxSizer',
                    'name': 'DefaultName',
                    'child': [],
@@ -281,6 +283,9 @@ class icBoxSizer(icwidget.icSizer, wx.BoxSizer):
         @param border: Определяет ширину границы, если параметр флага установлен
             для включения любого флага границы.
         """
+        if isinstance(obj, icspacesizer.icSpaceSizer):
+            size = tuple(obj.GetSize())
+            return wx.BoxSizer.AddSpacer(self, size, proportion, flag, border)
         return wx.BoxSizer.Add(self, obj, proportion, flag, border)
 
 
