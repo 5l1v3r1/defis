@@ -202,7 +202,7 @@ class icTextIndicator(icwidget.icWidget, wx.StaticText):
             self.self.SetBackgroundColour(bg_indicator)
         else:
             sys_colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWFRAME)
-            self.self.SetBackgroundColour(sys_colour)
+            self.SetBackgroundColour(sys_colour)
 
         return self.SetLabel(text_indicator)
 
@@ -289,6 +289,7 @@ def test(par=0):
                                      'font': {'style': 'boldItalic', 'size': 14}})
     frame.Show(True)
     app.MainLoop()
+    wx.GREY
 
 
 if __name__ == '__main__':

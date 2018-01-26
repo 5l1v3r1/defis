@@ -31,7 +31,7 @@ from ic.utils.util import icSpcDefStruct
 from ic.components import icwidget
 import ic.imglib.common as common
 import ic.PropertyEditor.icDefInf as icDefInf
-from ic.kernel import io_prnt
+from ic.log import log
 
 SPC_IC_STATIC_BOXSIZER = {'type': 'StaticBoxSizer',
                           'name': 'DefaultName',
@@ -156,6 +156,7 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
 
             # Добавляем в сайзер дочерние элементы
             for child in self.component_lst:
+                # log.debug(u'Добавление объекта <%s> в сайзер <%s>. %s' % (child.name, self.name, child.flag))
                 self.Add(child, child.proportion, child.flag, child.border)
                 self.regObject(child)
 
@@ -167,7 +168,7 @@ class icStaticBoxSizer(icwidget.icSizer, wx.StaticBoxSizer):
                         parent.EnableScrolling(* self.enableScr)
                         self.SetVirtualSizeHints(parent)
             except:
-                io_prnt.outErr(u'Ошибка при привязке сайзера')
+                log.fatal(u'Ошибка при привязке сайзера')
 
     def DrawShape(self, dc=None):
         """

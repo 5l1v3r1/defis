@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 2, 3)
+__version__ = (0, 0, 3, 1)
 
 
 class icObjPersistentPrototype:
@@ -304,6 +304,9 @@ class icObjPersistent(icObjPersistentPrototype):
         # если None, то все объекты
         self._filter = None
 
+        # Ограничение количества объектов. Если None, ограничения нет.
+        self._limit = None
+
     def setFilter(self, cur_filter):
         """
         Установить фильтр.
@@ -322,6 +325,18 @@ class icObjPersistent(icObjPersistentPrototype):
         Фильтр объектов.
         """
         return self._filter
+
+    def setLimit(self, limit=None):
+        """
+        Ограничение количества объектов. Если None, ограничения нет.
+        """
+        self._limit = limit
+
+    def getLimit(self):
+        """
+        Ограничение количества объектов. Если None, ограничения нет.
+        """
+        return self._limit
 
     def getTable(self):
         """
@@ -1227,13 +1242,14 @@ class icObjPersistent(icObjPersistentPrototype):
                 env['requisites'].append(req_env)
         return env
     
-    def getFilterSQL(self, Filter_=None, Fields_=None):
+    def getFilterSQL(self, Filter_=None, Fields_=None, limit=None):
         """
         Фильтр в SQL представлении.
         @param Filter_: Фильтр.
         @param Fields_: Поля выбора. Если None, то будут выбираться только 
         идентифицирующие объект поля.
-        """        
+        @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
+        """
         if Fields_ is None:
             Fields_ = tuple([requisite.getFieldName() for requisite in self.getChildrenRequisites() if requisite.isIDAttr()])
         if not Fields_:
@@ -1245,15 +1261,17 @@ class icObjPersistent(icObjPersistentPrototype):
             fld_lst.append('uuid')
             Fields_ = tuple(fld_lst)
             
-        sql = filter_convert.convertFilter2PgSQL(Filter_, self.getTableName(), Fields_)
+        sql = filter_convert.convertFilter2PgSQL(Filter_, self.getTableName(), Fields_,
+                                                 limit=limit)
         return sql
 
-    def getFilterSQLAlchemy(self, Filter_=None, Fields_=None):
+    def getFilterSQLAlchemy(self, Filter_=None, Fields_=None, limit=None):
         """
         Фильтр в SQLAlchemy представлении.
         @param Filter_: Фильтр.
         @param Fields_: Поля выбора. Если None, то будут выбираться только 
         идентифицирующие объект поля.
+        @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
         """
         if Fields_ is None:
             field_list = [requisite.getFieldName() for requisite in self.getChildrenRequisites()
@@ -1271,7 +1289,8 @@ class icObjPersistent(icObjPersistentPrototype):
             fld_lst.append('uuid')
             Fields_ = tuple(fld_lst)
 
-        query = filter_convert.convertFilter2SQLAlchemy(Filter_, self.getTable(), Fields_)
+        query = filter_convert.convertFilter2SQLAlchemy(Filter_, self.getTable(), Fields_,
+                                                        limit=limit)
         return query
 
     def _resultFilter2Dataset(self, FilterResult_):
@@ -1319,7 +1338,7 @@ class icObjPersistent(icObjPersistentPrototype):
         filter_requisite_data = dict([(name, value) for name, value in FilterRequisiteData_.items() if value])
         return filter_requisite_data
 
-    def getDataDict(self, filter_requisite_data=None):
+    def getDataDict(self, filter_requisite_data=None, limit=None):
         """
         Набор записей.Каждая запись в виде словаря.
         Этот метод также имеет название getDataset и getRecordset.
@@ -1331,6 +1350,7 @@ class icObjPersistent(icObjPersistentPrototype):
             из функций прикладного уровня.
             Использование:
                 create_filter_group_AND(create_filter_compare_requisite('field1', '==', 'FFF'))
+        @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
         """
         if not filter_requisite_data:
             filter_requisite_data = None
@@ -1338,7 +1358,8 @@ class icObjPersistent(icObjPersistentPrototype):
         io_prnt.outLog(u'BUSINES OBJECT get data')
         data_filter = self.filterRequisiteData(filter_requisite_data)
         io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
-        query = self.getFilterSQLAlchemy(data_filter)
+        query = self.getFilterSQLAlchemy(data_filter,
+                                         limit=limit if limit else self._limit)
         io_prnt.outLog(u'\tQuery: <%s>' % query)
         result = self.getTable().getConnection().execute(query)
         io_prnt.outLog(u'\tResult: [%s]' % result.rowcount)
@@ -1482,16 +1503,17 @@ class icAccRegPersistent(icObjPersistent):
         """
         return self.get_operation_table()
 
-    def getDataDict(self):
+    def getDataDict(self, limit=None):
         """
         Данные операций.
             Набор записей. Каждая запись в виде словаря.
             ВНИМАНИЕ! Функция переписана для адаптации
             списка операций движения регистра накопления
             для просмотра в контролах.
+        @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
         """
         data_filter = self.filterRequisiteData()
-        query = self.getFilterSQLAlchemy(data_filter, Fields_='*')
+        query = self.getFilterSQLAlchemy(data_filter, Fields_='*', limit=limit)
         result = query.execute()
         io_prnt.outLog(u'ACCUMULATE REGISTRY get data\n\tResult: [%s]' % result.rowcount)
         return self._resultFilter2Dataset(result.fetchall())

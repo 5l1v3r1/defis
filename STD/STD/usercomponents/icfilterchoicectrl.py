@@ -41,6 +41,7 @@ ic_class_spc = {'name': 'default',
 
                 'save_filename': None,  # Имя файла хранения фильтров
                 'get_env': None,        # Метод получения окружения
+                'limit': None,          # Ограничение количества строк
 
                 'onChange': None,  # Код смены фильтра
 
@@ -48,11 +49,13 @@ ic_class_spc = {'name': 'default',
                 '__attr_types__': {0: ['name', 'type'],
                                    icDefInf.EDT_TEXTFIELD: ['save_filename'],
                                    icDefInf.EDT_PY_SCRIPT: ['get_env', 'onChange'],
+                                   icDefInf.EDT_NUMBER: ['limit'],
                                    },
                 '__parent__': icwidget.SPC_IC_WIDGET,
                 '__attr_hlp__': {'save_filename': u'Имя файла хранения фильтров',
                                  'get_env': u'Метод получения окружения',
                                  'onChange': u'Код смены фильтра',
+                                 'limit': u'Ограничение количества строк',
                                  },
                 }
 
@@ -73,7 +76,7 @@ ic_can_contain = []
 ic_can_not_contain = []
 
 #   Версия компонента
-__version__ = (0, 0, 0, 4)
+__version__ = (0, 0, 1, 2)
 
 
 class icFilterChoiceCtrl(icwidget.icWidget, parentModule.icFilterChoiceCtrlProto):
@@ -102,6 +105,7 @@ class icFilterChoiceCtrl(icwidget.icWidget, parentModule.icFilterChoiceCtrlProto
 
         self._filter_filename = self.getICAttr('save_filename')
         self._environment = self.getICAttr('get_env')
+        self._limit = self.getICAttr('limit')
 
         # После того как определили окружение и
         # имя файла хранения фильтров можно загрузить фильтры
@@ -153,6 +157,8 @@ class icFilterChoiceCtrl(icwidget.icWidget, parentModule.icFilterChoiceCtrlProto
 
         self._dlg.setEnvironment(self._environment)
         self._dlg.setFilters(self._filter)
+        self._dlg.setLimitLabel(self._limit)
+
         if self._dlg.ShowModal() == wx.ID_OK:
             self._filter = self._dlg.getFilter()
             self.saveFilter()

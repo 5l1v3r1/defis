@@ -93,7 +93,9 @@ ic_class_spc = dict({'__events__': {},
                      'valid_del': None,     # Функция валидации при удалении
 
                      'history': None,   # История хранения изменений состояния объекта
-    
+
+                     'limit': None,     # Ограничение количества объектов для обработки
+
                      '_uuid': None,
                      '__attr_types__': {0: ['name', 'type'],
                                         icDefInf.EDT_TEXTFIELD: ['description'],
@@ -108,6 +110,7 @@ ic_class_spc = dict({'__events__': {},
                                         icDefInf.EDT_CHECK_BOX: ['is_page_grp_init', 'is_page_grp_edit',
                                                                  'is_page_grp_view', 'is_page_grp_search',
                                                                  'auto_group'],
+                                        icDefInf.EDT_NUMBER: ['limit'],
                                         },
                      '__parent__': parentModule.SPC_IC_BUSINESSOBJ,
                      })
@@ -131,7 +134,7 @@ ic_can_contain = ['Requisite', 'NSIRequisite', 'TABRequisite', 'REFRequisite']
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 2)
 
 # Функции редактирования
 
@@ -259,6 +262,9 @@ class icBusinessObj(parentModule.icBusinessObjPrototype, icwidget.icSimple):
         self._createTableResource()
         
         self.getWorkStorage().container.setTable(self.getTableName())
+
+        # Установить ораничения количества, если они есть
+        self.setLimit(int(self.limit) if hasattr(self, 'limit') else None)
         
     def childCreator(self, bCounter, progressDlg):
         """

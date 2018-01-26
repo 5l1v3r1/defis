@@ -86,6 +86,8 @@ SPC_IC_BUSINESSOBJ = {'type': 'BusinessObj',
 
                       'history': None,      # История хранения изменений состояния объекта
 
+                      'limit': None,  # Ограничение количества объектов для обработки
+
                       'child': [],
     
                       '__parent__': icworkbase.SPC_IC_WORKBASE,

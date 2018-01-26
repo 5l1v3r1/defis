@@ -46,15 +46,16 @@ import sqlalchemy
 import ic
 
 # Version
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 1)
 
 
-def convertFilter2PgSQL(Filter_, TableName_, Fields_=('*',)):
+def convertFilter2PgSQL(Filter_, TableName_, Fields_=('*',), limit=None):
     """
     Конвертировать фильтр в SQL представление Postgres.
     @param Filter_: Структура фильтра.
     @param TableName_: Имя таблицы запроса.
     @param Fields_: Список/Кортеж имен полей используемых в запросе.
+    @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
     @return: Возвращает строковое представление оператора
     SELECT диалекта PgSQL.
     """
@@ -67,8 +68,12 @@ def convertFilter2PgSQL(Filter_, TableName_, Fields_=('*',)):
     where = converter.convert()
     if not where:
         sql_fmt = 'SELECT %s FROM %s'
-        return sql_fmt % (fields, TableName_)
-    return sql_fmt % (fields, TableName_, where)
+        sql = sql_fmt % (fields, TableName_)
+    else:
+        sql = sql_fmt % (fields, TableName_, where)
+    if limit:
+        sql += 'LIMIT %d' % limit
+    return sql
 
 
 class icFilter2PostgreSQLConverter:
@@ -128,8 +133,8 @@ class icFilter2PostgreSQLConverter:
         """
         return ' '.join(Requisite_['__sql__'])
     
-# --- Конвертация фильтра в SQLAlchemy представление ---
 
+# --- Конвертация фильтра в SQLAlchemy представление ---
 # Словарь преобразования логических операций
 logicName2SQLAlchemyLogic = {'AND': sqlalchemy.and_,
                              'OR': sqlalchemy.or_,
@@ -137,12 +142,13 @@ logicName2SQLAlchemyLogic = {'AND': sqlalchemy.and_,
                              }
 
 
-def convertFilter2SQLAlchemy(Filter_, Table_, Fields_=('*',)):
+def convertFilter2SQLAlchemy(Filter_, Table_, Fields_=('*',), limit=None):
     """
     Конвертация фильтра в представление SQLAlchemy.
     @param Filter_: Структура фильтра.
     @param Table_: Таблица запроса.
     @param Fields_: Список/Кортеж имен полей используемых в запросе.
+    @param limit: Ограничение по строкам. Если не определено, то ограничения нет.
     """
     converter = icFilter2SQLAlchemyConverter(Filter_, Table_)
     where = converter.convert()
@@ -151,7 +157,10 @@ def convertFilter2SQLAlchemy(Filter_, Table_, Fields_=('*',)):
         columns = [getattr(Table_.c, fld_name) for fld_name in Fields_]
     else:
         columns = [Table_]
-    return sqlalchemy.select(columns, where)
+    query = sqlalchemy.select(columns, where)
+    if limit:
+        query = query.limit(int(limit))
+    return query
 
 
 class icFilter2SQLAlchemyConverter:

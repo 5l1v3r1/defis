@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jun 17 2015)
+## Python code generated with wxFormBuilder (version Dec 21 2016)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -49,6 +49,13 @@ class icFilterChoiceDlgProto ( wx.Dialog ):
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
+		self.limit_staticText = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.limit_staticText.Wrap( -1 )
+		bSizer4.Add( self.limit_staticText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer4.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+		
 		self.addButton = wx.Button( self, wx.ID_ANY, u"Добавить...", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.addButton, 0, wx.ALL, 5 )
 		
@@ -62,7 +69,7 @@ class icFilterChoiceDlgProto ( wx.Dialog ):
 		bSizer4.Add( self.okButton, 0, wx.ALL, 5 )
 		
 		
-		bSizer2.Add( bSizer4, 0, wx.ALIGN_RIGHT, 5 )
+		bSizer2.Add( bSizer4, 0, wx.ALIGN_RIGHT|wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( bSizer2 )

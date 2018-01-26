@@ -20,7 +20,9 @@ from ic.utils import ic_res
 from . import filter_choice_dlg
 from . import filter_constructor_dlg
 
-__version__ = (0, 0, 0, 4)
+__version__ = (0, 0, 2, 1)
+
+DEFAULT_LIMIT_LABEL_FMT = u'Ограничение количества объектов: %d'
 
 
 class icFilterChoiceDlg(filter_choice_dlg.icFilterChoiceDlgProto):
@@ -242,6 +244,20 @@ class icFilterChoiceDlg(filter_choice_dlg.icFilterChoiceDlgProto):
         self.filterCheckList.SetSelection(filter_idx + 1)
         return True
 
+    def setLimitLabel(self, limit=None):
+        """
+        Вывести сообщение об ограничении количества записей.
+        @param limit: Ограничение количества записей.
+        """
+        if limit:
+            try:
+                label = DEFAULT_LIMIT_LABEL_FMT % int(limit)
+                self.limit_staticText.SetLabel(label)
+                return
+            except:
+                io_prnt.outLastErr(u'Ошибка в setLimitLabel')
+        self.limit_staticText.SetLabel(u'')
+
     def onAddButtonClick(self, event):
         self.GetParent().addFilter()
         event.Skip()
@@ -305,6 +321,9 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
 
         # Диалоговое окно выбора фильтров
         self._dlg = None
+
+        # Ограничение количества строк фильтруемого объекта.
+        self._limit = None
 
     def setEnvironment(self, env=None):
         """
@@ -372,6 +391,28 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
             return struct_filter
         return None
 
+    def getLimit(self):
+        """
+        Ограничение количества строк фильтруемого объекта.
+        """
+        if self._limit < 0:
+            self._limit = 0
+        return self._limit
+
+    def validLimit(self, obj_count):
+        """
+        Проверка преодоления ограничения.
+        Функция автоматически сигнализирует о перодолении ограничения.
+        @param obj_count: Реальное количество объектов.
+        @return: True - ограничение не преодолено / False -превышено ограничение.
+        """
+        valid = obj_count <= self._limit
+        if not valid:
+            self.SetBackgroundColour(wx.RED)
+        else:
+            self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        return valid
+
     def doDlgChoiceFilter(self):
         """
         Вызов диалогового окна выбора фильтра.
@@ -381,6 +422,7 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
         self._dlg = icFilterChoiceDlg(self)
         self._dlg.setEnvironment(self._environment)
         self._dlg.setFilters(self._filter)
+        self._dlg.setLimitLabel(self._limit)
         if self._dlg.ShowModal() == wx.ID_OK:
             self._filter = self._dlg.getFilter()
             self.saveFilter()

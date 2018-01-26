@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 3, 5)
+__version__ = (1, 0, 4, 4)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -1117,6 +1117,33 @@ class icSimple(icobject.icObject):
 
         return value
 
+    def _prepare_expression(self, expr):
+        """
+        Подготовка выражения для выполнения.
+        В случае если в выражении присутствуют символы перевода каретки,
+        то при выполнении появляется исключение
+        SyntaxError: unexpected character after line continuation character.
+        Чтобы этого не происходило удаляются все символы новой строки/перевода каретки
+        из исполняемого выражения.
+        @param expr: Само выражение. Если не строка, то остается без изменений.
+        @return: Подготовленное выражение.
+        """
+        if type(expr) in (str, unicode):
+            expr = expr.strip()
+            if expr.startswith('@'):
+                expr = expr.replace('\\n', '\n').replace('\\r', '\r')
+        return expr
+
+    def getExpression(self, attr):
+        """
+        Получить выражение для последующего выполнения.
+        @type attr: C{string}
+        @param attr: Имя атрибута.
+        @return: Подготовленное выражение.
+        """
+        expr = self.resource[attr]
+        return self._prepare_expression(expr)
+
     def eval_attr(self, attr, subkey='', bReUse=True):
         """
         Функция вычисления атрибутов.
@@ -1128,7 +1155,7 @@ class icSimple(icobject.icObject):
         @param bReUse: Признак посторного использования компилированного выражения.
         @return: Код ошибки из модуля coderror, Возвращаемое значение вычисляемого выржения.
         """
-        expr = self.resource[attr]
+        expr = self.getExpression(attr)
         if self.GetUUID() and bReUse:
             compileKey = self.GetUUIDAttr(attr, subkey)
         else:
@@ -1160,6 +1187,7 @@ class icSimple(icobject.icObject):
         @param bReUse: Признак повторного использования компилированного выражения.
         @return: Код ошибки из модуля coderror, Возвращаемое значение вычисляемого выржения.
         """
+        expr = self._prepare_expression(expr)
         if self.GetUUID() and bReUse:
             compileKey = self.GetUUIDAttr(subkey)
         else:
@@ -1176,7 +1204,7 @@ class icSimple(icobject.icObject):
         @return: Возвращает значение атрибута. None - если произошла ошибка при
             вычислении атрибута.
         """
-        attr_val = self.resource[attr]
+        attr_val = self.getExpression(attr)
 
         if type(attr_val) not in (str, unicode):
             return None
@@ -1234,7 +1262,7 @@ class icSimple(icobject.icObject):
             None - если произошла ошибка при вычислении атрибута. Если атрибут
             не вычисляемый, то возвращется значение атрибута.
         """
-        attr_val = self.resource[attr]
+        attr_val = self.getExpression(attr)
 
         if type(attr_val) not in (str, unicode) or not attr_val:
             return attr_val
