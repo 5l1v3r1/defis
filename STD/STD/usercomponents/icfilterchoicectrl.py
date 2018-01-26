@@ -76,7 +76,7 @@ ic_can_contain = []
 ic_can_not_contain = []
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icFilterChoiceCtrl(icwidget.icWidget, parentModule.icFilterChoiceCtrlProto):
@@ -157,7 +157,7 @@ class icFilterChoiceCtrl(icwidget.icWidget, parentModule.icFilterChoiceCtrlProto
 
         self._dlg.setEnvironment(self._environment)
         self._dlg.setFilters(self._filter)
-        self._dlg.setLimitLabel(self._limit)
+        self._dlg.setLimitLabel(self._limit, self._over_limit)
 
         if self._dlg.ShowModal() == wx.ID_OK:
             self._filter = self._dlg.getFilter()

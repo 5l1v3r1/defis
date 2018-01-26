@@ -20,9 +20,10 @@ from ic.utils import ic_res
 from . import filter_choice_dlg
 from . import filter_constructor_dlg
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 DEFAULT_LIMIT_LABEL_FMT = u'Ограничение количества объектов: %d'
+ERROR_LIMIT_LABEL_FMT = u'(!) Превышено ограничение: %d'
 
 
 class icFilterChoiceDlg(filter_choice_dlg.icFilterChoiceDlgProto):
@@ -244,18 +245,31 @@ class icFilterChoiceDlg(filter_choice_dlg.icFilterChoiceDlgProto):
         self.filterCheckList.SetSelection(filter_idx + 1)
         return True
 
-    def setLimitLabel(self, limit=None):
+    def setLimitLabel(self, limit=None, over_limit=None):
         """
         Вывести сообщение об ограничении количества записей.
         @param limit: Ограничение количества записей.
+        @param over_limit: Количество записей при привышении ограничения.
         """
-        if limit:
+        if over_limit:
             try:
-                label = DEFAULT_LIMIT_LABEL_FMT % int(limit)
+                label = ERROR_LIMIT_LABEL_FMT % int(over_limit)
                 self.limit_staticText.SetLabel(label)
+                self.limit_staticText.SetForegroundColour(wx.RED)
                 return
             except:
                 io_prnt.outLastErr(u'Ошибка в setLimitLabel')
+        if limit:
+            # Есть ограничение, но не превышено
+            try:
+                label = DEFAULT_LIMIT_LABEL_FMT % int(limit)
+                self.limit_staticText.SetLabel(label)
+                fg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+                self.limit_staticText.SetForegroundColour(fg)
+                return
+            except:
+                io_prnt.outLastErr(u'Ошибка в setLimitLabel')
+        # Нет ограничений
         self.limit_staticText.SetLabel(u'')
 
     def onAddButtonClick(self, event):
@@ -324,6 +338,8 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
 
         # Ограничение количества строк фильтруемого объекта.
         self._limit = None
+        # Количество строк при привышении лимита
+        self._over_limit = None
 
     def setEnvironment(self, env=None):
         """
@@ -408,8 +424,10 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
         """
         valid = obj_count <= self._limit
         if not valid:
+            self._over_limit = obj_count
             self.SetBackgroundColour(wx.RED)
         else:
+            self._over_limit = None
             self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         return valid
 
@@ -422,7 +440,7 @@ class icFilterChoiceCtrlProto(wx.combo.ComboCtrl):
         self._dlg = icFilterChoiceDlg(self)
         self._dlg.setEnvironment(self._environment)
         self._dlg.setFilters(self._filter)
-        self._dlg.setLimitLabel(self._limit)
+        self._dlg.setLimitLabel(self._limit, self._over_limit)
         if self._dlg.ShowModal() == wx.ID_OK:
             self._filter = self._dlg.getFilter()
             self.saveFilter()
