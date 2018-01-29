@@ -78,7 +78,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 
 # Функции редактирования
@@ -270,6 +270,8 @@ class icFloatSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
         """
         if isinstance(value, float):
             return value
+        elif value is None:
+            return 0.0
         return float(value)
 
     def normValueOut(self, value):

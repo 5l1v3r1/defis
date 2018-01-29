@@ -65,7 +65,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 3)
 
 
 class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
@@ -171,9 +171,12 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
         for tag in tags:
             # Все теги Memory узла являются вычисляемыми.
             # Выражение для вычисления записывается в 'address'
-            expression = tag.getAddress()
-
-            self.setEnv(TAG=tag)
-            value = self.read_values(expression)
+            expression = tag.GetResource().get('address', None)
+            if not expression:
+                log.warning(u'Не определена функция вычисляемого тега <%s> для определения значения' % tag.getName())
+                value = None
+            else:
+                self.setEnv(TAG=tag)
+                value = self.read_value(expression)
             tag.setCurValue(value)
         return True
