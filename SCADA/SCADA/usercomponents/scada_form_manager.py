@@ -11,7 +11,7 @@ from ic.components import icwidget
 
 from ic.log import log
 
-__version__ = (0, 0, 3, 2)
+__version__ = (0, 0, 4, 1)
 
 # Период сканирования формы/панели SCADA системы по умолчанию
 DEFAULT_SCAN_TICK = -1
@@ -134,6 +134,7 @@ class icSCADAFormManager(form_manager.icFormManager):
 
         if isinstance(self.scada_engines, list):
             if scada_engine not in self.scada_engines:
+                scada_engine.setEnv(SCADA_PANEL=self)
                 self.scada_engines.append(scada_engine)
                 return False
             else:
@@ -217,6 +218,30 @@ class icSCADAFormManager(form_manager.icFormManager):
             log.debug(u'Конец процедуры обновления значений контролов')
         except:
             log.fatal(u'Ошибка обновления значений контролов формы SCADA системы')
+
+    def findSCADAObject(self, obj_address):
+        """
+        Поиск объекта по его адресу.
+        @param obj_address: Адрес объекта.
+            Адреса объектов указываются как <Имя_движка.Имя_объекта_в_движке>.
+        @return: Найденный объект или None, если объект не найден.
+        """
+        if type(obj_address) not in (str, unicode):
+            log.error(u'Не корректный тип адреса <%s> объекта SCADA движка' % obj_address.__class__.__name__)
+            return None
+
+        engine_name, obj_name = obj_address.split(ADDRESS_DELIMETER)
+        if engine_name and obj_name:
+            engine = self.findSCADAEngine(engine_name)
+            if engine:
+                obj = engine.findObject(obj_name)
+                return obj
+        return None
+
+    # Другие наименования метода
+    findTag = findSCADAObject
+    findEvent = findSCADAObject
+    findAlarm = findSCADAObject
 
     def start(self):
         """

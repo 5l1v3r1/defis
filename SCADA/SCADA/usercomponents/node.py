@@ -7,7 +7,7 @@
 
 from ic.log import log
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 # Проверка наличия обрамляющих сигнатур топика
 DO_CONTROL_TOPIC_SIGNATURES = True
@@ -47,3 +47,34 @@ class icSCADANodeProto(object):
         """
         log.error(u'Функция чтения списка данных по адресу не реализована в <%s>' % self.__class__.__name__)
         return None
+
+    def readTags(self, *tags):
+        """
+        Прочитать список тегов.
+        @param tags: Список объектов тегов.
+        @return: True/False.
+        """
+        log.error(u'Функция чтения списка тегов не реализована в <%s>' % self.__class__.__name__)
+        return False
+
+    def setEnv(self, **environment):
+        """
+        Добавить дополнительное окружение узла.
+        Необходимо для выполнения вычисляемых тегов.
+        @param environment: Словарь дополнительных переменных окружения узла.
+        @return: True/False.
+        """
+        if not hasattr(self, '_node_environment'):
+            self._node_environment = dict()
+        self._node_environment.update(environment)
+        return True
+
+    def getEnv(self):
+        """
+        Дополнительное окружение узла.
+        Необходимо для выполнения вычисляемых тегов.
+        @return: Словарь дополнительных переменных окружения узла.
+        """
+        if not hasattr(self, '_node_environment'):
+            return dict()
+        return self._node_environment

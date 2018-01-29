@@ -185,6 +185,7 @@ class icSCADAEvent(icwidget.icSimple):
         """
         context = self.GetContext()
         context['SCADA_ENGINE'] = self.parent
+
         if self.isICAttrValue('expression'):
             result = self.eval_attr('expression')
             if result[0] == coderror.IC_EVAL_OK:

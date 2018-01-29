@@ -75,7 +75,7 @@ ic_can_contain = ['IntSCADATag', 'FloatSCADATag', 'BoolSCADATag', 'StrSCADATag',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 3, 1)
+__version__ = (0, 0, 4, 2)
 
 
 # Классы тегов
@@ -191,6 +191,17 @@ class icSCADAEngine(icwidget.icSimple):
             # Нужно отфильтровать дочерние объекты
             self._alarms_cache = [child for child in self.component_lst if isinstance(child, scada_alarm.icSCADAAlarm)]
         return self._alarms_cache
+
+    def findObject(self, obj_name):
+        """
+        Найти объект по имени.
+        @param obj_name: Имя объекта движка SCADA.
+        @return: Объект или None в случае если объект не найден.
+        """
+        obj = self.components.get(obj_name, None)
+        if obj is None:
+            log.warning(u'Объект <%s> не найден в движке SCADA <%s>' % (obj_name, self.getName()))
+        return obj
 
     def findTag(self, tag_name):
         """
@@ -410,6 +421,9 @@ class icSCADAEngine(icwidget.icSimple):
 
         # Запустить процедуру чтения данных
         for node_name, node in nodes.items():
+            env = self.getEnv()
+            node.setEnv(**env)
+            node.setEnv(SCADA_ENGINE=self)
             node.readTags(*node_tags[node_name])
 
         return True
@@ -439,3 +453,25 @@ class icSCADAEngine(icwidget.icSimple):
         #     for alarm in alarms:
         #         alarm.do()
         return True
+
+    def setEnv(self, **environment):
+        """
+        Добавить дополнительное окружение движка.
+        Необходимо для выполнения вычисляемых тегов.
+        @param environment: Словарь дополнительных переменных окружения движка.
+        @return: True/False.
+        """
+        if not hasattr(self, '_engine_environment'):
+            self._engine_environment = dict()
+        self._engine_environment.update(environment)
+        return True
+
+    def getEnv(self):
+        """
+        Дополнительное окружение движка.
+        Необходимо для выполнения вычисляемых тегов.
+        @return: Словарь дополнительных переменных окружения движка.
+        """
+        if not hasattr(self, '_engine_environment'):
+            return dict()
+        return self._engine_environment
