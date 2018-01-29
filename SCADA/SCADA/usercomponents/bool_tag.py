@@ -68,7 +68,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 # Функции редактирования
@@ -94,7 +94,7 @@ def property_editor_ctrl(attr, value, propEdt, *arg, **kwarg):
         ret = str_to_val_user_property(attr, value, propEdt)
         if ret:
             parent = propEdt
-            if not ret[0][0] in ('OPCNode',):
+            if not ret[0][0] in ('OPCNode', 'MemoryNode'):
                 ic_dlg.icMsgBox(u'ВНИМАНИЕ!',
                                 u'Выбранный объект не является узлом/контроллером SCADA.', parent)
                 return coderror.IC_CTRL_FAILED_IGNORE
