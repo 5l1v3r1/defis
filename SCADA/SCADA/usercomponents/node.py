@@ -7,7 +7,7 @@
 
 from ic.log import log
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 3, 1)
 
 # Проверка наличия обрамляющих сигнатур топика
 DO_CONTROL_TOPIC_SIGNATURES = True
@@ -78,3 +78,12 @@ class icSCADANodeProto(object):
         if not hasattr(self, '_node_environment'):
             return dict()
         return self._node_environment
+
+    def getSCADAEngine(self):
+        """
+        Объект SCADA движка. Берется из дополнительного контекста.
+        @return: Объект SCADA движка или None если движок
+            не был определен в дополнительном контексте объекта.
+        """
+        environment = self.getEnv()
+        return environment.get('SCADA_ENGINE', None)

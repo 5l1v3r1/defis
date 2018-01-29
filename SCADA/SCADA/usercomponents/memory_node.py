@@ -7,6 +7,10 @@
 Используется для вычисляемых тегов.
 Все теги Memory узла являются вычисляемыми.
 Выражение для вычисления записывается в 'address' тега.
+
+ВНИМАНИЕ! Все блоки кода вычисляемых тегов выполняются в контексте
+Memory узла. Поэтому все функции расчетов необходимо расмолагать
+в менеджере Memory Node.
 """
 
 from ic.log import log
@@ -65,7 +69,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 6)
 
 
 class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
@@ -116,6 +120,9 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
     def doExpression(self, expression, environment=None):
         """
         Выполнить выражение.
+        ВНИМАНИЕ! Все блоки кода вычисляемых тегов выполняются в контексте
+        Memory узла. Поэтому все функции расчетов необходимо расмолагать
+        в менеджере Memory Node.
         @param expression: Выполняемое выражение.
         @param engine: Объект SCADA движка.
         @param tag: Объект тега.
@@ -126,10 +133,16 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
         context = self.GetContext()
         context.update(environment)
 
+        self.evalSpace.update(dict(context))
+
         result = self.eval_expr(expression)
 
         if result[0] == coderror.IC_EVAL_OK:
             return result[1]
+        else:
+            log.warning(u'''ВНИМАНИЕ! Все блоки кода вычисляемых тегов выполняются в контексте
+        Memory узла. Поэтому все функции расчетов необходимо расмолагать
+        в менеджере Memory Node.''')
         return None
 
     def read_value(self, address):
