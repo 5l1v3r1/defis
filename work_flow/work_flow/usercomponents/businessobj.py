@@ -264,7 +264,7 @@ class icBusinessObj(parentModule.icBusinessObjPrototype, icwidget.icSimple):
         self.getWorkStorage().container.setTable(self.getTableName())
 
         # Установить ораничения количества, если они есть
-        self.setLimit(int(self.limit) if hasattr(self, 'limit') else None)
+        self.setLimit(int(self.limit) if hasattr(self, 'limit') and getattr(self, 'limit') else None)
         
     def childCreator(self, bCounter, progressDlg):
         """
