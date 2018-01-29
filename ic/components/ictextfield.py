@@ -110,7 +110,7 @@ SPC_IC_TEXTFIELD = {'type': 'TextField',
                     'data_name': None,
                     'style': 0,
                     'position': (-1, -1),
-                    'size': (-1, 18),
+                    'size': (-1, -1),
                     'value': '',
 
                     'pic': 'S',
@@ -174,7 +174,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (1, 0, 1, 2)
+__version__ = (1, 0, 1, 3)
 
 #   Код спец. кнопок, которые не обрабатываются при форматировании теста по шаблону
 KEYTEMPLATE = [wx.WXK_LEFT, wx.WXK_RIGHT, wx.WXK_BACK, wx.WXK_HOME, wx.WXK_DELETE, wx.WXK_END,
