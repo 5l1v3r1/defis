@@ -206,8 +206,8 @@ class icSCADAFormManager(form_manager.icFormManager):
         try:
             log.debug(u'Старт процедуры обновления значений контролов')
             obj_addresses = self.get_panel_obj_addresses()
-            obj_addresses_names = [ctrl.getName() for ctrl, address in obj_addresses]
-            log.debug(u'Список обрабатываемых контролов %s' % obj_addresses_names)
+            # obj_addresses_names = [ctrl.getName() for ctrl, address in obj_addresses]
+            # log.debug(u'Список обрабатываемых контролов %s' % obj_addresses_names)
 
             for ctrl, address in obj_addresses:
                 engine_name, obj_name = address
