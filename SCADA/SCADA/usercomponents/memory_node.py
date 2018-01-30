@@ -69,7 +69,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 6)
+__version__ = (0, 0, 1, 7)
 
 
 class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
@@ -124,8 +124,9 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
         Memory узла. Поэтому все функции расчетов необходимо расмолагать
         в менеджере Memory Node.
         @param expression: Выполняемое выражение.
-        @param engine: Объект SCADA движка.
-        @param tag: Объект тега.
+        @param environment: Дополнительное окружение выполнения выражения.
+            Если не определено, то берется автоматически заполняемое при
+            помощи getEnv().
         @return: Результат выполнения выражения или None в случае ошибки.
         """
         if environment is None:
@@ -133,9 +134,14 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
         context = self.GetContext()
         context.update(environment)
 
-        self.evalSpace.update(dict(context))
+        tag = context.get('TAG', None)
+        tag_name = tag.getName() if tag else 'default'
 
-        result = self.eval_expr(expression)
+        # ВНИМАНИЕ! Чтобы привязать обработчики к конкретному тегу
+        # необходимо указывать имя тега для выражения.
+        # В данном случае функция-обработчик будет идентифицироваться по имени тега
+        #                                      V
+        result = self.eval_expr(expression, tag_name)
 
         if result[0] == coderror.IC_EVAL_OK:
             return result[1]
@@ -190,6 +196,7 @@ class icMemoryNode(icwidget.icSimple, node.icSCADANodeProto):
                 value = None
             else:
                 self.setEnv(TAG=tag)
+                # log.debug(u'Обработка вычисляемого тега <%s>. Выражение <%s>' % (tag.getName(), expression))
                 value = self.read_value(expression)
             tag.setCurValue(value)
         return True

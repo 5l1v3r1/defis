@@ -174,7 +174,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (1, 0, 1, 3)
+__version__ = (1, 0, 1, 4)
 
 #   Код спец. кнопок, которые не обрабатываются при форматировании теста по шаблону
 KEYTEMPLATE = [wx.WXK_LEFT, wx.WXK_RIGHT, wx.WXK_BACK, wx.WXK_HOME, wx.WXK_DELETE, wx.WXK_END,
@@ -610,22 +610,23 @@ class icTextField(icWidget, wx.TextCtrl):
         @param prz: Устанавливает признак изменения поля
         """
         #   Если аттрибут описания 'getvalue' определен, то вычисляем выводимое значение поля
-        if self.getvalue not in [None, 'None', '']:
+        if self.getvalue not in (None, 'None', ''):
             self.evalSpace['value'] = value
             ret, val = self.eval_attr('getvalue')
             if ret:
                 value = val
+
+        if value in (None, 'None'):
+            value = u''
+
         #   Преобразуем к шаблонному представлению
         try:
             value, point = setTempl(self.pic, value, -1)
         except Exception:
             MsgLastError(self.parent, 'Exception in setTempl()')
 
-        if value is None:
-            value = u''
-
-        if self.IsDebugMode():
-            io_prnt.outLog(u'TEXT SET VALUE=%s' % value)
+        # if self.IsDebugMode():
+        #     io_prnt.outLog(u'TEXT SET VALUE=%s' % value)
 
         wx.TextCtrl.SetValue(self, value)
         #   Обнуляем признак изменения при необходимости (prz == 0), поскольку SetValue

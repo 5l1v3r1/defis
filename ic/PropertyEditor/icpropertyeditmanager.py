@@ -21,11 +21,12 @@ from ic.utils import resource
 from ic.utils import ic_uuid
 from ic.utils import coderror
 from ic.dlg import ic_dlg
+from ic.utils import ic_util
 
 from .ExternalEditors import icedituserproperty
 from .ExternalEditors import icpyscriptproperty
 
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 2, 3)
 
 IGNORE_PROPERTIES = ('type', 'child', 'win1', 'win2', 'cell_attr', 'label_attr', 'cols')
 BASE_PROPERTIES = tuple([attr for attr in icwidget.SPC_IC_SIMPLE.keys() if not attr.startswith('_') and
@@ -174,17 +175,23 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
 
         elif property_type == icDefInf.EDT_TEXTDICT:
             # Словарь в синтаксисе Python.
-            value = str(value)
+            # value = str(value)
+            # Привести словарь к структурному виду
+            value = ic_util.StructToTxt(value)
             wx_property = wx.propgrid.LongStringProperty(name, value=value)
 
         elif property_type == icDefInf.EDT_DICT:
             # Словарь
-            value = str(value)
+            # value = str(value)
+            # Привести словарь к структурному виду
+            value = ic_util.StructToTxt(value)
             wx_property = wx.propgrid.LongStringProperty(name, value=value)
 
         elif property_type == icDefInf.EDT_IMPORT_NAMES:
             # Словарь импортируемых имен
-            value = str(value)
+            # value = str(value)
+            # Привести словарь к структурному виду
+            value = ic_util.StructToTxt(value)
             wx_property = wx.propgrid.LongStringProperty(name, value=value)
 
         elif property_type == icDefInf.EDT_NUMBER:
@@ -637,6 +644,22 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
             value = bool(value)
             res_tree.SetTextColor(res_tree.GetSelection(), value)
 
+    def _prepare_eval(self, expr):
+        """
+        Подготовка выражения для выполнения eval.
+        В случае если в выражении присутствуют символы перевода каретки,
+        то при выполнении появляется исключение
+        SyntaxError: unexpected character after line continuation character.
+        Чтобы этого не происходило удаляются все символы новой строки/перевода каретки
+        из исполняемого выражения.
+        @param expr: Само выражение. Если не строка, то остается без изменений.
+        @return: Подготовленное выражение.
+        """
+        if type(expr) in (str, unicode):
+            expr = expr.strip()
+            expr = expr.replace('\\n', '\n').replace('\\r', '\r')
+        return expr
+
     def _convertValue(self, name, str_value, property_type, spc=None):
         """
         Преобразовать значение согласно типу редактора свойства.
@@ -657,14 +680,32 @@ class icPropertyEditorManager(wx.propgrid.PropertyGridManager):
 
         elif property_type == icDefInf.EDT_TEXTDICT:
             # Словарь в синтаксисе Python.
+            # ВНИМАНИЕ! В случае если в выражении присутствуют символы перевода
+            # каретки, то при выполнении появляется исключение
+            # SyntaxError: unexpected character after line continuation character.
+            # Чтобы этого не происходило удаляются все символы новой строки / перевода
+            # каретки из исполняемого выражения.
+            str_value = self._prepare_eval(str_value)
             value = eval(str_value)
 
         elif property_type == icDefInf.EDT_DICT:
             # Словарь
+            # ВНИМАНИЕ! В случае если в выражении присутствуют символы перевода
+            # каретки, то при выполнении появляется исключение
+            # SyntaxError: unexpected character after line continuation character.
+            # Чтобы этого не происходило удаляются все символы новой строки / перевода
+            # каретки из исполняемого выражения.
+            str_value = self._prepare_eval(str_value)
             value = eval(str_value)
 
         elif property_type == icDefInf.EDT_IMPORT_NAMES:
             # Словарь импортируемых имен
+            # ВНИМАНИЕ! В случае если в выражении присутствуют символы перевода
+            # каретки, то при выполнении появляется исключение
+            # SyntaxError: unexpected character after line continuation character.
+            # Чтобы этого не происходило удаляются все символы новой строки / перевода
+            # каретки из исполняемого выражения.
+            str_value = self._prepare_eval(str_value)
             value = eval(str_value)
 
         elif property_type == icDefInf.EDT_NUMBER:

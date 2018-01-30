@@ -7,13 +7,14 @@
 """
 
 # Подключение библиотек
-
 from ic.utils import ic_mode
 
 from ic.prj.prj_prototype import nodeReg
 from ic.engine import ic_user
 from ic.components import icwidget
 from ic.log import log
+
+__version__ = (0, 0, 2, 1)
 
 
 class icMetaDotUsePrototype(object):
@@ -37,6 +38,36 @@ class icMetaDotUsePrototype(object):
             log.debug('CREATE Object <%s>' % self.passport())
         kernel = ic_user.getKernel()
         if kernel:
+            if 'context' in kwarg:
+                if isinstance(kwarg['context'], dict):
+                    # В случае если передается контекст в виде словаря
+                    # необходимо создать объект контекста
+                    context = icwidget.icResObjContext(kernel)
+                    context.update(kwarg['context'])
+                else:
+                    # Контекст создаваемому объекту передается явно
+                    context = kwarg['context']
+                del kwarg['context']
+            else:
+                # Надо определить контекст
+                context = icwidget.icResObjContext(kernel)
+            return kernel.Create(self.passport(), parent, context=context, *arg, **kwarg)
+
+    def get(self, parent=None, *arg, **kwarg):
+        """
+        Получить объект. Если не зарегистрирован в ядре, то создать его.
+        """
+        if ic_mode.isDebugMode():
+            log.debug('GET Object <%s>' % self.passport())
+        kernel = ic_user.getKernel()
+        if kernel:
+            # Проверить зарегистрирован ли уже объект в ядре
+            name = self.passport()[0][1]
+            obj = kernel.getObject(name)
+            if obj:
+                # Если уже зарегистрирован, то просто вернуть его
+                return obj
+
             if 'context' in kwarg:
                 if isinstance(kwarg['context'], dict):
                     # В случае если передается контекст в виде словаря

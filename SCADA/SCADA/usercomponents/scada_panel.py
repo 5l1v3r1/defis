@@ -74,7 +74,7 @@ ic_can_contain = -1
 ic_can_not_contain = ['Dialog', 'Frame', 'ToolBarTool', 'Separator', 'GridCell']
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 # Функции редактирования
@@ -217,7 +217,8 @@ class icSCADAPanel(icwxpanel.icWXPanel, scada_form_manager.icSCADAFormManager):
         @return: Период сканирования или None в случае ошибки.
         """
         scan_class = self.getScanClass()
-        self.scan_tick = scan_class.getTick()
+        if scan_class:
+            self.scan_tick = scan_class.getTick()
         return self.scan_tick
 
     def createEngines(self):

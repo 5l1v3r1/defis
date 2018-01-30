@@ -75,7 +75,7 @@ ic_can_contain = ['IntSCADATag', 'FloatSCADATag', 'BoolSCADATag', 'StrSCADATag',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 4, 2)
+__version__ = (0, 0, 4, 3)
 
 
 # Классы тегов
@@ -213,6 +213,7 @@ class icSCADAEngine(icwidget.icSimple):
         for tag in tags:
             if tag.name == tag_name:
                 return tag
+        log.warning(u'Тег <%s> не найден в движке SCADA <%s>' % (tag_name, self.getName()))
         return None
 
     def _init_scan_objects(self, obj_list, scan_obj_dict=None):

@@ -8,10 +8,11 @@
 import wx
 from ic.engine import form_manager
 from ic.components import icwidget
+from ic.components import icwxpanel
 
 from ic.log import log
 
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 5, 1)
 
 # Период сканирования формы/панели SCADA системы по умолчанию
 DEFAULT_SCAN_TICK = -1
@@ -60,40 +61,43 @@ class icSCADAFormManager(form_manager.icFormManager):
             Если имена контролов не определены,
             то обрабатываются контролы,
             указанные в соответствиях (accord).
-        @return: Заполненный словарь соответствий {Имя контрола: Адрес тега}
+        @return: Заполненный список [(контрол, адрес тега),...)
         """
         if self._obj_addresses_cache is None:
             self._obj_addresses_cache = self._get_panel_obj_addresses(None, *ctrl_names)
         return self._obj_addresses_cache
 
-    def _get_panel_obj_addresses(self, data_dict=None, *ctrl_names):
+    def _get_panel_obj_addresses(self, data_list=None, *ctrl_names):
         """
         Получить адреса объектов указанных в data_name свойстве контролов панели.
         Адреса объектов указываются как <Имя_движка.Имя_объекта_в_движке>.
-        @param data_dict: Словарь для заполнения.
-            Если не определен то создается новый словарь.
+        @param data_list: Список для заполнения.
+            Если не определен то создается новый список.
         @param ctrl_names: Взять только контролы с именами...
             Если имена контролов не определены,
             то обрабатываются контролы,
             указанные в соответствиях (accord).
-        @return: Заполненный словарь соответствий {Имя контрола: Адрес тега}
+        @return: Заполненный список [(контрол, адрес тега),...)
         """
-        result = dict() if data_dict is None else data_dict
+        result = list() if data_list is None else data_list
         if not ctrl_names:
             ctrl_names = self.getAllChildrenNames()
 
         for ctrlname in ctrl_names:
             ctrl = self.FindObjectByName(ctrlname)
             if issubclass(ctrl.__class__, icwidget.icWidget) and ctrl.isEnabled():
+                if issubclass(ctrl.__class__, icwxpanel.icWXPanel):
+                    log.warning(u'ВНИМАНИЕ! Для обновлений контролов в панели <%s>, панель должна быть SCADAPanel' % ctrlname)
+
                 if issubclass(ctrl.__class__, self.__class__):
-                    data = ctrl._get_panel_obj_addresses(data_dict, *ctrl_names)
-                    result.update(data)
+                    data = ctrl._get_panel_obj_addresses(data_list, *ctrl_names)
+                    result += data
                 else:
                     address = ctrl.getDataName()
                     if address:
                         if self.is_address(address):
                             # Сразу разделить адрес на имя движка и имя объекта
-                            result[ctrlname] = tuple(address.split(ADDRESS_DELIMETER))
+                            result.append((ctrl, tuple(address.split(ADDRESS_DELIMETER))))
                         else:
                             log.error(u'Ошибка адресации <%s> в контроле <%s>. Адреса указываются как <Имя_движка.Имя_объекта_в_движке>' % (address, ctrlname))
                     else:
@@ -202,16 +206,17 @@ class icSCADAFormManager(form_manager.icFormManager):
         try:
             log.debug(u'Старт процедуры обновления значений контролов')
             obj_addresses = self.get_panel_obj_addresses()
-            log.debug(u'Список обрабатываемых контролов %s' % obj_addresses.keys())
+            obj_addresses_names = [ctrl.getName() for ctrl, address in obj_addresses]
+            log.debug(u'Список обрабатываемых контролов %s' % obj_addresses_names)
 
-            for ctrlname, address in obj_addresses.items():
+            for ctrl, address in obj_addresses:
                 engine_name, obj_name = address
                 engine = self.findSCADAEngine(engine_name)
                 if engine:
                     obj = engine.FindObjectByName(obj_name)
                     if obj:
                         value = obj.getCurValue()
-                        ctrl = self.FindObjectByName(ctrlname)
+                        # ctrl = self.FindObjectByName(ctrlname)
                         ctrl.setValue(value)
                     else:
                         log.warning(u'Объект <%s> не найден в движке <%s>' % (obj_name, engine_name))

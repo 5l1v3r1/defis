@@ -28,7 +28,7 @@ _ = wx.GetTranslation
 #   Указатель на пользовательское хранилище
 isUserObjectStorage = None
 
-__version__ = (1, 0, 1, 1)
+__version__ = (1, 0, 1, 2)
 
 IC_DOC_PATH = '%s%sic%sdoc%shtml' % (os.getcwd(), os.sep, os.sep, os.sep)
 
@@ -909,7 +909,7 @@ def find_child_resource(name, res):
 def update_child_resource(child_name, res, child_res):
     """
     Обновить ресурс дочернего объекта.
-    @param name: Имя дочернего объекта.
+    @param child_name: Имя дочернего объекта.
     @param res: Ресурс.
     @return: Измененный словарь ресурса объекта или None
         если такой дочерний объект не найден.
@@ -918,7 +918,7 @@ def update_child_resource(child_name, res, child_res):
         # Обновлять необходимо сам этот объект
         res.update(child_res)
         return res
-    elif res['child']:
+    elif 'child' in res and res['child']:
         for i, child in enumerate(res['child']):
             new_res = update_child_resource(child_name, child, child_res)
             if new_res is not None:
