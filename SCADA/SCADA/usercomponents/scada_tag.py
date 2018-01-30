@@ -8,6 +8,8 @@
 from ic.log import log
 from ic.components import icwidget
 
+__version__ = (0, 0, 1, 1)
+
 # --- Спецификация ---
 # Типы данных тега
 INT_TAG_TYPE = 'IntSCADATag'
@@ -78,7 +80,11 @@ class icSCADATagProto(object):
         return self.normValueOut(self._cur_value)
 
     # Другое наименование метода
-    getValue = getCurValue
+    def getValue(self):
+        """
+        Текущее значение тега.
+        """
+        return self.getCurValue()
 
     def setCurValue(self, value):
         """
@@ -91,6 +97,13 @@ class icSCADATagProto(object):
         # Обновить текущее значение
         self._cur_value = self.normValueInto(value)
         return True
+
+    # Другое наименование метода
+    def setValue(self, value):
+        """
+        Текущее значение тега.
+        """
+        return self.setCurValue(value)
 
     def normValueInto(self, value):
         """

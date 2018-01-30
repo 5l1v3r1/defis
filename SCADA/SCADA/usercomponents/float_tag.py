@@ -78,7 +78,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 4)
+__version__ = (0, 0, 1, 5)
 
 
 # Функции редактирования
@@ -132,7 +132,7 @@ def str_to_val_user_property(attr, text, propEdt, *arg, **kwarg):
         return pspEdt.str_to_val_user_property(text, propEdt)
 
 
-class icFloatSCADATag(icwidget.icSimple, scada_tag.icSCADATagProto):
+class icFloatSCADATag(scada_tag.icSCADATagProto, icwidget.icSimple):
     """
     Компонент вещественного тега SCADA системы.
 
