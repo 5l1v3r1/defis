@@ -21,13 +21,13 @@ import datetime
 
 import log
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 # Типы сообщений
 INFO_LOG_TYPE = 'INFO'
 WARNING_LOG_TYPE = 'WARNING'
 ERROR_LOG_TYPE = 'ERROR'
-FATAL_LOG_TYPE = 'CRITICAL'
+FATAL_LOG_TYPE = 'FATAL'
 DEBUG_LOG_TYPE = 'DEBUG'
 SERVICE_LOG_TYPE = 'SERVICE'
 
@@ -38,7 +38,7 @@ LOG_TYPES = (INFO_LOG_TYPE, WARNING_LOG_TYPE,
 AND_FILTER_LOGIC = 'AND'
 OR_FILTER_LOGIC = 'OR'
 
-MSG_LEN_LIMIT = 200
+MSG_LEN_LIMIT = 100
 
 DATETIME_LOG_FMT = '%Y-%m-%d %H:%M:%S'
 
@@ -97,6 +97,7 @@ def get_records_log_file(sLogFileName, tLogTypes=LOG_TYPES,
                     line = unicode(line, encoding)
                 # record['text'] = record.get('text', u'') + LINE_SEPARATOR + line
                 record['text'] = record.get('text', u'') + line
+                record['short'] += (u'...' if not record.get('short', u'').endswith(u'...') else u'')
 
         log_file.close()
         return records
@@ -136,7 +137,7 @@ def parse_msg_record(line, encoding=DEFAULT_ENCODING):
     dt = datetime.datetime.strptime(dt_txt, DATETIME_LOG_FMT)
     msg_type = line[20:][:line[20:].index(' ')]
     msg = line[20+line[20:].index(' '):]
-    short_msg = msg[:MSG_LEN_LIMIT] + ('...' if len(msg) > MSG_LEN_LIMIT else '')
+    short_msg = u''
     # Переведем все в unicode
     try:
         if isinstance(msg, str):
@@ -145,11 +146,10 @@ def parse_msg_record(line, encoding=DEFAULT_ENCODING):
         log.fatal(u'Ошибка перевода строки в unicode')
         msg = u''
     try:
-        if isinstance(short_msg, str):
-            short_msg = unicode(short_msg, encoding)
+        if isinstance(msg, unicode):
+            short_msg = msg[:MSG_LEN_LIMIT] + (u'...' if len(msg) > MSG_LEN_LIMIT else u'')
     except:
         log.fatal(u'Ошибка перевода строки в unicode')
-        short_msg = u''
     return dict(dt=dt, type=msg_type, text=msg, short=short_msg)
 
 

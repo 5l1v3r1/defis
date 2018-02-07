@@ -57,7 +57,7 @@ import stat
 import traceback
 import locale
 
-__version__ = (0, 0, 3, 4)
+__version__ = (0, 0, 4, 1)
 
 # Кодировка коммандной оболочки по умолчанию
 DEFAULT_ENCODING = sys.stdout.encoding if sys.platform.startswith('win') else locale.getpreferredencoding()
@@ -268,3 +268,22 @@ def fatal(sMsg=u'', bForcePrint=False, bForceLog=False):
     else:
         print_color_txt('Not init log system.', PURPLE_COLOR_TEXT)
         print_color_txt('FATAL. ' + msg, RED_COLOR_TEXT)
+
+
+def service(sMsg=u'', bForcePrint=False, bForceLog=False):
+    """
+    Вывести СЕРВИСНУЮ информацию.
+    @param sMsg: Текстовое сообщение.
+    @param bForcePrint: Принудительно вывести на экран.
+    @param bForceLog: Принудительно записать в журнале.
+    """
+    global CONFIG
+
+    if CONFIG:
+        if get_debug_mode() or bForcePrint:
+            print_color_txt('SERVICE. ' + sMsg, CYAN_COLOR_TEXT)
+        if get_log_mode() or bForceLog:
+            logging.debug(sMsg)
+    else:
+        print_color_txt('Not init log system.', PURPLE_COLOR_TEXT)
+        print_color_txt('SERVICE. ' + sMsg, CYAN_COLOR_TEXT)

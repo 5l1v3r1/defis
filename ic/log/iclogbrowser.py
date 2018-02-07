@@ -29,7 +29,7 @@ import log
 from ic.utils import ic_time
 
 # Version
-__version__ = (0, 0, 3, 3)
+__version__ = (0, 0, 3, 4)
 
 TIME_FMT = '%H:%M:%S'
 
@@ -97,7 +97,7 @@ class icLogBrowserPanelManager:
         # Колонки списка сообщений
         self.filter_panel.msg_listCtrl.InsertColumn(0, u'Дата/Время', width=200)
         self.filter_panel.msg_listCtrl.InsertColumn(1, u'Тип', width=100)
-        self.filter_panel.msg_listCtrl.InsertColumn(2, u'Сообщение', width=500)
+        self.filter_panel.msg_listCtrl.InsertColumn(2, u'Сообщение', width=wx.LIST_AUTOSIZE)
         # Привязать wxSpinButton к TimeCtrl
         self.filter_panel.start_timeControl.BindSpinButton(self.filter_panel.start_spinBtn)
         self.filter_panel.stop_timeControl.BindSpinButton(self.filter_panel.stop_spinBtn)
@@ -135,7 +135,7 @@ class icLogBrowserPanelManager:
             py_date = ic_time.wxdate2pydate(wx_date)
             # py_time = ic_time.wxdatetime2pydatetime(wx_time)
             py_time = datetime.datetime.strptime(wx_time, TIME_FMT)
-            result = py_date + py_time
+            result = py_time.replace(year=py_date.year, month=py_date.month, day=py_date.day)
         return result
 
     def get_selected_stop_dt(self):
@@ -150,7 +150,7 @@ class icLogBrowserPanelManager:
             py_date = ic_time.wxdate2pydate(wx_date)
             # py_time = ic_time.wxdatetime2pydatetime(wx_time)
             py_time = datetime.datetime.strptime(wx_time, TIME_FMT)
-            result = py_date + py_time
+            result = py_time.replace(year=py_date.year, month=py_date.month, day=py_date.day)
         return result
 
     def get_selected_filters(self):
@@ -204,6 +204,7 @@ class icLogBrowserPanelManager:
         if dtStartFilter:
             self.filter_panel.start_datePicker.Enable(dtStartFilter is not None)
             self.filter_panel.start_timeControl.Enable(dtStartFilter is not None)
+            self.filter_panel.start_spinBtn.Enable(dtStartFilter is not None)
             wx_date = ic_time.pydate2wxdate(dtStartFilter)
             wx_time_str = dtStartFilter.strftime(TIME_FMT)
             self.filter_panel.start_datePicker.SetValue(wx_date)
@@ -211,6 +212,7 @@ class icLogBrowserPanelManager:
         if dtStopFilter:
             self.filter_panel.stop_datePicker.Enable(dtStopFilter is not None)
             self.filter_panel.stop_timeControl.Enable(dtStopFilter is not None)
+            self.filter_panel.stop_spinBtn.Enable(dtStopFilter is not None)
             wx_date = ic_time.pydate2wxdate(dtStopFilter)
             wx_time_str = dtStopFilter.strftime(TIME_FMT)
             self.filter_panel.stop_datePicker.SetValue(wx_date)
@@ -257,6 +259,9 @@ class icLogBrowserPanelManager:
         """
         if sLogFileName is None:
             sLogFileName = self.filter_panel.log_filePicker.GetPath()
+        if not sLogFileName:
+            log.warning(u'Не определен файл журнала сообщений прораммы')
+            return ()
 
         if tLogTypes is None:
             tLogTypes = self.get_selected_log_types()
@@ -291,6 +296,9 @@ class icLogBrowserPanelManager:
             self.filter_panel.msg_listCtrl.SetStringItem(i, 2, record.get('short', u''))
 
             self.filter_panel.msg_listCtrl.SetItemTextColour(i, LOG_TYPE_COLOURS.get(record['type'], wx.BLACK))
+
+        # Переразмерить колонку текста сообщения
+        self.filter_panel.msg_listCtrl.SetColumnWidth(2, wx.LIST_AUTOSIZE)
 
     def onRefreshButtonClick(self, event):
         """
