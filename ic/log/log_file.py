@@ -95,7 +95,8 @@ def get_records_log_file(sLogFileName, tLogTypes=LOG_TYPES,
             else:
                 if isinstance(line, str):
                     line = unicode(line, encoding)
-                record['text'] = record.get('text', u'') + LINE_SEPARATOR + line
+                # record['text'] = record.get('text', u'') + LINE_SEPARATOR + line
+                record['text'] = record.get('text', u'') + line
 
         log_file.close()
         return records
