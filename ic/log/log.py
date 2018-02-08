@@ -57,7 +57,7 @@ import stat
 import traceback
 import locale
 
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 4, 2)
 
 # Кодировка коммандной оболочки по умолчанию
 DEFAULT_ENCODING = sys.stdout.encoding if sys.platform.startswith('win') else locale.getpreferredencoding()
@@ -126,6 +126,15 @@ def get_log_mode():
         return CONFIG.LOG_MODE
     # По умолчанию считаем что режим выключен
     return False
+
+
+def get_log_filename():
+    """
+    Имя файла журнала.
+    @return:
+    """
+    global CONFIG
+    return CONFIG.LOG_FILENAME if CONFIG and hasattr(CONFIG, 'LOG_FILENAME') else None
 
 
 def init(mConfig=None, sLogFileName=None):

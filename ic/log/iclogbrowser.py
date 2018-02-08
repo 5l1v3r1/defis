@@ -29,7 +29,7 @@ import log
 from ic.utils import ic_time
 
 # Version
-__version__ = (0, 0, 3, 4)
+__version__ = (0, 0, 3, 5)
 
 TIME_FMT = '%H:%M:%S'
 
@@ -422,12 +422,16 @@ def get_log_browser_panel(parent=None, sLogFileName=None, tLogTypes=None,
     if parent is None:
         parent = wx.GetApp().GetTopWindow()
 
+    if sLogFileName is None:
+        sLogFileName = log.get_log_filename()
+
     panel = icLogBrowserPanel(parent=parent)
     panel.init()
     panel.set_log_filename(sLogFileName)
     panel.set_datetime_filter_range(dtStartFilter, dtStopFilter)
     panel.set_log_types_filter(*(tLogTypes if tLogTypes else ()))
     panel.set_filters(sFilterLogic, *(tFilters if tFilters else ()))
+    panel.refresh()
     return panel
 
 
@@ -455,12 +459,16 @@ def show_log_browser_dlg(parent=None, sLogFileName=None, tLogTypes=None,
     if parent is None:
         parent = wx.GetApp().GetTopWindow()
 
+    if sLogFileName is None:
+        sLogFileName = log.get_log_filename()
+
     dlg = icLogBrowserDlg(parent=parent)
     dlg.init()
     dlg.set_log_filename(sLogFileName)
     dlg.set_datetime_filter_range(dtStartFilter, dtStopFilter)
     dlg.set_log_types_filter(*(tLogTypes if tLogTypes else ()))
     dlg.set_filters(sFilterLogic, *(tFilters if tFilters else ()))
+    dlg.refresh()
     result = dlg.ShowModal()
     return result == wx.ID_OK
 
