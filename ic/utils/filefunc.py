@@ -10,7 +10,7 @@ import os.path
 import hashlib
 from . import util
 
-__version__ = (0, 0, 3, 1)
+__version__ = (0, 0, 4, 1)
 
 
 def createTxtFile(FileName_,Txt_=None):
@@ -47,7 +47,13 @@ def is_same_file_length(filename1, filename2):
     if os.path.exists(filename1) and os.path.exists(filename2):
         file_size1 = os.path.getsize(filename1)
         file_size2 = os.path.getsize(filename2)
-        return file_size1 == file_size2
+        if file_size1 != file_size2:
+            return file_size1 == file_size2
+        else:
+            # Если размер файлов одинаков, то проверяем дополнительно контрольную сумму
+            file1_check_sum = get_file_md5(filename1)
+            file2_check_sum = get_file_md5(filename2)
+            return file1_check_sum == file2_check_sum
     return False
 
 
@@ -75,3 +81,28 @@ def get_check_sum_file(filename):
             f = None
         raise
     return None
+
+
+def get_file_md5(filename):
+    """
+    Вычисление контрольной суммы большого файла.
+    Взято с http://yushakov.com/code-work/piton/vychislenie-kontrolnoj-summy-dlya-bolshogo-fajla/
+    @param filename: Полное имя файла.
+    @return: Контрольная сумма файла или None, если какая-либо ошибка.
+    """
+    md5_obj = hashlib.md5()
+
+    f = None
+    try:
+        f = open(filename, 'rb')
+        data = f.read(1024)
+        while data:
+            md5_obj.update(data)
+            data = f.read(1024)
+        f.close()
+    except:
+        if f:
+            f.close()
+            f = None
+        return None
+    return md5_obj.hexdigest()
