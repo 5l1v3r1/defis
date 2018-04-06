@@ -56,7 +56,7 @@ from py_compile import compile as CompileFile
 from imp import load_source as LoadSource
 
 
-__version__ = (0, 1, 1, 2)
+__version__ = (0, 1, 1, 3)
 
 _ = wx.GetTranslation
 
@@ -568,7 +568,14 @@ def getPythonDir():
     """
     Папка в которую установлен Python.
     """
-    return DirName(sys.excutable)
+    return DirName(sys.executable)
+
+
+def getPythonExe():
+    """
+    Полный путь к исполняемому интерпретатору Python.
+    """
+    return sys.executable
 
 
 def getTempDir():
