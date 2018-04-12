@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 5, 3)
+__version__ = (0, 1, 5, 4)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -969,8 +969,12 @@ class icFormManager(formdatamanager.icFormDataManager):
                     result = result and self.appendRow_ListCtrl(ctrl=ctrl, row=row,
                                                                 evenBackgroundColour=evenBackgroundColour,
                                                                 oddBackgroundColour=oddBackgroundColour)
-            if cursor_pos not in (None, -1) and cursor_pos < len(rows):
-                ctrl.Select(cursor_pos)
+            if cursor_pos not in (None, -1):
+                len_rows = len(rows)
+                if cursor_pos < len_rows:
+                    ctrl.Select(cursor_pos)
+                else:
+                    ctrl.Select(len_rows - 1)
             return result
         elif isinstance(ctrl, wx.dataview.DataViewListCtrl):
             result = True
@@ -986,8 +990,12 @@ class icFormManager(formdatamanager.icFormDataManager):
                     except:
                         log.fatal(u'Ошибка доавления строки %s в контрол <%s>' % (str(row), ctrl.__class__.__name__))
                         result = False
-            if cursor_pos not in (None, -1) and cursor_pos < len(rows):
-                ctrl.SelectRow(cursor_pos)
+            if cursor_pos not in (None, -1):
+                len_rows = len(rows)
+                if cursor_pos < len_rows:
+                    ctrl.SelectRow(cursor_pos)
+                else:
+                    ctrl.SelectRow(len_rows - 1)
             return result
         else:
             log.warning(u'Добавление колонок контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)
