@@ -973,8 +973,12 @@ class icFormManager(formdatamanager.icFormDataManager):
                 len_rows = len(rows)
                 if cursor_pos < len_rows:
                     ctrl.Select(cursor_pos)
+                    # Использую для прокрутки скролинга до выбранного элемента
+                    ctrl.Focus(cursor_pos)
                 else:
                     ctrl.Select(len_rows - 1)
+                    # Использую для прокрутки скролинга до выбранного элемента
+                    ctrl.Focus(len_rows - 1)
             return result
         elif isinstance(ctrl, wx.dataview.DataViewListCtrl):
             result = True
