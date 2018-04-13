@@ -41,9 +41,11 @@
 from ic.log import log
 from work_flow.work_sys import icstateobj
 from . import docfunc
+from work_flow.work_sys import persistent
+
 
 # Версия
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 1)
 
 # --- Спецификация ---
 SPC_IC_DOCUMENT = {'type': 'Document',
@@ -53,7 +55,14 @@ SPC_IC_DOCUMENT = {'type': 'Document',
                    '__parent__': icstateobj.SPC_IC_STATEOBJ,
                    }
 
-    
+SPC_IC_NODE_DOCUMENT = {'type': 'NodeDocument',
+                        'name': 'default',
+                        'description': '',  # Описание
+
+                        '__parent__': SPC_IC_DOCUMENT,
+                        }
+
+
 class icDocumentProto(icstateobj.icStateObjProto):
     """
     Документ.
@@ -199,3 +208,17 @@ class icDocumentProto(icstateobj.icStateObjProto):
 
         return docfunc.document_remove_to(doc_uuid, self, dst_doc,
                                           requisite_replace, ask_del)
+
+
+class icNodeDocumentProto(persistent.icNodePersistent, icDocumentProto):
+    """
+    Узловой документ.
+    Узловые документы позволяют организовывать древовидные структуры из документов а также
+    организовывать связи между документами типа графов в виде ссылок.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Конструктор.
+        """
+        persistent.icNodePersistent.__init__(self, *args, **kwargs)
+        icDocumentProto.__init__(self, *args, **kwargs)
