@@ -137,6 +137,18 @@ ic_user_requisite_spc['name'] = 'username'
 ic_user_requisite_spc['description'] = u'Пользователь'
 ic_user_requisite_spc['label'] = u'Пользователь'
 
+# Спецификация реквизита описания
+ic_description_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_description_requisite_spc['name'] = 'description'
+ic_description_requisite_spc['description'] = u'Описание'
+ic_description_requisite_spc['label'] = u'Описание'
+
+# Спецификация реквизита тегов
+ic_tags_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_tags_requisite_spc['name'] = 'tags'
+ic_tags_requisite_spc['description'] = u'Теги через ;'
+ic_tags_requisite_spc['label'] = u'Теги'
+
 # Спецификация реквизита UUIDов родительских объектов
 ic_parentuuid_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
 ic_parentuuid_requisite_spc['name'] = 'parent_uuid'
@@ -214,6 +226,8 @@ ic_class_spc = dict({'type': 'NodeDocument',
                                ic_dt_state_requisite_spc,
                                ic_comp_requisite_spc,
                                ic_user_requisite_spc,
+                               ic_description_requisite_spc,
+                               ic_tags_requisite_spc,
                                ic_objtype_requisite_spc,
                                ic_parentuuid_requisite_spc,
                                ic_childrenuuid_requisite_spc,
