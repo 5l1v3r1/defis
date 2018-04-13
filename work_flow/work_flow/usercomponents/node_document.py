@@ -81,6 +81,7 @@ from work_flow.work_sys import icworkstorage
 # Для организации реквизита-справочника состояния объекта
 from . import requisite
 from . import nsi_requisite
+from . import tab_requisite
 
 from ic.PropertyEditor.ExternalEditors.passportobj import icObjectPassportUserEdt as pspEdt
 
@@ -160,6 +161,50 @@ ic_objtype_requisite_spc['name'] = 'obj_type'
 ic_objtype_requisite_spc['description'] = u'Тип объекта'
 ic_objtype_requisite_spc['label'] = u'Тип объекта'
 
+# Спецификация табличного реквизита для организации дополнительных реквизитов узла
+ic_extrequisites_requisite_spc = copy.deepcopy(tab_requisite.ic_class_spc)
+ic_extrequisites_requisite_spc['name'] = 'ext_requisites'
+ic_extrequisites_requisite_spc['description'] = u'Дополнительные реквизиты объекта'
+ic_extrequisites_requisite_spc['label'] = u'Дополнительные реквизиты объекта'
+ic_extrequisites_requisite_spc['child'] = []
+ic_extname_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extname_requisite_spc['name'] = 'name'
+ic_extname_requisite_spc['description'] = u'Наименование дополнительного реквизита'
+ic_extname_requisite_spc['label'] = u'Наименование'
+ic_extrequisites_requisite_spc['child'].append(ic_extname_requisite_spc)
+ic_exttype_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_exttype_requisite_spc['name'] = 'value_type'
+ic_exttype_requisite_spc['description'] = u'Тип значения дополнительного реквизита'
+ic_exttype_requisite_spc['label'] = u'Тип значения'
+ic_extrequisites_requisite_spc['child'].append(ic_exttype_requisite_spc)
+ic_extstrvalue_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extstrvalue_requisite_spc['name'] = 'str_value'
+ic_extstrvalue_requisite_spc['description'] = u'Строковое значение дополнительного реквизита'
+ic_extstrvalue_requisite_spc['label'] = u'Строковое значение'
+ic_extrequisites_requisite_spc['child'].append(ic_extstrvalue_requisite_spc)
+ic_extdtvalue_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extdtvalue_requisite_spc['name'] = 'dt_value'
+ic_extdtvalue_requisite_spc['type_val'] = 'DateTime'
+ic_extdtvalue_requisite_spc['description'] = u'Дата-время значение дополнительного реквизита'
+ic_extdtvalue_requisite_spc['label'] = u'Дата-время'
+ic_extdtvalue_requisite_spc['default'] = u'@datetime.datetime.now()'
+ic_extrequisites_requisite_spc['child'].append(ic_extdtvalue_requisite_spc)
+ic_extintvalue_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extintvalue_requisite_spc['name'] = 'int_value'
+ic_extintvalue_requisite_spc['type_val'] = 'I'
+ic_extintvalue_requisite_spc['description'] = u'Целое значение дополнительного реквизита'
+ic_extintvalue_requisite_spc['label'] = u'Числовое значение'
+ic_extintvalue_requisite_spc['default'] = 0
+ic_extrequisites_requisite_spc['child'].append(ic_extintvalue_requisite_spc)
+ic_extfloatvalue_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extfloatvalue_requisite_spc['name'] = 'float_value'
+ic_extfloatvalue_requisite_spc['type_val'] = 'F'
+ic_extfloatvalue_requisite_spc['description'] = u'Вещественное значение дополнительного реквизита'
+ic_extfloatvalue_requisite_spc['label'] = u'Вещественное значение'
+ic_extfloatvalue_requisite_spc['default'] = 0.0
+ic_extrequisites_requisite_spc['child'].append(ic_extfloatvalue_requisite_spc)
+
+
 #   Спецификация на ресурсное описание класса
 ic_class_spc = dict({'type': 'NodeDocument',
                      'name': 'default',
@@ -172,7 +217,8 @@ ic_class_spc = dict({'type': 'NodeDocument',
                                ic_objtype_requisite_spc,
                                ic_parentuuid_requisite_spc,
                                ic_childrenuuid_requisite_spc,
-                               ic_linkuuid_requisite_spc],
+                               ic_linkuuid_requisite_spc,
+                               ic_extrequisites_requisite_spc],
                      'activate': True,
                      'init_expr': None,
                      '_uuid': None,
