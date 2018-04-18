@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 5, 4)
+__version__ = (0, 1, 6, 1)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1579,3 +1579,61 @@ class icFormManager(formdatamanager.icFormDataManager):
         except:
             log.fatal(u'Ошибка установки иконки страницы объекта wx.Notebook')
         return False
+
+    def clear_panel_data(self, panel, *ctrl_names):
+        """
+        Очистить значения в контролах.
+        @param panel: Объект панели.
+        @param ctrl_names: Взять только контролы с именами...
+            Если имена контролов не определены,
+            то обрабатываются контролы,
+            указанные в соответствиях (accord).
+        """
+        for ctrlname in dir(panel):
+            if ctrl_names and ctrlname not in ctrl_names:
+                # Если нельзя автоматически добавлять новые
+                # данные и этих данных нет в заполняемом словаре,
+                # то пропустить обработку
+                continue
+
+            ctrl = getattr(panel, ctrlname)
+            if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
+                if issubclass(ctrl.__class__, wx.Panel):
+                    self.clear_panel_data(ctrl, *ctrl_names)
+                else:
+                    self.clear_ctrl_value(ctrl)
+
+    def clear_ctrl_value(self, ctrl):
+        """
+        Очистить значение контрола не зависимо от типа.
+        @param ctrl: Объект контрола.
+        @return: True/False.
+        """
+        result = False
+        if hasattr(ctrl, 'setValue'):
+            # Обработка пользовательских контролов
+            # Обычно все пользовательские контролы имеют
+            # метод установки данных <setValue>
+            ctrl.setVaue(None)
+            result = True
+        elif issubclass(ctrl.__class__, wx.CheckBox):
+            ctrl.SetValue(False)
+            result = True
+        elif issubclass(ctrl.__class__, wx.TextCtrl):
+            ctrl.SetValue('')
+            result = True
+        elif issubclass(ctrl.__class__, wx.DatePickerCtrl):
+            ctrl.SetValue(None)
+            result = True
+        elif issubclass(ctrl.__class__, wx.DirPickerCtrl):
+            ctrl.SetPath('')
+            result = True
+        elif issubclass(ctrl.__class__, wx.SpinCtrl):
+            ctrl.SetValue(0)
+            result = True
+        elif issubclass(ctrl.__class__, wx.dataview.DataViewListCtrl):
+            self._set_wxDataViewListCtrl_data(ctrl, ())
+            result = True
+        else:
+            log.warning(u'icFormManager. Тип контрола <%s> не поддерживается для очистки' % ctrl.__class__.__name__)
+        return result
