@@ -1599,7 +1599,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             ctrl = getattr(panel, ctrlname)
             if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
                 if issubclass(ctrl.__class__, wx.Panel) and ctrl != panel:
-                    log.debug(u'>>> %s : %s' % (ctrlname, ctrl.__class__.__name__))
+                    # log.debug(u'>>> %s : %s' % (ctrlname, ctrl.__class__.__name__))
                     self.clear_panel_data(ctrl, *ctrl_names)
                 else:
                     self.clear_ctrl_value(ctrl)
