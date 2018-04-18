@@ -184,6 +184,11 @@ ic_extname_requisite_spc['name'] = 'name'
 ic_extname_requisite_spc['description'] = u'Наименование дополнительного реквизита'
 ic_extname_requisite_spc['label'] = u'Наименование'
 ic_extrequisites_requisite_spc['child'].append(ic_extname_requisite_spc)
+ic_extdescription_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
+ic_extdescription_requisite_spc['name'] = 'description'
+ic_extdescription_requisite_spc['description'] = u'Описание дополнительного реквизита'
+ic_extdescription_requisite_spc['label'] = u'Описание'
+ic_extrequisites_requisite_spc['child'].append(ic_extdescription_requisite_spc)
 ic_exttype_requisite_spc = copy.deepcopy(requisite.ic_class_spc)
 ic_exttype_requisite_spc['name'] = 'value_type'
 ic_exttype_requisite_spc['description'] = u'Тип значения дополнительного реквизита'
@@ -343,7 +348,7 @@ ic_can_contain = ['Requisite', 'NSIRequisite', 'TABRequisite', 'REFRequisite',
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 # Функции редактирования
 
