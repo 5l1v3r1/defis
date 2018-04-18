@@ -1598,7 +1598,8 @@ class icFormManager(formdatamanager.icFormDataManager):
 
             ctrl = getattr(panel, ctrlname)
             if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
-                if issubclass(ctrl.__class__, wx.Panel):
+                if issubclass(ctrl.__class__, wx.Panel) and ctrl != panel:
+                    log.debug(u'>>> %s : %s' % (ctrlname, ctrl.__class__.__name__))
                     self.clear_panel_data(ctrl, *ctrl_names)
                 else:
                     self.clear_ctrl_value(ctrl)
@@ -1614,7 +1615,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             # Обработка пользовательских контролов
             # Обычно все пользовательские контролы имеют
             # метод установки данных <setValue>
-            ctrl.setVaue(None)
+            ctrl.setValue(None)
             result = True
         elif issubclass(ctrl.__class__, wx.CheckBox):
             ctrl.SetValue(False)
@@ -1635,5 +1636,5 @@ class icFormManager(formdatamanager.icFormDataManager):
             self._set_wxDataViewListCtrl_data(ctrl, ())
             result = True
         else:
-            log.warning(u'icFormManager. Тип контрола <%s> не поддерживается для очистки' % ctrl.__class__.__name__)
+            log.warning(u'icFormManager. Тип контрола <%s> не поддерживается для очистки значения' % ctrl.__class__.__name__)
         return result
