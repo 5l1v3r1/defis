@@ -8,7 +8,7 @@
 import random
 import string
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 3, 1)
 
 # Элементы псевдографики
 PSEUDOGRAPH = (u'│', u'─', u'┌', u'┐', u'└', u'┘', u'├', u'┤', u'┬', u'┴', u'┼')
@@ -229,10 +229,23 @@ def isLATText(Text_):
     if type(Text_) in (str, unicode):
         rus_chr = [c for c in Text_ if ord(c) > 128]
         return not bool(rus_chr)
-    else:
-        # Это не строка
-        return False
-    return True
+    # Это не строка
+    return False
+
+
+def isLAT_DigitText(sText):
+    """
+    Проверка того что текст состоит из латинских букв, цифр и знака подчеркивания.
+    Эта функция используется для определения может ли текст являться наименованием
+    например переменной/реквизита и т.п.
+    @param sText: Текст в виде строки или unicode.
+    @return: True - текст состоит из латинских букв, цифр и знака подчеркивания.
+        False - во всех других случаях.
+    """
+    if type(sText) in (str, unicode):
+        return all([c.isdigit() or c == u'_' or c in string.ascii_letters for c in sText])
+    # Это не строка
+    return False
 
 
 def isRUSText(Text_):
@@ -242,11 +255,8 @@ def isRUSText(Text_):
     if type(Text_) in (str, unicode):
         rus_chr = [c for c in Text_ if ord(c) > 128]
         return bool(rus_chr)
-    else:
-        # Это не строка
-        return False
+    # Это не строка
     return False
-
 
 def _rus2lat(Text_, TranslateDict_):
     """
