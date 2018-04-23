@@ -12,7 +12,7 @@ from ic.utils import coderror
 from ic.components import icwidget
 
 # Version
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 0, 4)
 
 DEFAULT_CODE_DELIMETER = u' '
 DEFAULT_ENCODING = 'utf-8'
@@ -173,7 +173,11 @@ class icSpravLevelChoiceCtrlProto(wx.StaticBox):
         """
         if item < 0:
             item = choice_ctrl.GetSelection()
-        return choice_ctrl.GetClientData(item)
+        try:
+            return choice_ctrl.GetClientData(item)
+        except:
+            io_prnt.outLastErr(u'Не данных узла <%d>' % item)
+        return None
 
     def clearLevelChoice(self, min_index=0, max_index=-1):
         """
