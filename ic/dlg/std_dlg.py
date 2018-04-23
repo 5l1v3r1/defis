@@ -27,7 +27,12 @@ from . import icradiochoicedlg
 from . import icintrangedlg
 from . import iccheckboxdlg
 
-__version__ = (0, 1, 6, 1)
+try:
+    from ic.log import log
+except ImportError:
+    pass
+
+__version__ = (0, 1, 6, 2)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -167,6 +172,11 @@ def getDateRangeDlg(parent=None, is_concrete_date=False):
         selected_range = dlg.getSelectedDateRangeAsDatetime()
     dlg.Destroy()
 
+    if selected_range:
+        try:
+            log.debug(u'Выбранный диапазон дат: <%s> - <%s>' % selected_range)
+        except:
+            pass
     return selected_range
 
 

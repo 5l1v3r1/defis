@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #  -*- coding: utf-8 -*-
+
 """
 Модуль функций управления справочниками.
-Автор(ы): Колчанов. А.В.
 """
 
 from ic.utils.coderror import *

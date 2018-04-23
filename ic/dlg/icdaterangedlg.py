@@ -13,7 +13,12 @@ try:
 except ImportError:
     from ic.utils import ic_time
 
-__version__ = (0, 1, 1, 2)
+try:
+    from ic.log import log
+except ImportError:
+    pass
+
+__version__ = (0, 1, 2, 1)
 
 
 class icDateRangeDialog(std_dialogs_proto.dateRangeDialogProto):
@@ -80,8 +85,14 @@ class icDateRangeDialog(std_dialogs_proto.dateRangeDialogProto):
         first_date = self.firstDatePicker.GetValue()
         last_date = event.GetDate()
 
-        if first_date > last_date:
-            self.firstDatePicker.SetValue(last_date)
+        try:
+            log.debug(u'Корректировка конечной даты <%d.%d.%d>' % (last_date.GetDay(),
+                                                                   last_date.GetMonth(),
+                                                                   last_date.GetYear()))
+        except:
+            pass
+        if first_date > last_date and len(str(last_date.GetYear())) == 4:
+            self.lastDatePicker.SetValue(first_date)
 
         event.Skip()
 
