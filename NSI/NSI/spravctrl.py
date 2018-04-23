@@ -5,21 +5,22 @@
 Автор(ы): Колчанов. А.В.
 """
 
-# Версия
-__version__ = (0, 0, 0, 1)
-
 from ic.utils.coderror import *
-from ic.log import ic_log
+from ic.log import log
 
 from ic.components import icResourceParser
-#--- Константы ---
-#Основной менеджер справочников
-SPRAV_MANAGER=None
 
-#Имя менеджера справочников по умолчаню
-DEFAULT_SPRAV_MANAGER_NAME='nsi_sprav'
+# Версия
+__version__ = (0, 0, 1, 1)
 
-#--- Функции ---
+# --- Константы ---
+# Основной менеджер справочников
+SPRAV_MANAGER = None
+
+# Имя менеджера справочников по умолчаню
+DEFAULT_SPRAV_MANAGER_NAME = 'nsi_sprav'
+
+
 def createSpravManager(SpravManagerResName_=DEFAULT_SPRAV_MANAGER_NAME):
     """
     Создать менеджер справочников.
@@ -28,17 +29,21 @@ def createSpravManager(SpravManagerResName_=DEFAULT_SPRAV_MANAGER_NAME):
     """
     global SPRAV_MANAGER
     if SPRAV_MANAGER is None:
-        SPRAV_MANAGER=icResourceParser.icCreateObject(SpravManagerResName_,'mtd')
+        SPRAV_MANAGER = icResourceParser.icCreateObject(SpravManagerResName_, 'mtd')
+    if SPRAV_MANAGER is None:
+        log.warning(u'Ошибка создания менеджера справочников <%s>' % SpravManagerResName_)
     return SPRAV_MANAGER
-    
+
+
 def destroySpravManager():
     """
     Удалить менеджер справочников.
     """
     global SPRAV_MANAGER
-    SPRAV_MANAGER=None
+    SPRAV_MANAGER = None
 
-def getSprav(SpravName_,SpravManager_=None):
+
+def getSprav(SpravName_, SpravManager_=None):
     """
     Получить доступ к объекту справочника по имени.
     @param SpravName_: Имя справочника.
@@ -46,15 +51,16 @@ def getSprav(SpravName_,SpravManager_=None):
     """
     try:
         if not SpravManager_:
-            SpravManager_=DEFAULT_SPRAV_MANAGER_NAME
-        sprav_manager=createSpravManager(SpravManager_)
+            SpravManager_ = DEFAULT_SPRAV_MANAGER_NAME
+        sprav_manager = createSpravManager(SpravManager_)
         return sprav_manager.getSpravByName(SpravName_)
     except:
-        ic_log.icLogErr('Ошибка получения доступа к справочнику %s'%(SpravName_))
+        log.fatal(u'Ошибка получения доступа к справочнику <%s>' % SpravName_)
         return None
-    
-def HlpSprav(typSprav,ParentCode=(None,),
-    field=None,datatime=None,form=None,parentForm=None,SpravManager=None):
+
+
+def HlpSprav(typSprav, ParentCode=(None,),
+             field=None, datatime=None, form=None, parentForm=None, SpravManager=None):
     """
     Запуск визуального интерфейса просмотра,  поиска и выбора значений поля
         или группы полей из отмеченной строки указанного справочника.
@@ -71,18 +77,19 @@ def HlpSprav(typSprav,ParentCode=(None,),
     """
     try:
         if not SpravManager:
-            SpravManager=DEFAULT_SPRAV_MANAGER_NAME
-        sprav_manager=createSpravManager(SpravManager)
-        sprav_obj=getattr(sprav_manager,typSprav)
-        print('<<<!>>>',sprav_manager.container.getAll().keys())
-        return sprav_obj.Hlp(ParentCode,field,form,parentForm,DateTime_=datatime)
+            SpravManager = DEFAULT_SPRAV_MANAGER_NAME
+        sprav_manager = createSpravManager(SpravManager)
+        sprav_obj = getattr(sprav_manager, typSprav)
+        # print('<<<!>>>', sprav_manager.container.getAll().keys())
+        return sprav_obj.Hlp(ParentCode, field, form, parentForm, DateTime_=datatime)
     except:
-        print(sprav_obj)
-        ic_log.icLogErr('Ошибка выбора из справочника %s'%(typSprav))
+        # print(sprav_obj)
+        log.fatal(u'Ошибка выбора из справочника <%s>' % typSprav)
         return None
-        
+
+
 def CtrlSprav(typSprav, val, old=None, 
-    field='name', flds=None, datatime=None, bCount=True, cod='',SpravManager=None):
+              field='name', flds=None, datatime=None, bCount=True, cod='', SpravManager=None):
     """
     Функция контроля наличия в справочнике значения поля с указанным значением.
     @type typSprav: C{string}
@@ -111,15 +118,16 @@ def CtrlSprav(typSprav, val, old=None,
     """
     try:
         if not SpravManager:
-            SpravManager=DEFAULT_SPRAV_MANAGER_NAME
-        sprav_manager=createSpravManager(SpravManager)
-        sprav_obj=getattr(sprav_manager,typSprav)
-        return sprav_obj.Ctrl(val,old,field,flds,bCount,cod,DateTime_=datatime)
+            SpravManager = DEFAULT_SPRAV_MANAGER_NAME
+        sprav_manager = createSpravManager(SpravManager)
+        sprav_obj = getattr(sprav_manager, typSprav)
+        return sprav_obj.Ctrl(val, old, field, flds, bCount, cod, DateTime_=datatime)
     except:
-        ic_log.icLogErr('Ошибка контроля наличия значения %s в справочнике %s'%(str(val),typSprav))
+        log.fatal(u'Ошибка контроля наличия значения <%s> в справочнике <%s>' % (str(val), typSprav))
         return None
 
-def FSprav(typSprav, cod, field='name', datatime=None,SpravManager=None):
+
+def FSprav(typSprav, cod, field='name', datatime=None, SpravManager=None):
     """
     Поиск по коду.
     
@@ -138,10 +146,10 @@ def FSprav(typSprav, cod, field='name', datatime=None,SpravManager=None):
     """
     try:
         if not SpravManager:
-            SpravManager=DEFAULT_SPRAV_MANAGER_NAME
-        sprav_manager=createSpravManager(SpravManager)
-        sprav_obj=getattr(sprav_manager,typSprav)
-        return sprav_obj.Find(cod,field,DateTime_=datatime)
+            SpravManager = DEFAULT_SPRAV_MANAGER_NAME
+        sprav_manager = createSpravManager(SpravManager)
+        sprav_obj = getattr(sprav_manager, typSprav)
+        return sprav_obj.Find(cod, field, DateTime_=datatime)
     except:
-        ic_log.icLogErr('Ошибка поиска по коду %s в справочнике %s'%(str(cod),typSprav))
+        log.fatal(u'Ошибка поиска по коду <%s> в справочнике <%s>' % (str(cod), typSprav))
         return None
