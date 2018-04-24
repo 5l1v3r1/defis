@@ -569,6 +569,7 @@ class icNSIRequisitePrototype(icworkbase.icRequisiteBase):
         if fields_spc is None:
             # Произошла какаято ошибка при определении спецификации поля
             log.warning(u'Ошибка генерации спецификации поля таблицы реквизита справочника <%s>' % self.name)
+            log.warning(u'ВНИМАНИЕ! Проверьте заполнение атрибута <nsi_psp> реквизита справочника <%s>' % self.name)
             return None
         elif not fields_spc:
             log.warning(u'Не определены спецификации поля таблицы реквизита справочника <%s>' % self.name)

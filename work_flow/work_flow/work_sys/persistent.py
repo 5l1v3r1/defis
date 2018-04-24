@@ -1148,6 +1148,8 @@ class icObjPersistent(icObjPersistentPrototype):
                 if issubclass(child_requisite.__class__, icAttrPersistent):
                     # Это реквизит
                     fields_spc = child_requisite._createFieldsSpc()
+                    if fields_spc is None:
+                        io_prnt.outWarning(u'Не определена спецификация поля при создании таблицы хранимого объекта')
                     tab_res['child'] += fields_spc
                 elif issubclass(child_requisite.__class__, icObjPersistent):
                     # Это спецификация табличной части

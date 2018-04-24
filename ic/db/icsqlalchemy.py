@@ -814,9 +814,9 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                     # Если структура изменена, тогда сигнализировать ошибку
                     fields_with_id_count = len(TabRes_['child'])+1
                     if len(metadata.tables[tab_name].columns) != fields_with_id_count:
+                        log.warning(u'Ошибка создания таблицы <%s>!' % tab_name)
                         ic_dlg.icWarningBox(u'ВНИМАНИЕ',
-                                      u'В системе существует таблица <%s> с другой структурой!' % tab_name,
-                                      u'Ошибка создания таблицы <%s>!' % tab_name)
+                                            u'В системе существует таблица <%s> с другой структурой!' % tab_name)
                         assert None, u'Table <%s> change structure!!!' % tab_name
                         return None
                     return metadata.tables[tab_name]
