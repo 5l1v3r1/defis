@@ -24,7 +24,7 @@ from ic.utils import ic_exec
 
 from ic.kernel import io_prnt
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 # --- Константы и спецификации ---
 DEFAULT_STORAGE_DIR = ic_file.getProfilePath()
@@ -670,8 +670,10 @@ class icFileStorage(storage_interface.icElementStorageInterface):
         # Проверка на низкоуровневый доступ
         if not self._is_open_file:
             self._open()
-            
-        return str(key) in self._file
+
+        if self._file is not None:
+            return str(key) in self._file
+        return False
 
     def __contains__(self, item):
         """

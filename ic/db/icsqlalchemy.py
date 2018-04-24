@@ -64,7 +64,7 @@ from .icPostgreSQL import SPC_IC_POSTGRESQL
 from .icMSSQL import SPC_IC_MSSQL
 from .icMySQL import SPC_IC_MYSQL
 
-__version__ = (0, 1, 3, 1)
+__version__ = (0, 1, 3, 2)
 
 DB_TYPES = [SQLITE_DB_TYPE, POSTGRES_DB_TYPE, MSSQL_DB_TYPE, MYSQL_DB_TYPE]
 

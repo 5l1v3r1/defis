@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 4, 2)
 
 
 class icObjPersistentPrototype:

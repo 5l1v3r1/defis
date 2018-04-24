@@ -68,7 +68,7 @@ from STD.queries import filter_builder_env
 from ic.components.user import ic_field_wrp
 
 # Версия
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 # --- Specifications ---
 SPC_IC_REQUISITE = dict({'type': 'Requisite',

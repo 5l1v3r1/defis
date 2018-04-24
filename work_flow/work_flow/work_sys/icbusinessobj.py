@@ -39,7 +39,7 @@ from work_flow.work_sys import form_generator
 from STD.queries import filter_convert
 
 # Версия
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 4, 2)
 
 
 # Спецификация
@@ -1062,6 +1062,10 @@ class icBusinessObjPrototype(icBusinessObjInterface):
         @return: Возвращает True-установка прошла удачно, 
             False-не удачно,None-ошибка.
         """
+        if not RequisiteData_:
+            ic.io_prnt.outWarning(u'Не заполнен словарь реквизитов для сохранения в бизнес объекте <%s>' % self.name)
+            return False
+
         try:
             for requisite in self.getChildrenRequisites():
                 
