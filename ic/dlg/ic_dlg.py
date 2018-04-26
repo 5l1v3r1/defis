@@ -18,7 +18,7 @@ import wx.lib.imagebrowser
 from ic.log import log
 
 
-__version__ = (0, 1, 1, 2)
+__version__ = (0, 1, 2, 1)
 
 
 def icFileDlg(Win_=None, Title_='', Filter_='', DefaultPath_=''):
@@ -434,6 +434,12 @@ class icProgressDlg(wx.ProgressDialog):
         except:
             log.fatal(u'Ошибка создания диалогового окна прогресс-бара')
 
+    def getMax(self):
+        return self._ProgressMAX
+
+    def getMin(self):
+        return self._ProgressMIN
+
     def UpdateDlg(self, Value_=-1, NewMsg_=''):
         """
         Обновить данные програсс бара.
@@ -544,6 +550,9 @@ def icCloseProgressDlg():
     try:
         global _PROGRESS_DLG
         if _PROGRESS_DLG is not None:
+            # ВНИМАНИЕ! Необходимо сначала выставить прогрес бар до конечной точки
+            # иначе диалоговое окно не закрывается
+            _PROGRESS_DLG.UpdateDlg(_PROGRESS_DLG.getMax())
             _PROGRESS_DLG.CloseDlg()
             return True
         return False

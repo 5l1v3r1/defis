@@ -13,7 +13,7 @@ import urlparse
 from ic.log import log
 from ic.utils import ic_file
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 DEFAULT_WORKGROUP = 'WORKGROUP'
 
@@ -136,3 +136,41 @@ def smb_download_file(download_urls=None, filename=None, out_path=None, re_write
             result = False
 
     return result
+
+
+def smb_download_file_rename(download_urls=None, filename=None, dst_filename=None, re_write=True):
+    """
+    Найти и загрузить файл с переименованием.
+    @param download_urls: Список путей поиска файла.
+        Пример:
+        ('smb://xhermit@SAFE/Backup/daily.0/Nas_pvz/smb/sys_bucks/Nas_pvz/NSI/',
+         'smb://xhermit@TELEMETRIA/share/install/', ...
+         )
+        Параметр может задаваться строкой. В таком случае считаем что URL один.
+    @param filename: Относительное имя файла.
+        Например:
+        '/2017/FDOC/RC001.DCM'
+    @param dst_filename: Новое полное наименование для сохранения файла.
+    @param re_write: Перезаписать локальный файл, если он уже существует?
+    @return: True - Произошла загрузка, False - ничего не загружено.
+    """
+    # Сначала просто загрузим файл
+    tmp_path = os.tmpnam()
+    result = smb_download_file(download_urls, filename, tmp_path, re_write)
+
+    if result:
+        new_filename = None
+        try:
+            # Успешно загрузили
+            # Перименование файла
+            new_filename = os.path.join(tmp_path, filename)
+            ic_file.icCopyFile(new_filename, dst_filename, re_write)
+
+            # После копирования удаляем временную директорию
+            ic_file.RemoveTreeDir(tmp_path, True)
+
+            return True
+        except:
+            log.fatal(u'Ошибка переименования файла <%s> -> <%s>' % (new_filename, dst_filename))
+
+    return False

@@ -8,9 +8,10 @@
 import os
 import os.path
 import hashlib
+import fnmatch
 from . import util
 
-__version__ = (0, 0, 4, 1)
+__version__ = (0, 0, 5, 1)
 
 
 def createTxtFile(FileName_,Txt_=None):
@@ -106,3 +107,25 @@ def get_file_md5(filename):
             f = None
         return None
     return md5_obj.hexdigest()
+
+
+def get_dir_filename_list(directory, filename_pattern=None, sort_filename=False):
+    """
+    Получить список имен файлов в папке по шаблону.
+    @param directory: Полный путь до директории.
+    @param filename_pattern: Шаблон имен файлов. Если не определен, то беруться все файлы.
+    @param sort_filename: Произвести автоматическую сортировку списка по имени файлов?
+    @return: Список полных имен файлов или None в случае ошибки.
+    """
+    if not os.path.exists(directory):
+        # Папка не существует
+        return None
+
+    filenames = os.listdir(directory)
+    # Получить имена файлов
+    filenames = fnmatch.filter(filenames, filename_pattern)
+    if sort_filename:
+        filenames.sort()
+
+    full_filenames = [os.path.join(directory, filename) for filename in filenames]
+    return full_filenames
