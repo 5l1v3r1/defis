@@ -1627,7 +1627,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             ctrl.SetValue('')
             result = True
         elif issubclass(ctrl.__class__, wx.DatePickerCtrl):
-            if ctrl.GetExtStyle() & wx.DP_ALLOWNONE:
+            if ctrl.GetExtraStyle() & wx.DP_ALLOWNONE:
                 ctrl.SetValue(None)
             else:
                 wx_date = ic_time.pydate2wxdate(ic_time.Today())
