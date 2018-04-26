@@ -1602,7 +1602,10 @@ class icFormManager(formdatamanager.icFormDataManager):
                     # log.debug(u'>>> %s : %s' % (ctrlname, ctrl.__class__.__name__))
                     self.clear_panel_data(ctrl, *ctrl_names)
                 else:
-                    self.clear_ctrl_value(ctrl)
+                    try:
+                        self.clear_ctrl_value(ctrl)
+                    except:
+                        log.fatal(u'Ошибка очистки значения контрола <%s>' % ctrlname)
 
     def clear_ctrl_value(self, ctrl):
         """
@@ -1624,7 +1627,11 @@ class icFormManager(formdatamanager.icFormDataManager):
             ctrl.SetValue('')
             result = True
         elif issubclass(ctrl.__class__, wx.DatePickerCtrl):
-            ctrl.SetValue(None)
+            if ctrl.GetExtStyle() & wx.DP_ALLOWNONE:
+                ctrl.SetValue(None)
+            else:
+                wx_date = ic_time.pydate2wxdate(ic_time.Today())
+                ctrl.SetValue(wx_date)
             result = True
         elif issubclass(ctrl.__class__, wx.DirPickerCtrl):
             ctrl.SetPath('')
