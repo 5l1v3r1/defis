@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 5, 1)
+__version__ = (0, 0, 5, 2)
 
 
 class icObjPersistentPrototype:
@@ -1392,12 +1392,11 @@ class icObjPersistent(icObjPersistentPrototype):
         data_filter = self.filterRequisiteData(filter_requisite_data)
         io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
         query = self.getFilterSQLAlchemy(data_filter)
-        if query:
-            query = query.count()
+        query = query.alias().count()
         io_prnt.outLog(u'\tQuery: <%s>' % query)
         result = self.getTable().getConnection().execute(query)
-        io_prnt.outLog(u'\tResult: [%s]' % result[0])
-        return result[0]
+        io_prnt.outLog(u'\tResult: [%s]' % result)
+        return result
 
     # Другие наименования метода
     countDataset = countDataDict
