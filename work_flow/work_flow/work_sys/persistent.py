@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 5, 2)
+__version__ = (0, 0, 5, 3)
 
 
 class icObjPersistentPrototype:
@@ -1392,11 +1392,17 @@ class icObjPersistent(icObjPersistentPrototype):
         data_filter = self.filterRequisiteData(filter_requisite_data)
         io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
         query = self.getFilterSQLAlchemy(data_filter)
+        # ВНИМАНИЕ! Подзапрос должен иметь алиас.
+        # Иначе возникает ошибка SQL <ERROR:  subquery in FROM must have an alias>
+        #               v
         query = query.alias().count()
         io_prnt.outLog(u'\tQuery: <%s>' % query)
-        result = self.getTable().getConnection().execute(query)
-        io_prnt.outLog(u'\tResult: [%s]' % result)
-        return result
+        # Небходимо просто получить число. Поэтому берем значение явно
+        #                                                          v
+        result = self.getTable().getConnection().execute(query).fetchone()
+        int_result = result[0]
+        io_prnt.outLog(u'\tResult: [%s]' % int_result)
+        return int_result
 
     # Другие наименования метода
     countDataset = countDataDict
