@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 4, 2)
+__version__ = (0, 0, 5, 1)
 
 
 class icObjPersistentPrototype:
@@ -1370,6 +1370,38 @@ class icObjPersistent(icObjPersistentPrototype):
     # Другие наименования метода
     getDataset = getDataDict
     getRecordset = getDataDict
+
+    def countDataDict(self, filter_requisite_data=None):
+        """
+        Количество записей набора записей.
+        Этот метод также имеет название countDataset и countRecordset.
+        @param filter_requisite_data: Словарь значений реквизитов фильтров.
+            Если None, то берется текущий фильтр бизнес объектов.
+            Для создания фильтров надо пользоваться
+            функциями из STD.queries.filter_generate.
+            Функции генерации фильтров для вызова
+            из функций прикладного уровня.
+            Использование:
+                create_filter_group_AND(create_filter_compare_requisite('field1', '==', 'FFF'))
+        @return: Возвращает количество записей набора записей, удовлетворяющих фильтру.
+        """
+        if not filter_requisite_data:
+            filter_requisite_data = None
+
+        io_prnt.outLog(u'BUSINES OBJECT get count data')
+        data_filter = self.filterRequisiteData(filter_requisite_data)
+        io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
+        query = self.getFilterSQLAlchemy(data_filter)
+        if query:
+            query = query.count()
+        io_prnt.outLog(u'\tQuery: <%s>' % query)
+        result = self.getTable().getConnection().execute(query)
+        io_prnt.outLog(u'\tResult: [%s]' % result[0])
+        return result[0]
+
+    # Другие наименования метода
+    countDataset = countDataDict
+    countRecordset = countDataDict
 
     def findRequisiteData(self, **find_requisite_data):
         """
