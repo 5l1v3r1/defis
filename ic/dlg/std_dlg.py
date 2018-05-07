@@ -32,7 +32,7 @@ try:
 except ImportError:
     pass
 
-__version__ = (0, 1, 6, 3)
+__version__ = (0, 1, 6, 4)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -84,11 +84,12 @@ def getDateDlg(parent=None):
     return selected_date
 
 
-def getYearDlg(parent=None, default_year=None):
+def getYearDlg(parent=None, title=None, default_year=None):
     """
     Выбор года в диалоговом окне.
     @param parent: Родительское окно. Если не определено, то
         береться wx.GetApp().GetTopWindow()
+    @param title: Заоголовок диалогового окна.
     @param default_year: Устанавлемое здачение по умолчанию.
     @return: Выбранный год (datetime) или None если нажата <отмена>.
     """
@@ -99,7 +100,13 @@ def getYearDlg(parent=None, default_year=None):
 
     dlg = icyeardlg.icYearDialog(parent)
     dlg.Centre()
+
+    if title:
+        # Если определен заголовок, то установить в диалоговом окне
+        dlg.SetTitle(title)
+
     if default_year:
+        # Выбран год по умолчанию
         dlg.setSelectedYear(default_year)
     dlg.init_year_choice()
 
