@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 6, 1)
+__version__ = (0, 1, 7, 1)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1580,32 +1580,35 @@ class icFormManager(formdatamanager.icFormDataManager):
             log.fatal(u'Ошибка установки иконки страницы объекта wx.Notebook')
         return False
 
-    def clear_panel_data(self, panel, *ctrl_names):
+    def clear_panel_data(self, panel):
         """
         Очистить значения в контролах.
         @param panel: Объект панели.
-        @param ctrl_names: Взять только контролы с именами...
-            Если имена контролов не определены,
-            то обрабатываются контролы,
-            указанные в соответствиях (accord).
         """
-        for ctrlname in dir(panel):
-            if ctrl_names and ctrlname not in ctrl_names:
-                # Если нельзя автоматически добавлять новые
-                # данные и этих данных нет в заполняемом словаре,
-                # то пропустить обработку
-                continue
+        try:
+            return self._clear_panel_data(panel)
+        except:
+            log.fatal(u'Ошибка очистки значения в контролах панели')
 
-            ctrl = getattr(panel, ctrlname)
+    def _clear_panel_data(self, panel):
+        """
+        Очистить значения в контролах.
+        @param panel: Объект панели.
+        """
+        if not issubclass(panel.__class__, wx.Panel):
+            return
+
+        children = panel.GetChildren()
+
+        for ctrl in children:
             if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
-                if issubclass(ctrl.__class__, wx.Panel) and ctrl != panel:
-                    # log.debug(u'>>> %s : %s' % (ctrlname, ctrl.__class__.__name__))
-                    self.clear_panel_data(ctrl, *ctrl_names)
+                if issubclass(ctrl.__class__, wx.Panel) and not wxfunc.is_same_wx_object(ctrl, panel):
+                    self._clear_panel_data(ctrl)
                 else:
                     try:
                         self.clear_ctrl_value(ctrl)
                     except:
-                        log.fatal(u'Ошибка очистки значения контрола <%s>' % ctrlname)
+                        log.fatal(u'Ошибка очистки значения контрола <%s>' % ctrl.__class__.__name__)
 
     def clear_ctrl_value(self, ctrl):
         """
