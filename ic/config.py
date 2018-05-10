@@ -26,3 +26,6 @@ LOG_FILENAME = os.path.join(os.environ.get('HOME',
 # Путь до папки профиля
 PROFILE_PATH = os.path.join(os.environ.get('HOME', os.path.dirname(__file__)),
                             PROFILE_DIRNAME)
+
+# Альтернативное расположение wxFormBuilder
+ALTER_WXFORMBUILDER = '~/dev/ide/wxFormBuilder/output/bin/wxformbuilder'

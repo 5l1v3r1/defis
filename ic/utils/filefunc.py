@@ -5,13 +5,15 @@
 Функции работы с файлами.
 """
 
+import sys
 import os
 import os.path
 import hashlib
 import fnmatch
+import pwd
 from . import util
 
-__version__ = (0, 0, 5, 1)
+__version__ = (0, 0, 7, 1)
 
 
 def createTxtFile(FileName_,Txt_=None):
@@ -129,3 +131,28 @@ def get_dir_filename_list(directory, filename_pattern=None, sort_filename=False)
 
     full_filenames = [os.path.join(directory, filename) for filename in filenames]
     return full_filenames
+
+
+def get_home_path(UserName_=None):
+    """
+    Определить домашнюю папку пользователя.
+    """
+    if sys.platform[:3].lower() == 'win':
+        home = os.path.join(os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
+    else:
+        if UserName_ is None:
+            home = os.environ['HOME']
+        else:
+            user_struct = pwd.getpwnam(UserName_)
+            home = user_struct.pw_dir
+    return home
+
+
+def normal_path(path, sUserName=None):
+    """
+    Нормировать путь.
+    @param path: Путь.
+    @param sUserName: Имя пользователя.
+    """
+    home_dir = get_home_path(sUserName)
+    return os.path.abspath(os.path.normpath(path.replace('~', home_dir)))

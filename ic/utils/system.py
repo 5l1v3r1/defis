@@ -5,11 +5,12 @@
 Общесистемные функции.
 """
 
+import os
 import sys
 import locale
 import platform
 
-__version__ = (0, 0, 0, 2)
+__version__ = (0, 0, 1, 1)
 
 
 def getPlatform():
@@ -34,3 +35,14 @@ def getTerminalCodePage():
     """
     cmd_encoding = sys.stdout.encoding if isWindowsPlatform() else locale.getpreferredencoding()
     return cmd_encoding
+
+
+def get_login():
+    """
+    Имя залогинненного пользователя.
+    """
+    username = os.environ.get('USERNAME', None)
+    if username != 'root':
+        return username
+    else:
+        return os.environ.get('SUDO_USER', None)

@@ -8,10 +8,13 @@ import ic.imglib.common as imglib
 
 from ic.utils import ic_file
 from ic.utils import ic_exec
+from ic.utils import filefunc
+from ic import config
+from ic.log import log
 
 from . import prj_node
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 2)
 
 _ = wx.GetTranslation
 
@@ -33,22 +36,40 @@ class PrjWXFormBuilderProject(prj_node.PrjNode):
         # Расширение файла
         self.ext = '.fbp'
 
+    def _run_wxformbuilder(self, filename=None):
+        """
+        Запуск wxFormBuilder.
+        @param filename: Файл открываемый в wxFormBuilder.
+            Если не указан, то ничего не открывается.
+        @return: True/False
+        """
+        cmd = None
+        if os.path.exists('/bin/wxformbuilder') or os.path.exists('/usr/bin/wxformbuilder'):
+            cmd = 'wxformbuilder %s&' % filename if filename else 'wxformbuilder &'
+        else:
+            alter_wxfb_path = filefunc.normal_path(config.ALTER_WXFORMBUILDER)
+            if os.path.exists(alter_wxfb_path):
+                cmd = '%s %s&' % (alter_wxfb_path, filename) if filename else '%s &' % alter_wxfb_path
+            else:
+                log.warning(u'Альтернативный путь запуска wxFormBuilder <%s> не найден' % alter_wxfb_path)
+
+        if cmd:
+            ic_exec.icSysCmd(cmd)
+
     def edit(self):
         """ 
         Редактирование.
         """
         filename = self.getPath()
-        if ic_file.Exists(filename):
-            cmd = 'wxformbuilder %s&' % filename
-            ic_exec.icSysCmd(cmd)
+        if os.path.exists(filename):
+            self._run_wxformbuilder(filename)
         return True
 
     def create(self):
         """ 
         Функция создания.
         """
-        cmd = 'wxformbuilder&'
-        ic_exec.icSysCmd(cmd)
+        self._run_wxformbuilder()
         return True
 
     def delete(self):
@@ -70,7 +91,8 @@ class PrjWXFormBuilderProject(prj_node.PrjNode):
         self.getRoot().save()
 
     def getPath(self):
-        return ic_file.NormPathUnix(self.getModulePath()+'/%s.fbp' % self.name)
+        # return ic_file.NormPathUnix(self.getModulePath()+'/%s.fbp' % self.name)
+        return os.path.join(self.getModulePath(), '%s.fbp' % self.name)
 
     def getModulePath(self):
         """ 
@@ -83,7 +105,7 @@ class PrjWXFormBuilderProject(prj_node.PrjNode):
         if issubclass(self._Parent.__class__, prj_module.PrjPackage):
             path = self._Parent.getPath()
         elif issubclass(self._Parent.__class__, prj_module.PrjModules):
-            path = ic_file.DirName(self.getRoot().getPrjFileName())
+            path = os.path.dirname(self.getRoot().getPrjFileName())
         return path
 
     def unlockAllPyFiles(self):
