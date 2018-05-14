@@ -32,7 +32,7 @@ try:
 except ImportError:
     pass
 
-__version__ = (0, 1, 6, 4)
+__version__ = (0, 1, 6, 5)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -326,7 +326,7 @@ def getCheckBoxDlg(parent=None, title=None, label=None, choices=()):
         Максимальное количество элементов выбора 7.
         При большем количестве элементов необходимо использовать
         другую диалоговую форму выбора.
-    @return: Индекс выбранного эдемента или None если нажата <отмена>.
+    @return: Признак выбранного элемента True-выбран/False-нет или None если нажата <отмена>.
     """
     value = None
 
