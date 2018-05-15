@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 7, 1)
+__version__ = (0, 1, 7, 2)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -975,7 +975,7 @@ class icFormManager(formdatamanager.icFormDataManager):
                     ctrl.Select(cursor_pos)
                     # Использую для прокрутки скролинга до выбранного элемента
                     ctrl.Focus(cursor_pos)
-                else:
+                elif len_rows:
                     ctrl.Select(len_rows - 1)
                     # Использую для прокрутки скролинга до выбранного элемента
                     ctrl.Focus(len_rows - 1)
@@ -998,7 +998,7 @@ class icFormManager(formdatamanager.icFormDataManager):
                 len_rows = len(rows)
                 if cursor_pos < len_rows:
                     ctrl.SelectRow(cursor_pos)
-                else:
+                elif len_rows:
                     ctrl.SelectRow(len_rows - 1)
             return result
         else:
