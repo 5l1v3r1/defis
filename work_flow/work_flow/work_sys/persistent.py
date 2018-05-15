@@ -30,7 +30,7 @@ from STD.queries import filter_generate
 
 
 # Version
-__version__ = (0, 0, 5, 3)
+__version__ = (0, 0, 5, 4)
 
 
 class icObjPersistentPrototype:
@@ -1357,14 +1357,14 @@ class icObjPersistent(icObjPersistentPrototype):
         if not filter_requisite_data:
             filter_requisite_data = None
 
-        io_prnt.outLog(u'BUSINES OBJECT get data')
+        # io_prnt.outLog(u'BUSINES OBJECT get data')
         data_filter = self.filterRequisiteData(filter_requisite_data)
-        io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
+        # io_prnt.outLog(u'\tFilter: <%s>' % data_filter)
         query = self.getFilterSQLAlchemy(data_filter,
                                          limit=limit if limit else self._limit)
-        io_prnt.outLog(u'\tQuery: <%s>' % query)
+        # io_prnt.outLog(u'\tQuery: <%s>' % query)
         result = self.getTable().getConnection().execute(query)
-        io_prnt.outLog(u'\tResult: [%s]' % result.rowcount)
+        # io_prnt.outLog(u'\tResult: [%s]' % result.rowcount)
         return self._resultFilter2Dataset(result.fetchall())
 
     # Другие наименования метода
