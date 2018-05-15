@@ -242,7 +242,7 @@ SPC_IC_SIZER = {'name': 'DefaultName',
 
 _ = wx.GetTranslation
 
-__version__ = (1, 0, 4, 5)
+__version__ = (1, 0, 4, 6)
 
 #   Указатель на окно всплывающей подсказки
 icHelpStringWin = None
@@ -440,7 +440,7 @@ class icShape:
 
 msgEvalAttrError = ''' eval_attr(...)
 ###########################################################
-#### EVAL ATTRIBUTE ERROR in component=%s,
+#### EVAL ATTRIBUTE Error in component=%s,
 ####                         attribute=%s
 #### <UUID = %s>
 ###########################################################

@@ -57,7 +57,7 @@ import stat
 import traceback
 import locale
 
-__version__ = (0, 0, 4, 2)
+__version__ = (0, 0, 4, 3)
 
 # Кодировка коммандной оболочки по умолчанию
 DEFAULT_ENCODING = sys.stdout.encoding if sys.platform.startswith('win') else locale.getpreferredencoding()
@@ -292,7 +292,7 @@ def service(sMsg=u'', bForcePrint=False, bForceLog=False):
         if get_debug_mode() or bForcePrint:
             print_color_txt('SERVICE. ' + sMsg, CYAN_COLOR_TEXT)
         if get_log_mode() or bForceLog:
-            logging.debug(sMsg)
+            logging.debug('SERVICE. ' + sMsg)
     else:
         print_color_txt('Not init log system.', PURPLE_COLOR_TEXT)
         print_color_txt('SERVICE. ' + sMsg, CYAN_COLOR_TEXT)

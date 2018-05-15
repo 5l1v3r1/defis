@@ -29,7 +29,7 @@ import log
 from ic.utils import ic_time
 
 # Version
-__version__ = (0, 0, 3, 5)
+__version__ = (0, 0, 3, 6)
 
 TIME_FMT = '%H:%M:%S'
 
@@ -39,6 +39,7 @@ LOG_TYPE_COLOURS = {
                     log_file.ERROR_LOG_TYPE: wx.NamedColour('RED4'),
                     log_file.FATAL_LOG_TYPE: wx.NamedColour('RED3'),
                     log_file.DEBUG_LOG_TYPE: wx.NamedColour('BLUE4'),
+                    log_file.DEBUG_SERVICE_LOG_TYPE: wx.NamedColour('CYAN4'),
                     log_file.SERVICE_LOG_TYPE: wx.NamedColour('CYAN4'),
                     }
 
@@ -48,6 +49,7 @@ LOG_TYPE_LABELS = {
                    log_file.ERROR_LOG_TYPE: u'Ошибка',
                    log_file.FATAL_LOG_TYPE: u'Критическая ошибка',
                    log_file.DEBUG_LOG_TYPE: u'Отладка',
+                   log_file.DEBUG_SERVICE_LOG_TYPE: u'Сервисная информация',
                    log_file.SERVICE_LOG_TYPE: u'Сервисная информация',
                    }
 
@@ -57,6 +59,7 @@ LOG_TYPE_ICONS = {
                   log_file.ERROR_LOG_TYPE: wx.ICON_ERROR,
                   log_file.FATAL_LOG_TYPE: wx.ICON_HAND,
                   log_file.DEBUG_LOG_TYPE: wx.ICON_ASTERISK,
+                  log_file.DEBUG_SERVICE_LOG_TYPE: wx.ICON_EXCLAMATION,
                   log_file.SERVICE_LOG_TYPE: wx.ICON_EXCLAMATION,
                   }
 
@@ -120,6 +123,7 @@ class icLogBrowserPanelManager:
         if self.filter_panel.debug_checkBox.IsChecked():
             result.append(log_file.DEBUG_LOG_TYPE)
         if self.filter_panel.service_checkBox.IsChecked():
+            result.append(log_file.DEBUG_SERVICE_LOG_TYPE)
             result.append(log_file.SERVICE_LOG_TYPE)
         return tuple(result)
 
@@ -235,7 +239,7 @@ class icLogBrowserPanelManager:
                     self.filter_panel.fatal_checkBox.SetValue(True)
                 elif log_type == log_file.DEBUG_LOG_TYPE:
                     self.filter_panel.debug_checkBox.SetValue(True)
-                elif log_type == log_file.SERVICE_LOG_TYPE:
+                elif log_type in (log_file.SERVICE_LOG_TYPE, log_file.DEBUG_SERVICE_LOG_TYPE):
                     self.filter_panel.service_checkBox.SetValue(True)
 
     def get_records(self, sLogFileName=None, tLogTypes=None,

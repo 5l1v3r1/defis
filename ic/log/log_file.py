@@ -21,7 +21,7 @@ import datetime
 
 import log
 
-__version__ = (0, 0, 1, 4)
+__version__ = (0, 0, 1, 5)
 
 # Типы сообщений
 INFO_LOG_TYPE = 'INFO'
@@ -30,10 +30,11 @@ ERROR_LOG_TYPE = 'ERROR'
 FATAL_LOG_TYPE = 'FATAL'
 DEBUG_LOG_TYPE = 'DEBUG'
 SERVICE_LOG_TYPE = 'SERVICE'
+DEBUG_SERVICE_LOG_TYPE = 'DEBUG SERVICE.'
 
 LOG_TYPES = (INFO_LOG_TYPE, WARNING_LOG_TYPE,
              ERROR_LOG_TYPE, FATAL_LOG_TYPE,
-             DEBUG_LOG_TYPE, SERVICE_LOG_TYPE)
+             DEBUG_LOG_TYPE, DEBUG_SERVICE_LOG_TYPE, SERVICE_LOG_TYPE)
 
 AND_FILTER_LOGIC = 'AND'
 OR_FILTER_LOGIC = 'OR'
@@ -123,6 +124,18 @@ def is_new_msg(line):
     return msg_type in LOG_TYPES
 
 
+def get_msg_log_type(line):
+    """
+    Определить тип лога сообщения.
+    @param line:
+    @return:
+    """
+    for log_type in LOG_TYPES:
+        if line[20:].startswith(log_type):
+            return log_type
+    return None
+
+
 def parse_msg_record(line, encoding=DEFAULT_ENCODING):
     """
     Распарсить строку файла журнала сообщений программы.
@@ -134,9 +147,14 @@ def parse_msg_record(line, encoding=DEFAULT_ENCODING):
     """
     dt_txt = line[:20].strip()
     # log.debug('Data: %s' % dt_txt)
-    dt = datetime.datetime.strptime(dt_txt, DATETIME_LOG_FMT)
-    msg_type = line[20:][:line[20:].index(' ')]
-    msg = line[20+line[20:].index(' '):]
+    try:
+        dt = datetime.datetime.strptime(dt_txt, DATETIME_LOG_FMT)
+    except:
+        log.fatal(u'Ошибка парсинга времени лога <%s>' % dt_txt)
+        raise
+
+    msg_type = get_msg_log_type(line)
+    msg = line[21+len(msg_type):].strip()
     short_msg = u''
     # Переведем все в unicode
     try:

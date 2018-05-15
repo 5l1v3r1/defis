@@ -149,14 +149,14 @@ BUFF_TYPE_NONE = 2
 
 msgEvalAttrError = ''' eval_attr(...)
 ###########################################################
-#### EVAL ATTRIBUTE ERROR in component=%s,
+#### EVAL ATTRIBUTE Error in component=%s,
 ####                         attribute=%s
 #### <UUID = %s>
 ###########################################################
 '''
 
 #   Версия компонента
-__version__ = (1, 0, 1, 2)
+__version__ = (1, 0, 1, 3)
 
 
 class icSQLAlchemyDataSet(icdatasetinterface.icDatasetInterface):
