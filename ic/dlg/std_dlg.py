@@ -32,7 +32,7 @@ try:
 except ImportError:
     pass
 
-__version__ = (0, 1, 6, 5)
+__version__ = (0, 1, 6, 6)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -315,7 +315,7 @@ def getIntRangeDlg(parent=None, title=None, label_begin=None, label_end=None, mi
     return value
 
 
-def getCheckBoxDlg(parent=None, title=None, label=None, choices=()):
+def getCheckBoxDlg(parent=None, title=None, label=None, choices=(), defaults=()):
     """
     Выбор элементов wxCheckBox.
     @param parent: Родительское окно. Если не определено, то
@@ -326,6 +326,7 @@ def getCheckBoxDlg(parent=None, title=None, label=None, choices=()):
         Максимальное количество элементов выбора 7.
         При большем количестве элементов необходимо использовать
         другую диалоговую форму выбора.
+    @param defaults: Список отметок по умолчанию.
     @return: Признак выбранного элемента True-выбран/False-нет или None если нажата <отмена>.
     """
     value = None
@@ -334,7 +335,7 @@ def getCheckBoxDlg(parent=None, title=None, label=None, choices=()):
         parent = wx.GetApp().GetTopWindow()
 
     dlg = iccheckboxdlg.icCheckBoxDialog(parent)
-    dlg.init(title=title, label=label, choices=choices)
+    dlg.init(title=title, label=label, choices=choices, defaults=defaults)
     dlg.Centre()
 
     if dlg.ShowModal() == wx.ID_OK:

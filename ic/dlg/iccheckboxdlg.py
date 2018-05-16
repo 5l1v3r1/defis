@@ -16,7 +16,7 @@ try:
 except ValueError:
     import std_dialogs_proto
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 2)
 
 # Максимальное количество элементов выбора
 MAX_ITEM_COUNT = 7
@@ -54,7 +54,8 @@ class icCheckBoxDialog(std_dialogs_proto.checkBoxDialogProto):
         """
         return self._check_items
 
-    def init(self, title=None, label=None, choices=(), do_fit_dlg=True):
+    def init(self, title=None, label=None, choices=(), do_fit_dlg=True,
+             defaults=()):
         """
         Инициализация диалогового окна.
         @param title: Заголовок окна.
@@ -65,6 +66,7 @@ class icCheckBoxDialog(std_dialogs_proto.checkBoxDialogProto):
             другую диалоговую форму выбора.
         @param do_fit_dlg: Переразмерить диалоговое окно для удаления
             не заполненной области отсутствующих элементов?
+        @param defaults: Список отметок по умолчанию.
         """
         if title:
             self.SetTitle(title)
@@ -77,6 +79,10 @@ class icCheckBoxDialog(std_dialogs_proto.checkBoxDialogProto):
                 check_box_ctrl = self.check_box_ctrl[i]
                 if i < self._check_item_count:
                     check_box_ctrl.SetLabel(choices[i])
+                    # Установить значение по умолчанию
+                    if defaults and i < len(defaults):
+                        check = bool(defaults[i])
+                        check_box_ctrl.SetValue(check)
                 else:
                     check_box_ctrl.Show(False)
 
