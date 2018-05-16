@@ -21,7 +21,7 @@ import datetime
 
 import log
 
-__version__ = (0, 0, 1, 5)
+__version__ = (0, 0, 1, 6)
 
 # Типы сообщений
 INFO_LOG_TYPE = 'INFO'
@@ -32,9 +32,14 @@ DEBUG_LOG_TYPE = 'DEBUG'
 SERVICE_LOG_TYPE = 'SERVICE'
 DEBUG_SERVICE_LOG_TYPE = 'DEBUG SERVICE.'
 
-LOG_TYPES = (INFO_LOG_TYPE, WARNING_LOG_TYPE,
-             ERROR_LOG_TYPE, FATAL_LOG_TYPE,
-             DEBUG_LOG_TYPE, DEBUG_SERVICE_LOG_TYPE, SERVICE_LOG_TYPE)
+LOG_TYPES = (DEBUG_SERVICE_LOG_TYPE,    # Не основные типы должны стоять первыми для обнаружения
+             SERVICE_LOG_TYPE,
+             INFO_LOG_TYPE,
+             WARNING_LOG_TYPE,
+             ERROR_LOG_TYPE,
+             FATAL_LOG_TYPE,
+             DEBUG_LOG_TYPE,
+             )
 
 AND_FILTER_LOGIC = 'AND'
 OR_FILTER_LOGIC = 'OR'
