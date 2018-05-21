@@ -686,3 +686,156 @@ class checkBoxDialogProto ( wx.Dialog ):
 		event.Skip()
 	
 
+###########################################################################
+## Class radioChoiceMaxiDialogProto
+###########################################################################
+
+class radioChoiceMaxiDialogProto ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Выбор элемента", pos = wx.DefaultPosition, size = wx.Size( 566,503 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer19 = wx.BoxSizer( wx.VERTICAL )
+		
+		choice_radioBoxChoices = [ u"Item1", u"item 5", u"Item 2", u"item 4", u"item 5", u"item 6", u"item 7", u"item 8", u"item 9", u"item 10", u"item 11", u"item 12", u"item 13", u"item 14", u"item 15" ]
+		self.choice_radioBox = wx.RadioBox( self, wx.ID_ANY, u"Title", wx.DefaultPosition, wx.DefaultSize, choice_radioBoxChoices, 1, wx.RA_SPECIFY_COLS )
+		self.choice_radioBox.SetSelection( 0 )
+		bSizer19.Add( self.choice_radioBox, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		bSizer2 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.cancelButton = wx.Button( self, wx.ID_ANY, u"Отмена", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.cancelButton, 0, wx.ALL, 5 )
+		
+		self.okButton = wx.Button( self, wx.ID_ANY, u"ОК", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.okButton.SetDefault() 
+		bSizer2.Add( self.okButton, 0, wx.ALL, 5 )
+		
+		
+		bSizer19.Add( bSizer2, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer19 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.cancelButton.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.okButton.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onCancelButtonClick( self, event ):
+		event.Skip()
+	
+	def onOkButtonClick( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class checkBoxMaxiDialogProto
+###########################################################################
+
+class checkBoxMaxiDialogProto ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Выбор элементов", pos = wx.DefaultPosition, size = wx.Size( 525,601 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHintsSz( wx.Size( -1,130 ), wx.DefaultSize )
+		
+		bSizer19 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.label_staticText = wx.StaticText( self, wx.ID_ANY, u"MyLabel", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.label_staticText.Wrap( -1 )
+		bSizer19.Add( self.label_staticText, 0, wx.ALL, 5 )
+		
+		bSizer27 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.item_checkBox1 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox2 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox3 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox4 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox5 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox6 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox7 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox7, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.item_checkBox8 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox8, 0, wx.ALL, 5 )
+		
+		self.item_checkBox9 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox9, 0, wx.ALL, 5 )
+		
+		self.item_checkBox10 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox10, 0, wx.ALL, 5 )
+		
+		self.item_checkBox11 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox11, 0, wx.ALL, 5 )
+		
+		self.item_checkBox12 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox12, 0, wx.ALL, 5 )
+		
+		self.item_checkBox13 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox13, 0, wx.ALL, 5 )
+		
+		self.item_checkBox14 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox14, 0, wx.ALL, 5 )
+		
+		self.item_checkBox15 = wx.CheckBox( self, wx.ID_ANY, u"Check Me!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer27.Add( self.item_checkBox15, 0, wx.ALL, 5 )
+		
+		
+		bSizer19.Add( bSizer27, 1, wx.EXPAND, 5 )
+		
+		bSizer2 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.cancelButton = wx.Button( self, wx.ID_ANY, u"Отмена", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.cancelButton, 0, wx.ALL, 5 )
+		
+		self.okButton = wx.Button( self, wx.ID_ANY, u"ОК", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.okButton.SetDefault() 
+		bSizer2.Add( self.okButton, 0, wx.ALL, 5 )
+		
+		
+		bSizer19.Add( bSizer2, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer19 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.cancelButton.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.okButton.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onCancelButtonClick( self, event ):
+		event.Skip()
+	
+	def onOkButtonClick( self, event ):
+		event.Skip()
+	
+
