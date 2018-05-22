@@ -81,7 +81,6 @@ class icRadioChoiceMaxiDialog(std_dialogs_proto.radioChoiceMaxiDialogProto):
         Образмерить диалоговое окно.
         """
         self.choice_radioBox.Layout()
-        print('>>>', self.choice_radioBox.GetClientSize())
         self.Fit()
 
     def onCancelButtonClick(self, event):
