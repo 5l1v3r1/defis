@@ -26,13 +26,15 @@ from . import icintegerdlg
 from . import icradiochoicedlg
 from . import icintrangedlg
 from . import iccheckboxdlg
+from . import icradiochoicemaxidlg
+from . import iccheckboxmaxidlg
 
 try:
     from ic.log import log
 except ImportError:
     pass
 
-__version__ = (0, 1, 6, 6)
+__version__ = (0, 1, 7, 1)
 
 
 def getIntegerDlg(parent=None, title=None, label=None, min_value=0, max_value=100):
@@ -335,6 +337,67 @@ def getCheckBoxDlg(parent=None, title=None, label=None, choices=(), defaults=())
         parent = wx.GetApp().GetTopWindow()
 
     dlg = iccheckboxdlg.icCheckBoxDialog(parent)
+    dlg.init(title=title, label=label, choices=choices, defaults=defaults)
+    dlg.Centre()
+
+    if dlg.ShowModal() == wx.ID_OK:
+        value = dlg.getValue()
+    dlg.Destroy()
+
+    return value
+
+
+def getRadioChoiceMaxiDlg(parent=None, title=None, label=None,
+                          choices=(), default=None):
+    """
+    Выбор элемента wxRadioBox.
+    @param parent: Родительское окно. Если не определено, то
+        береться wx.GetApp().GetTopWindow()
+    @param title: Заголовок окна.
+    @param label: Текст приглашения ввода.
+    @param choices: Список выбора.
+        Максимальное количество элементов выбора 5.
+        При большем количестве элементов необходимо использовать
+        другую диалоговую форму выбора.
+    @param default: Индекс выбранного элемента по умолчанию.
+    @return: Индекс выбранного эдемента или None если нажата <отмена>.
+    """
+    value = None
+
+    if parent is None:
+        parent = wx.GetApp().GetTopWindow()
+
+    dlg = icradiochoicemaxidlg.icRadioChoiceMaxiDialog(parent)
+    dlg.init(title=title, label=label, choices=choices, default=default)
+    dlg.Centre()
+
+    if dlg.ShowModal() == wx.ID_OK:
+        value = dlg.getValue()
+    dlg.Destroy()
+
+    return value
+
+
+def getCheckBoxMaxiDlg(parent=None, title=None, label=None, choices=(), defaults=()):
+    """
+    Выбор элементов wxCheckBox.
+    @param parent: Родительское окно. Если не определено, то
+        береться wx.GetApp().GetTopWindow()
+    @param title: Заголовок окна.
+    @param label: Текст приглашения ввода.
+    @param choices: Список выбора.
+        Максимальное количество элементов выбора 7.
+        При большем количестве элементов необходимо использовать
+        другую диалоговую форму выбора.
+    @param defaults: Список отметок по умолчанию.
+    @return: Признак выбранного элемента True-выбран/False-нет или None если нажата <отмена>.
+    """
+    value = None
+
+    if parent is None:
+        parent = wx.GetApp().GetTopWindow()
+
+    dlg = iccheckboxmaxidlg.icCheckBoxMaxiDialog(parent)
     dlg.init(title=title, label=label, choices=choices, defaults=defaults)
     dlg.Centre()
 
