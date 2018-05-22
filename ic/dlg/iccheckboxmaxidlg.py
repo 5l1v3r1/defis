@@ -99,7 +99,14 @@ class icCheckBoxMaxiDialog(std_dialogs_proto.checkBoxMaxiDialogProto):
         # Т.к не все элементы отображаются переразмерить окно для того чтобы
         # не было пустого места
         if do_fit_dlg:
-            self.Fit()
+            self.doFit()
+
+    def doFit(self):
+        """
+        Образмерить диалоговое окно.
+        """
+        self.GetSizer().Layout()
+        self.Fit()
 
     def getCheckedList(self):
         """
@@ -144,7 +151,10 @@ def test():
 
     dlg = icCheckBoxMaxiDialog(frame)
     dlg.init(u'Заголовок окна', u'Выбор:',
-             (u'Элемент 1', u'Элемент 2', u'Элемент 3 '))
+             (u'Элемент 1',
+              u'Элемент 2',
+              u'Элемент 3 ',
+              u''))
 
     dlg.ShowModal()
     selected = dlg.getValue()

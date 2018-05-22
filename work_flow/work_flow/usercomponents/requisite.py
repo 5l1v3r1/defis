@@ -29,6 +29,7 @@ import ic.components.icResourceParser as prs
 import ic.PropertyEditor.icDefInf as icDefInf
 
 import work_flow.work_sys.icrequisite as parentModule
+from ic.db import icsqlalchemy
 
 #   Тип компонента
 ic_class_type = icDefInf._icUserType
@@ -73,7 +74,7 @@ ic_class_spc = dict({'type': 'Requisite',
                                         # гриды объектов  в виде колонки
                      'is_description': False,   # Реквизит является описательным
 
-                     '__lists__': {'type_val': ['T', 'D', 'I', 'F', 'DateTime', 'Binary', 'PickleType']},
+                     '__lists__': {'type_val': list(icsqlalchemy.FIELD_VALUES_ALL_TYPES)},
                      '__attr_types__': {0: ['name', 'type'],
                                         icDefInf.EDT_TEXTFIELD: ['description', 'field', 'task',
                                                                  'grp_title', 'label'],
@@ -120,7 +121,7 @@ ic_can_contain = None
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 2)
 
 
 class icRequisite(parentModule.icRequisitePrototype, icwidget.icSimple):

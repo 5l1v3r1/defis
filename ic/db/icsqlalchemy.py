@@ -25,6 +25,7 @@ try:
         sqlalchemy_field_type_Binary = sqlalchemy.Binary
         sqlalchemy_field_type_DateTime = sqlalchemy.DateTime
         sqlalchemy_field_type_PickleType = sqlalchemy.PickleType
+        sqlalchemy_field_type_BigInteger = sqlalchemy.BigInteger
 except:
         log.error('SQLAlchemy import error')
         sqlalchemy_field_type_Integer = None
@@ -34,6 +35,7 @@ except:
         sqlalchemy_field_type_Binary = None
         sqlalchemy_field_type_DateTime = None
         sqlalchemy_field_type_PickleType = None
+        sqlalchemy_field_type_BigInteger = None
 
 from ic.interfaces import icdataclassinterface
 from ic.interfaces import icsourceinterface
@@ -64,7 +66,7 @@ from .icPostgreSQL import SPC_IC_POSTGRESQL
 from .icMSSQL import SPC_IC_MSSQL
 from .icMySQL import SPC_IC_MYSQL
 
-__version__ = (0, 1, 3, 2)
+__version__ = (0, 1, 4, 1)
 
 DB_TYPES = [SQLITE_DB_TYPE, POSTGRES_DB_TYPE, MSSQL_DB_TYPE, MYSQL_DB_TYPE]
 
@@ -102,13 +104,15 @@ FLOAT_FIELD_TYPE = 'F'
 DATETIME_FIELD_TYPE = 'DateTime'
 BINARY_FIELD_TYPE = 'Binary'
 PICKLE_FIELD_TYPE = 'PickleType'
-FIELD_VALUES_ALL_TYPES = (TEXT_FIELD_TYPE, 
+BIGINT_FIELD_TYPE = 'BigInteger'
+FIELD_VALUES_ALL_TYPES = (TEXT_FIELD_TYPE,
                           DATE_FIELD_TYPE, 
                           INT_FIELD_TYPE, 
                           FLOAT_FIELD_TYPE, 
                           DATETIME_FIELD_TYPE, 
                           BINARY_FIELD_TYPE, 
-                          PICKLE_FIELD_TYPE)
+                          PICKLE_FIELD_TYPE,
+                          BIGINT_FIELD_TYPE)
 
 # Спецификация поля
 SPC_IC_FIELD = {'type': FIELD_TYPE,
@@ -884,6 +888,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                                    DATETIME_FIELD_TYPE: sqlalchemy_field_type_DateTime,
                                    BINARY_FIELD_TYPE: sqlalchemy_field_type_Binary,
                                    PICKLE_FIELD_TYPE: sqlalchemy_field_type_PickleType,
+                                   BIGINT_FIELD_TYPE: sqlalchemy_field_type_BigInteger,
                                    }
 
     def _createField(self, FieldRes_):
@@ -1221,6 +1226,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                          DATETIME_FIELD_TYPE: _datetime,
                          BINARY_FIELD_TYPE: _bin,
                          PICKLE_FIELD_TYPE: _pickle,
+                         BIGINT_FIELD_TYPE: _int,
                          }
 
     def _prepareRecData(self, RecData_):
@@ -1622,6 +1628,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                          FLOAT_FIELD_TYPE: _float,
                          INT_FIELD_TYPE: _int,
                          DATE_FIELD_TYPE: _str2SQL,
+                         BIGINT_FIELD_TYPE: _int,
                          }
 
     def _structFilter2SQLTxt(self, Filter_=None, SQLWhereJoin_='AND'):

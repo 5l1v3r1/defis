@@ -74,8 +74,15 @@ class icRadioChoiceMaxiDialog(std_dialogs_proto.radioChoiceMaxiDialogProto):
         # Т.к не все элементы отображаются переразмерить окно для того чтобы
         # не было пустого места
         if do_fit_dlg:
-            self.choice_radioBox.Layout()
-            self.Fit()
+            self.doFit()
+
+    def doFit(self):
+        """
+        Образмерить диалоговое окно.
+        """
+        self.choice_radioBox.Layout()
+        print('>>>', self.choice_radioBox.GetClientSize())
+        self.Fit()
 
     def onCancelButtonClick(self, event):
         self._item_idx = -1
