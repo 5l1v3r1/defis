@@ -7,7 +7,7 @@
 
 import wx
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 1, 1)
 
 
 def is_same_wx_object(wx_obj1, wx_obj2):
@@ -69,3 +69,25 @@ def wxColour2StrHex(colour):
     @return: Строка #RRGGBB соответствующая цвету.    
     """
     return colour.GetAsString(wx.C2S_HTML_SYNTAX)
+
+
+def getWxPythonMajorVersion():
+    """
+    Мажорная версия wxPython.
+    """
+    return wx.MAJOR_VERSION
+
+
+def getWxPythonMinorVersion():
+    """
+    Минорная версия wxPython.
+    """
+    return wx.MINOR_VERSION
+
+
+def isWxPython4():
+    """
+    Проверка на wxPython версии 4 и выше.
+    @return: True - wxPython версии 4 и выше / False - другая версия wxPython.
+    """
+    return wx.MAJOR_VERSION >= 4

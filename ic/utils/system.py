@@ -10,7 +10,7 @@ import sys
 import locale
 import platform
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 1)
 
 
 def getPlatform():
@@ -46,3 +46,33 @@ def get_login():
         return username
     else:
         return os.environ.get('SUDO_USER', None)
+
+
+def getPythonMajorVersion():
+    """
+    Мажорная версия Python.
+    """
+    return sys.version_info.major
+
+
+def getPythonMinorVersion():
+    """
+    Минорная версия Python.
+    """
+    return sys.version_info.minor
+
+
+def isPython2():
+    """
+    Проверка на Python версии 2.
+    @return: True - Python версии 2 / False - другая версия Python.
+    """
+    return sys.version_info.major == 2
+
+
+def isPython3():
+    """
+    Проверка на Python версии 3.
+    @return: True - Python версии 3 / False - другая версия Python.
+    """
+    return sys.version_info.major == 3
