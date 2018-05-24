@@ -15,6 +15,8 @@ import ic.utils.clipboard as clipboard
 
 from . import prj_node
 
+__version__ = (0, 0, 1, 2)
+
 _ = wx.GetTranslation
 
 

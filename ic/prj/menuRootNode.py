@@ -21,6 +21,8 @@ from ic.utils import ini
 from ic.bitmap import ic_bmp
 from ic.dlg import ic_dlg
 
+__version__ = (0, 0, 1, 2)
+
 _ = wx.GetTranslation
 
 PRJ_INI_FILE = os.path.join(ic_file.getProfilePath(), 'prjsettings.ini')
@@ -83,8 +85,10 @@ class icMenuRootNode(flatmenu.FlatMenu):
 
             self.AppendSubMenu(prj_submenu, u'Ранее открытые проекты')
 
-        # Определен проект уже или нет?
-        prj_none = bool(self._Parent.prj_res_manager.getPrjRes())
+        # Определен проект открыт уже или нет?
+        prj_none = self._Parent.isOpened()
+        io_prnt.outLog(u'Проект открыт <%s>' % self._Parent.isOpened())
+
         # 'Сохранить'
         self.saveID = wx.NewId()
         item = flatmenu.FlatMenuItem(self, self.saveID,
@@ -130,6 +134,14 @@ class icMenuRootNode(flatmenu.FlatMenu):
         self.AppendItem(item)
         item.Enable(prj_none)
         prj_tree_ctrl.Bind(wx.EVT_MENU, self.OnEdit, id=self.editID)
+
+        self.editIniID = wx.NewId()
+        item = flatmenu.FlatMenuItem(self, self.editIniID,
+                                     u'Параметры проекта', u'Параметры проекта',
+                                     normalBmp=imglib.imgProperty)
+        self.AppendItem(item)
+        item.Enable(prj_none)
+        prj_tree_ctrl.Bind(wx.EVT_MENU, self.OnEditIni, id=self.editIniID)
 
         self.AppendSeparator()
 
@@ -327,6 +339,34 @@ class icMenuRootNode(flatmenu.FlatMenu):
         node = self._Parent
         node.edit()
 
+    def OnEditIni(self, event):
+        """
+        Редактировать INI файл проекта.
+        """
+        node = self._Parent
+        prj_path = node.getPrjFileName()
+        ini_prj_filename = os.path.splitext(prj_path)[0] + '.ini'
+        self.editFileIDE(ini_prj_filename)
+
+    def editFileIDE(self, filename):
+        """
+        Редактирование файла в редакторе.
+        @param filename: Полное имя редактируемого файла.
+        @return: True/Falseю
+        """
+        if not os.path.exists(filename):
+            ic_dlg.icMsgBox(u'ПРОЕКТ',
+                            u'Редактирование. Файл <%s> не найден в проекте' % filename)
+            return False
+
+        node = self._Parent
+        ide = node.getParent().ide
+        if ide:
+            if not ide.SelectFile(filename):
+                return ide.OpenFile(filename, True, readonly=False)
+            return True
+        return False
+
     def OnPopupHelp(self, event):
         """
         Управление отображением всплывающих подсказок.
@@ -339,7 +379,7 @@ class icMenuRootNode(flatmenu.FlatMenu):
         Помощь...
         """
         import ic
-        hlp_file_name = os.path.join(ic_file.DirName(ic.__file__), 'doc', 'index.html')
+        hlp_file_name = os.path.join(os.path.dirname(ic.__file__), 'doc', 'index.html')
         if ic_file.Exists(hlp_file_name):
             if wx.Platform == '__WXMSW__':
                 hlp_file_name = os.path.normpath(hlp_file_name)

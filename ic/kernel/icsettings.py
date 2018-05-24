@@ -11,8 +11,11 @@
 from ic.utils import ic_mode
 from ic.utils import ini
 from ic.utils import ic_file
+from ic.utils import ic_exec
 from ic.engine import ic_user
 from . import io_prnt
+
+__version__ = (0, 0, 1, 2)
 
 
 def setProjectSettingsToEnvironment(ProjectName_=None, ReDefine_=False):
@@ -171,6 +174,17 @@ class icPrjDotUse(icSettingsDotUsePrototype):
             ini_file_name = self._get_ini_file_name()
             return ini.Dict2INI(value, ini_file_name, True)
         return None
+
+    def edit(self):
+        """
+        Запуск редактирования INI файла настроек
+        """
+        ini_file_name = self._get_ini_file_name()
+        if ic_file.Exists(ini_file_name):
+            cmd = 'gedit %s &' % ini_file_name
+            ic_exec.icSysCmd(cmd)
+        else:
+            io_prnt.outWarning(u'INI файл <%s> не найден' % ini_file_name)
 
 
 class icSectionDotUse(icSettingsDotUsePrototype):

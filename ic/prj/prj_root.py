@@ -41,7 +41,7 @@ import subprocess
 
 _ = wx.GetTranslation
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 # Константы
 # Файл журнала зарегистрированных пользователей
@@ -165,7 +165,7 @@ class PrjRoot(ImpNode.PrjImportSys):
         # Добавить путь проекта в общую переменную путей поиска для
         # импорта модулей
         if self.getPrjFileName():
-            prj_dir = ic_file.DirName(self.getPrjFileName())
+            prj_dir = os.path.dirname(self.getPrjFileName())
             ic_file.PATH.append(prj_dir)
         
     def Default(self):
@@ -245,7 +245,7 @@ class PrjRoot(ImpNode.PrjImportSys):
         dir_prj_file_name = ic_dlg.icDirDlg(tree_prj, _('Create project'))
         if dir_prj_file_name:
             prj_name = os.path.basename(dir_prj_file_name)
-            new_prj_file_name = dir_prj_file_name+'/' + prj_name+'/'+prj_name+'.pro'
+            new_prj_file_name = os.path.join(dir_prj_file_name, prj_name, prj_name+'.pro')
             # Установить имя проекта по имени файла
             self.name = os.path.splitext(os.path.split(new_prj_file_name)[1])[0]
             # Запомнить файл проекта
