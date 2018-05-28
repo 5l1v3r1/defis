@@ -12,8 +12,8 @@ import datetime
 import matplotlib
 import matplotlib.dates
 import matplotlib.figure
+matplotlib.use('WXAgg')
 import matplotlib.backends.backend_wxagg
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 
 from ic.PropertyEditor import icDefInf
 from ic.components import icwidget
@@ -23,8 +23,6 @@ from ic.log import log
 from ic.utils import util
 from ic.bitmap import ic_bmp
 from ic.utils import ic_time
-
-matplotlib.use('WXAgg')
 
 
 # --- Спецификация ---
@@ -88,7 +86,7 @@ ic_can_contain = ['TrendPen']
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icMPLTrendProto(wx.Panel):

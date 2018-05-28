@@ -837,7 +837,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             for i, value in enumerate(row):
                 if value is None:
                     value = u''
-                elif type(value) in (int, float):
+                elif type(value) in (int, float, long):
                     value = str(value)
                 elif isinstance(value, str):
                     value = unicode(value, config.DEFAULT_ENCODING)
@@ -970,15 +970,18 @@ class icFormManager(formdatamanager.icFormDataManager):
                                                                 evenBackgroundColour=evenBackgroundColour,
                                                                 oddBackgroundColour=oddBackgroundColour)
             if cursor_pos not in (None, -1):
-                len_rows = len(rows)
-                if cursor_pos < len_rows:
-                    ctrl.Select(cursor_pos)
-                    # Использую для прокрутки скролинга до выбранного элемента
-                    ctrl.Focus(cursor_pos)
-                elif len_rows:
-                    ctrl.Select(len_rows - 1)
-                    # Использую для прокрутки скролинга до выбранного элемента
-                    ctrl.Focus(len_rows - 1)
+                try:
+                    len_rows = len(rows)
+                    if cursor_pos < len_rows:
+                        ctrl.Select(cursor_pos)
+                        # Использую для прокрутки скролинга до выбранного элемента
+                        ctrl.Focus(cursor_pos)
+                    elif len_rows:
+                        ctrl.Select(len_rows - 1)
+                        # Использую для прокрутки скролинга до выбранного элемента
+                        ctrl.Focus(len_rows - 1)
+                except:
+                    log.fatal(u'Ошибка восставления выбора элемента списка')
             return result
         elif isinstance(ctrl, wx.dataview.DataViewListCtrl):
             result = True
@@ -995,11 +998,14 @@ class icFormManager(formdatamanager.icFormDataManager):
                         log.fatal(u'Ошибка доавления строки %s в контрол <%s>' % (str(row), ctrl.__class__.__name__))
                         result = False
             if cursor_pos not in (None, -1):
-                len_rows = len(rows)
-                if cursor_pos < len_rows:
-                    ctrl.SelectRow(cursor_pos)
-                elif len_rows:
-                    ctrl.SelectRow(len_rows - 1)
+                try:
+                    len_rows = len(rows)
+                    if cursor_pos < len_rows:
+                        ctrl.SelectRow(cursor_pos)
+                    elif len_rows:
+                        ctrl.SelectRow(len_rows - 1)
+                except:
+                    log.fatal(u'Ошибка восставления выбора элемента списка')
             return result
         else:
             log.warning(u'Добавление колонок контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)

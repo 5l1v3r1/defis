@@ -63,6 +63,10 @@ apt show python-matplotlib | grep Package
 apt show python-matplotlib | grep Version
 sudo apt install python-matplotlib
 
+apt show python-wxmpl | grep Package
+apt show python-wxmpl | grep Version
+sudo apt install python-wxmpl
+
 # БД
 apt show python-psycopg2 | grep Package
 apt show python-psycopg2 | grep Version
