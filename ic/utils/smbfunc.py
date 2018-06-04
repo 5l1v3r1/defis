@@ -13,7 +13,7 @@ import urlparse
 from ic.log import log
 from ic.utils import ic_file
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 DEFAULT_WORKGROUP = 'WORKGROUP'
 
@@ -87,7 +87,7 @@ def smb_download_file(download_urls=None, filename=None, out_path=None, re_write
             path_list = smb_url_path_split(url)
             if filename is None:
                 filename = path_list[-1]
-                log.debug(u'\tфайл: <%s>' % filename)
+                log.debug(u'\tФайл: <%s>' % filename)
                 path_list = path_list[2:]
             else:
                 path_list = path_list[2:] + [filename]
@@ -98,7 +98,10 @@ def smb_download_file(download_urls=None, filename=None, out_path=None, re_write
             dst_filename = os.path.join(out_path, filename)
             if os.path.exists(dst_filename) and re_write:
                 log.info(u'Удаление файла <%s>' % dst_filename)
-                os.remove(dst_filename)
+                try:
+                    os.remove(dst_filename)
+                except:
+                    log.fatal(u'Ошибка удаления файла <%s>' % dst_filename)
             dst_path = os.path.dirname(dst_filename)
             if not os.path.exists(dst_path):
                 try:
