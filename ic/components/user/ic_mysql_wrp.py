@@ -50,7 +50,7 @@ ic_class_spc = {'type': ic_tab.MYSQL_DB_TYPE,
                 'host': 'localhost',
                 'port': '3306',
                 'options': '',
-                'encoding': 'UTF-8',
+                'encoding': 'utf_8',
                 'query': {},
                 'convert_unicode': False,
 
@@ -61,7 +61,7 @@ ic_class_spc = {'type': ic_tab.MYSQL_DB_TYPE,
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['name', 'type', 
                                                             'user', 'dbname',
                                                             'password', 'host',
-                                                            'port', 'options',],
+                                                            'port', 'options', ],
                                    icDefInf.EDT_CHOICE: ['encoding'],
                                    icDefInf.EDT_TEXTDICT: ['query'],
                                    icDefInf.EDT_CHECK_BOX: ['convert_unicode'],
@@ -93,7 +93,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 class icMySQL(icwidget.icSimple, ic_tab.icSQLAlchemyDB):
