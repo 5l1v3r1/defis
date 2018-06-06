@@ -81,8 +81,8 @@ ic_class_spc = {'type': ic_tab.POSTGRES_DB_TYPE,
 
 #   Имя иконки класса, которые располагаются в директории
 #   ic/components/user/images
-ic_class_pic = '@common.imgEdtPostgreSQL'
-ic_class_pic2 = '@common.imgEdtPostgreSQL'
+ic_class_pic = '@common.imgEdtSQLDB'
+ic_class_pic2 = '@common.imgEdtSQLDB'
 
 #   Путь до файла документации
 ic_class_doc = 'ic/doc/ic.components.user.ic_postgres_wrp.icPostgreSQL-class.html'
@@ -96,7 +96,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 2)
 
 
 class icPostgreSQL(icwidget.icSimple, ic_tab.icSQLAlchemyDB):

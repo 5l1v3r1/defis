@@ -24,6 +24,7 @@ import ic.components.user.ic_mainwin_wrp as ic_mainwin
 import ic.components.user.ic_auimainwin_wrp as ic_auimainwin
 import ic.components.user.ic_sqlite_wrp as ic_sqlite
 import ic.components.user.ic_postgres_wrp as ic_postgres
+import ic.components.user.ic_mysql_wrp as ic_mysql
 import ic.components.user.ic_mssql_wrp as ic_mssql
 import ic.components.user.ic_odbc_wrp as ic_odbc
 from ic.components.user import ic_sqlalchemy_scheme_wrp
@@ -38,7 +39,7 @@ from . import prj_node
 from . import menuPrjNode
 from . import menuImpNode
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 2)
 
 _ = wx.GetTranslation
 
@@ -507,6 +508,7 @@ class PrjTabRes(PrjResource):
                             u'All table, field and link name must be in lower case')
         return PrjResource.rename(self, old_name, new_name)
 
+
 # Словарь выбора БД
 DBTypeChoice = {'SQLite DB': ic_sqlite.ic_class_spc,
                 'PostgreSQL DB': ic_postgres.ic_class_spc,
@@ -514,6 +516,7 @@ DBTypeChoice = {'SQLite DB': ic_sqlite.ic_class_spc,
                 'Object Storage': ic_obj_storage_src.ic_class_spc,
                 'ODBC data source': ic_odbc.ic_class_spc,
                 'SQLAlchemy scheme': ic_sqlalchemy_scheme_wrp.ic_class_spc,
+                'MySQL DB': ic_mysql.ic_class_spc,
                 None: None,
                 }
 

@@ -78,11 +78,11 @@ ic_class_spc = {'type': ic_tab.MYSQL_DB_TYPE,
 
 #   Имя иконки класса, которые располагаются в директории 
 #   ic/components/user/images
-ic_class_pic = '@common.imgEdtMSSQL'
-ic_class_pic2 = '@common.imgEdtMSSQL'
+ic_class_pic = '@common.imgEdtSQLDB'
+ic_class_pic2 = '@common.imgEdtSQLDB'
 
 #   Путь до файла документации
-ic_class_doc = 'ic/doc/ic.components.user.ic_postgres_wrp.icPostgreSQL-class.html'
+ic_class_doc = 'ic/doc/ic.components.user.ic_postgres_wrp.icMySQL-class.html'
 ic_class_spc['__doc__'] = ic_class_doc
                     
 #   Список компонентов, которые могут содержаться в компоненте
@@ -93,7 +93,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 2)
+__version__ = (0, 0, 1, 1)
 
 
 class icMySQL(icwidget.icSimple, ic_tab.icSQLAlchemyDB):
