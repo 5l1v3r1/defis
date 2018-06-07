@@ -3,17 +3,18 @@
 
 """
 Модуль функций работы с таблицами запросов. 
-@author: Шурик Колчанов.
 """
 
 # Подключение библиотек
 from . import icsqlalchemydataset
 
-from ic.kernel import io_prnt
 import ic.utils.ic_util
 from ic.utils import resource
+from ic.log import log
 
 import ic.interfaces.icdataclassinterface as icdataclassinterface
+
+__version__ = (0, 0, 1, 2)
 
 # Спецификации
 # Результат запроса (словарно-списковое представление)
@@ -42,8 +43,9 @@ def getQueryTableFields(Query_):
         return fields
     except:
         # Вывести сообщение об ошибке в лог
-        io_prnt.outErr(u'Ошибка получения описаний полей таблицы запроса %s.' % str(Query_))
+        log.fatal(u'Ошибка получения описаний полей таблицы запроса <%s>.' % str(Query_))
         return None
+
 
 _fieldType = {'T': 6,   # Код текстового поля
               'I': 0,   # Код целого поля
@@ -63,7 +65,7 @@ def getQueryTable(Query_, PostFilter_=None):
             {'__fields__':описания полей таблицы,'__data__':данные таблицы}
     """
     try:
-        io_prnt.outLog(u'getQueryTable: НАЧАЛО')
+        log.info(u'getQueryTable: НАЧАЛО')
         if type(Query_) in (str, unicode):
             # Сначала получить dataset
             dataset = icsqlalchemydataset.getDataset(Query_)
@@ -95,7 +97,7 @@ def getQueryTable(Query_, PostFilter_=None):
         dataset.clearPageBuff()
 
         str_print = '|'.join([', '.join([str(f) for f in list(rec)]) for rec in data])
-        io_prnt.outLog(u'getQueryTable: ДО ФИЛЬТРАЦИИ ' + str_print)
+        log.debug(u'getQueryTable: ДО ФИЛЬТРАЦИИ ' + str_print)
 
         # Дополнительная фильтрация
         if PostFilter_ and isinstance(PostFilter_, dict):
@@ -108,18 +110,19 @@ def getQueryTable(Query_, PostFilter_=None):
             filter_if_str_lst = ['r[%d]==%s' % (field_name2idx[fld],
                                     ic.utils.ic_util.getStrInQuotes(PostFilter_[fld])) for fld in PostFilter_.keys()]
             filter_if_str = 'lambda r: '+' and '.join(filter_if_str_lst)
-            io_prnt.outLog(u'getQueryTable PostFilter: ' + filter_if_str)
+            log.debug(u'getQueryTable PostFilter: ' + filter_if_str)
             filter_if = eval(filter_if_str)
-            io_prnt.outLog(u'getQueryTable PostFilter eval OK' + str(filter_if) + str(field_name2idx))
+            log.debug(u'getQueryTable PostFilter eval OK' + str(filter_if) + str(field_name2idx))
             data = list(filter(filter_if, data))
 
         str_print = '|'.join([', '.join([str(f) for f in list(rec)]) for rec in data])
-        io_prnt.outLog(u'getQueryTable: КОНЕЦ ' + str_print)
+        log.info(u'getQueryTable: КОНЕЦ ' + str_print)
         return {'__fields__': fields, '__data__': data}
     except:
         # Вывести сообщение об ошибке в лог
-        io_prnt.outErr(u'Ошибка получения таблицы запроса %s.' % str(Query_))
+        log.fatal(u'Ошибка получения таблицы запроса %s.' % str(Query_))
         return None
+
 
 # --- Спецификаци ---
 QUERY_TYPE = 'Query'
@@ -137,7 +140,7 @@ SPC_IC_QUERY = {'type': QUERY_TYPE,     # Тип запроса
 # --- Классы ---
 class icQueryPrototype(icdataclassinterface.icDataClassInterface):
     """
-    Запрос к источнику данных в табличном представлении.
+    SQL Запрос к источнику данных в табличном представлении.
     """
     
     def __init__(self, Resource_):
@@ -148,7 +151,7 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         icdataclassinterface.icDataClassInterface.__init__(self, Resource_)
         
         self._data_src = Resource_['source']
-        self._sql_txt = Resource_['source']
+        self._sql_txt = Resource_['sql_txt']
         
         self.data_source = None
 
@@ -157,12 +160,6 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         Источник данных.
         """
         return self.data_source
-        
-    def getDataSourceName(self):
-        """
-        Источник данных.
-        """
-        return self._data_src
         
     def getSQLTxt(self):
         """
@@ -189,7 +186,8 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         """
         Выполнить запрос независимо от его конфигурирования.
         """
-        return
+        recordset = self.fetchAllRecs()
+        return recordset
    
     def execSQL(self):
         """
@@ -203,7 +201,7 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
             try:
                 cursor.execute(sql_txt)
             except:
-                io_prnt.outErr(u'QUERY: Ошибка выполнения запроса: %s' % sql_txt)
+                log.fatal(u'QUERY: Ошибка выполнения запроса <%s>' % sql_txt)
         return result
             
     def closeSQL(self):
@@ -228,7 +226,7 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
                 cursor.execute(sql_txt)
                 result = cursor.fetchall()
             except:
-                io_prnt.outErr(u'QUERY: Ошибка выполнения запроса: %s' % sql_txt)
+                log.fatal(u'QUERY: Ошибка выполнения запроса: %s' % sql_txt)
             data_src.closeCursor()
         return result
         

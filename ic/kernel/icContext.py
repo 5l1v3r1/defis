@@ -13,7 +13,7 @@ from . import io_prnt
 CODE_NOBODY = 1234567
 CODE_NODEL = 1
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class context_dict(dict):
@@ -119,6 +119,7 @@ class BaseContext(context_dict):
         except:
             io_prnt.outErr(u'Ошибка получения объекта')
         return None
+
 
 # Реализация контекста объекта системы
 # Функции пространства имен формы
@@ -227,6 +228,8 @@ def Create(*arg, **kwarg):
 ''', '<string>', 'exec')
 
 bInit_var = False
+
+
 def init():
     global bInit_var
     

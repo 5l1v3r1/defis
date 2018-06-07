@@ -26,6 +26,7 @@ try:
         sqlalchemy_field_type_DateTime = sqlalchemy.DateTime
         sqlalchemy_field_type_PickleType = sqlalchemy.PickleType
         sqlalchemy_field_type_BigInteger = sqlalchemy.BigInteger
+        sqlalchemy_field_type_Boolean = sqlalchemy.Boolean
 except:
         log.error('SQLAlchemy import error')
         sqlalchemy_field_type_Integer = None
@@ -36,6 +37,7 @@ except:
         sqlalchemy_field_type_DateTime = None
         sqlalchemy_field_type_PickleType = None
         sqlalchemy_field_type_BigInteger = None
+        sqlalchemy_field_type_Boolean = None
 
 from ic.interfaces import icdataclassinterface
 from ic.interfaces import icsourceinterface
@@ -66,7 +68,7 @@ from .icPostgreSQL import SPC_IC_POSTGRESQL
 from .icMSSQL import SPC_IC_MSSQL
 from .icMySQL import SPC_IC_MYSQL
 
-__version__ = (0, 1, 4, 1)
+__version__ = (0, 1, 5, 1)
 
 DB_TYPES = [SQLITE_DB_TYPE, POSTGRES_DB_TYPE, MSSQL_DB_TYPE, MYSQL_DB_TYPE]
 
@@ -105,6 +107,7 @@ DATETIME_FIELD_TYPE = 'DateTime'
 BINARY_FIELD_TYPE = 'Binary'
 PICKLE_FIELD_TYPE = 'PickleType'
 BIGINT_FIELD_TYPE = 'BigInteger'
+BOOLEAN_FIELD_TYPE = 'Boolean'
 FIELD_VALUES_ALL_TYPES = (TEXT_FIELD_TYPE,
                           DATE_FIELD_TYPE, 
                           INT_FIELD_TYPE, 
@@ -112,7 +115,8 @@ FIELD_VALUES_ALL_TYPES = (TEXT_FIELD_TYPE,
                           DATETIME_FIELD_TYPE, 
                           BINARY_FIELD_TYPE, 
                           PICKLE_FIELD_TYPE,
-                          BIGINT_FIELD_TYPE)
+                          BIGINT_FIELD_TYPE,
+                          BOOLEAN_FIELD_TYPE)
 
 # Спецификация поля
 SPC_IC_FIELD = {'type': FIELD_TYPE,
@@ -544,7 +548,7 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
         Возвращает объект запроса.
         Пример:
         >>> r = scheme.getQuery('user')
-        >>> obj_lst = r.filter("id < 100").all()
+        >>> obj_lst = r.filter('id < 100').all()
         @param tab_name: Имя таблицы.
         @param sess: Сессия.
         """
@@ -889,6 +893,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                                    BINARY_FIELD_TYPE: sqlalchemy_field_type_Binary,
                                    PICKLE_FIELD_TYPE: sqlalchemy_field_type_PickleType,
                                    BIGINT_FIELD_TYPE: sqlalchemy_field_type_BigInteger,
+                                   BOOLEAN_FIELD_TYPE: sqlalchemy_field_type_Boolean,
                                    }
 
     def _createField(self, FieldRes_):
@@ -1227,6 +1232,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                          BINARY_FIELD_TYPE: _bin,
                          PICKLE_FIELD_TYPE: _pickle,
                          BIGINT_FIELD_TYPE: _int,
+                         BOOLEAN_FIELD_TYPE: _int,
                          }
 
     def _prepareRecData(self, RecData_):
@@ -1629,6 +1635,7 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
                          INT_FIELD_TYPE: _int,
                          DATE_FIELD_TYPE: _str2SQL,
                          BIGINT_FIELD_TYPE: _int,
+                         BOOLEAN_FIELD_TYPE: _int,
                          }
 
     def _structFilter2SQLTxt(self, Filter_=None, SQLWhereJoin_='AND'):

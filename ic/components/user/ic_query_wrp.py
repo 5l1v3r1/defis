@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Запрос.
+SQL Запрос к БД.
 Класс пользовательского компонента Запрос.
 
 @type ic_user_name: C{string}
@@ -21,15 +21,19 @@
 """
 
 import wx
-import ic.components.icwidget as icwidget
-import ic.utils.util as util
+from ic.components import icwidget
+from ic.utils import util
 import ic.components.icResourceParser as prs
-import ic.imglib.common as common
-import ic.PropertyEditor.icDefInf as icDefInf
+from ic.PropertyEditor.ExternalEditors.passportobj import icObjectPassportUserEdt as pspEdt
+from ic.db import icsqlalchemy
+from ic.dlg import ic_dlg
+from ic.utils import coderror
+from ic.imglib import common
+from ic.PropertyEditor import icDefInf
 
-import ic.db.icquery as icquery
+from ic.db import icquery
 
-import ic.engine.ic_user as ic_user
+from ic.log import log
 
 #   Тип компонента
 ic_class_type = icDefInf._icDatasetType
@@ -40,15 +44,18 @@ ic_class_name = 'icQuery'
 #   Описание стилей компонента
 ic_class_styles = {'DEFAULT': 0}
 
+SRC_EXT = '.src'
+
 
 # --- Спецификация на ресурсное описание класса ---
 def getBDNames():
     """
     Получить в спецификации список имен БД.
     """
+    from ic.engine import ic_user
     prj = ic_user.getPrjRoot()
     if prj:
-        return prj.getResNamesByTypes('src')
+        return prj.getResNamesByTypes(SRC_EXT[1:])
     return None
 
 
@@ -65,10 +72,9 @@ ic_class_spc = {'type': icquery.QUERY_TYPE,
                 '__styles__': ic_class_styles,
                 '__events__': {},
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description'],
-                                   icDefInf.EDT_CHOICE: ['source'],
+                                   icDefInf.EDT_USER_PROPERTY: ['source'],
                                    },
-                '__lists__': {'source': getBDNames(),
-                              },
+                '__lists__': {},
                 '__parent__': icquery.SPC_IC_QUERY,
                 '__attr_hlp__': {'sql_txt': u'Текст прямого SQL запроса',
                                  'source': u'Имя источника данных/БД',
@@ -92,16 +98,68 @@ ic_can_contain = ['Field']
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 2)
+__version__ = (0, 0, 1, 2)
 
 
-class icQuery(icwidget.icSimple,icquery.icQueryPrototype):
+# --- Функции редактирования ---
+def get_user_property_editor(attr, value, pos, size, style, propEdt, *arg, **kwarg):
+    """
+    Стандартная функция для вызова пользовательских редакторов свойств
+    (EDT_USER_PROPERTY).
+    """
+    ret = None
+    if attr in ('source', ):
+        ret = pspEdt.get_user_property_editor(value, pos, size, style, propEdt)
+
+    if not ret:
+        return value
+
+    return ret
+
+
+def property_editor_ctrl(attr, value, propEdt, *arg, **kwarg):
+    """
+    Стандартная функция контроля.
+    """
+    if attr in ('source', ):
+        ret = str_to_val_user_property(attr, value, propEdt)
+        if ret:
+            parent = propEdt
+            ctrl_types = icsqlalchemy.DB_TYPES
+            if ret[0][0] not in ctrl_types:
+                ic_dlg.icWarningBox(u'ОШИБКА', u'Объект не БД типа.', parent)
+                return coderror.IC_CTRL_FAILED_IGNORE
+            return coderror.IC_CTRL_OK
+
+
+def str_to_val_user_property(attr, text, propEdt, *arg, **kwarg):
+    """
+    Стандартная функция преобразования текста в значение.
+    """
+    if attr in ('source',):
+        return pspEdt.str_to_val_user_property(text, propEdt)
+
+
+class icQuery(icwidget.icSimple, icquery.icQueryPrototype):
     """
     Запрос к источнику данных в табличном представлении.
     """
     # Спецификаци компонента
     component_spc = ic_class_spc
-    
+
+    @staticmethod
+    def TestComponentResource(res, context, parent, *arg, **kwarg):
+        """
+        Функция тестирования компонента SQL запроса в режиме редактора ресурса.
+        @param res:
+        @param context:
+        @param parent:
+        @param arg:
+        @param kwarg:
+        @return:
+        """
+        pass
+
     def __init__(self, parent, id=-1, component=None, logType=0, evalSpace=None,
                  bCounter=False, progressDlg=None):
         """
@@ -127,3 +185,22 @@ class icQuery(icwidget.icSimple,icquery.icQueryPrototype):
         component = util.icSpcDefStruct(self.component_spc, component)
         icwidget.icSimple.__init__(self, parent, id, component, logType, evalSpace)
         icquery.icQueryPrototype.__init__(self, component)
+        self.countAttr('init_expr')
+
+    def getDataSource(self):
+        """
+        Источник данных/БД.
+        """
+        if self.data_source is None:
+            if self._data_src is None:
+                log.warning(u'Не определен источник данных/БД запроса <%s>' % self.name)
+                return None
+            elif type(self._data_src) in (str, unicode):
+                # Источник данных задается именем
+                psp = ((None, self._data_src, None, self._data_src+SRC_EXT, None),)
+                self.data_source = self.GetKernel().getObjectByPsp(psp)
+            elif self.isPassport(self._data_src):
+                # Источник данных задается паспортом
+                self.data_source = self.GetKernel().getObjectByPsp(self._data_src)
+
+        return self.data_source

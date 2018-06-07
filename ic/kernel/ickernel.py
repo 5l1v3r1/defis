@@ -16,7 +16,7 @@ import imp
 from . import icexceptions
 from ic.log import log
 
-__version__ = (0, 1, 1, 1)
+__version__ = (0, 1, 1, 2)
 
 prs = None
 resource = None
@@ -624,5 +624,8 @@ class icKernel(icBaseKernel):
         obj = self.getObject(name)
         if obj is None:
             # Объект не найден, можно пропробовать создать
-            obj = self.Create(psp)
+            try:
+                obj = self.Create(psp)
+            except:
+                log.fatal(u'Ошибка создания объекта по паспорту %s' % str(psp))
         return obj

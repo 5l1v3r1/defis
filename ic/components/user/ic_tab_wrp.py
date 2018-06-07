@@ -43,9 +43,8 @@ ic_class_name = 'icTable'
 #   Описание стилей компонента
 ic_class_styles = {'DEFAULT': 0}
 
+
 # --- Спецификация на ресурсное описание класса ---
-
-
 def getBDNames():
     """
     Получить в спецификации список имен БД.
@@ -54,7 +53,8 @@ def getBDNames():
     if prj:
         return prj.getResNamesByTypes('src')
     return None
-    
+
+
 ic_class_spc = {'type': 'Table',
                 'name': 'default',
                 'activate': True,
@@ -97,7 +97,7 @@ ic_can_contain = ['Field', 'Link']
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 # --- Функции редактирования ---

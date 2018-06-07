@@ -19,7 +19,7 @@ from ic.log import log
 from ic.utils import wxfunc
 
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 2, 1)
 
 
 def check_wx_dead_object(func):
@@ -507,11 +507,20 @@ class icObject(object):
 
     def isSamePassport(self, passport):
         """
-        Проверка на тотже паспорт что и у объекта.
+        Проверка на тот же паспорт что и у объекта.
         @param passport: Проверяемый паспорт.
         @return: True - паспорт соответствует паспорту объекта / False - нет.
         """
         return self.__passport == passport
+
+    def isPassport(self, passport):
+        """
+        Проверка является ли проверяемый паспорт паспортом в действительности.
+        @param passport: Проверяемый паспорт.
+        @return: True - это паспорт. False - нет.
+        """
+        from ic.utils import ic_util
+        return ic_util.is_pasport(passport)
 
     def GetUniqId(self):
         """
