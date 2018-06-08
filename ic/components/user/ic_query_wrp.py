@@ -158,7 +158,13 @@ class icQuery(icwidget.icSimple, icquery.icQueryPrototype):
         @param kwarg:
         @return:
         """
-        pass
+        import ic
+        from ic.components.user.objects import view_sql_query_dlg
+        log.info(u'Тестирование запроса <%s>. Имя файла <%s>. Расширение <%s>' % (res['name'], parent._formName,
+                                                                                  parent.file.split('.')[1]))
+
+        db = ic.getKernel().Create(res['source'])
+        view_sql_query_dlg.view_sql_query_dlg(parent=None, db=db, sql_txt=res['sql_txt'])
 
     def __init__(self, parent, id=-1, component=None, logType=0, evalSpace=None,
                  bCounter=False, progressDlg=None):

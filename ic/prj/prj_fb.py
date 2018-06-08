@@ -14,9 +14,30 @@ from ic.log import log
 
 from . import prj_node
 
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 2, 3)
 
 _ = wx.GetTranslation
+
+
+def run_wxformbuilder(filename=None):
+    """
+    Запуск wxFormBuilder.
+    @param filename: Файл открываемый в wxFormBuilder.
+        Если не указан, то ничего не открывается.
+    @return: True/False
+    """
+    cmd = None
+    if os.path.exists('/bin/wxformbuilder') or os.path.exists('/usr/bin/wxformbuilder'):
+        cmd = 'wxformbuilder %s&' % filename if filename else 'wxformbuilder &'
+    else:
+        alter_wxfb_path = filefunc.normal_path(config.ALTER_WXFORMBUILDER)
+        if os.path.exists(alter_wxfb_path):
+            cmd = '%s %s&' % (alter_wxfb_path, filename) if filename else '%s &' % alter_wxfb_path
+        else:
+            log.warning(u'Альтернативный путь запуска wxFormBuilder <%s> не найден' % alter_wxfb_path)
+
+    if cmd:
+        ic_exec.icSysCmd(cmd)
 
 
 class PrjWXFormBuilderProject(prj_node.PrjNode):
@@ -36,40 +57,20 @@ class PrjWXFormBuilderProject(prj_node.PrjNode):
         # Расширение файла
         self.ext = '.fbp'
 
-    def _run_wxformbuilder(self, filename=None):
-        """
-        Запуск wxFormBuilder.
-        @param filename: Файл открываемый в wxFormBuilder.
-            Если не указан, то ничего не открывается.
-        @return: True/False
-        """
-        cmd = None
-        if os.path.exists('/bin/wxformbuilder') or os.path.exists('/usr/bin/wxformbuilder'):
-            cmd = 'wxformbuilder %s&' % filename if filename else 'wxformbuilder &'
-        else:
-            alter_wxfb_path = filefunc.normal_path(config.ALTER_WXFORMBUILDER)
-            if os.path.exists(alter_wxfb_path):
-                cmd = '%s %s&' % (alter_wxfb_path, filename) if filename else '%s &' % alter_wxfb_path
-            else:
-                log.warning(u'Альтернативный путь запуска wxFormBuilder <%s> не найден' % alter_wxfb_path)
-
-        if cmd:
-            ic_exec.icSysCmd(cmd)
-
     def edit(self):
         """ 
         Редактирование.
         """
         filename = self.getPath()
         if os.path.exists(filename):
-            self._run_wxformbuilder(filename)
+            run_wxformbuilder(filename)
         return True
 
     def create(self):
         """ 
         Функция создания.
         """
-        self._run_wxformbuilder()
+        run_wxformbuilder()
         return True
 
     def delete(self):

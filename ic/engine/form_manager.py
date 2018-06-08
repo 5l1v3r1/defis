@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 7, 2)
+__version__ = (0, 1, 8, 1)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -779,6 +779,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             так и словарем:
             {'label': Заголовок колонки,
             'width': Ширина колонки}
+            Автоширина - wx.LIST_AUTOSIZE
         @return: True - все прошло нормально / False - какая-то ошибка.
         """
         if ctrl is None:
@@ -1654,3 +1655,63 @@ class icFormManager(formdatamanager.icFormDataManager):
         else:
             log.warning(u'icFormManager. Тип контрола <%s> не поддерживается для очистки значения' % ctrl.__class__.__name__)
         return result
+
+    def collapseSplitterPanel(self, splitter, toolbar=None, collapse_tool=None, expand_tool=None):
+        """
+        Cвертывание панели сплиттера.
+        @param splitter: Объект сплиттера wx.SplitterWindow.
+        @param toolbar: Панель инструментов.
+            Для включения и выключения инструментов.
+        @param collapse_tool: Инструмент панели инструментов свертывания панели сплиттера.
+            Для включения и выключения инструментов.
+        @param expand_tool: Инструмент панели инструментов развертывания панели сплиттера.
+            Для включения и выключения инструментов.
+        @return: True/False.
+        """
+        if not isinstance(splitter, wx.SplitterWindow):
+            log.warning(u'Объект <%s> не является сплиттером' % str(splitter))
+            return False
+
+        setattr(self, '_last_sash_position_%s' % splitter.GetId(),
+                splitter.GetSashPosition())
+        # ВНИМАНИЕ! Указывать позицию сплитера как 0 нельзя
+        # иначе схлопывание панели будет не полным
+        #                        v
+        splitter.SetSashPosition(1)
+
+        if toolbar:
+            if collapse_tool:
+                toolbar.EnableTool(collapse_tool.GetId(), False)
+            if expand_tool:
+                toolbar.EnableTool(expand_tool.GetId(), True)
+        return True
+
+    def expandSplitterPanel(self, splitter, toolbar=None, collapse_tool=None, expand_tool=None):
+        """
+        Развертывание панели сплиттера.
+        @param splitter: Объект сплиттера wx.SplitterWindow.
+        @param toolbar: Панель инструментов.
+            Для включения и выключения инструментов.
+        @param collapse_tool: Инструмент панели инструментов свертывания панели сплиттера.
+            Для включения и выключения инструментов.
+        @param expand_tool: Инструмент панели инструментов развертывания панели сплиттера.
+            Для включения и выключения инструментов.
+        @return: True/False.
+        """
+        if not isinstance(splitter, wx.SplitterWindow):
+            log.warning(u'Объект <%s> не является сплиттером' % str(splitter))
+            return False
+
+        last_sash_position_name = '_last_sash_position_%s' % splitter.GetId()
+        if not hasattr(self, last_sash_position_name):
+            log.warning(u'Не определеана предыдущее положение панели сплиттера')
+            return False
+
+        last_sash_position = getattr(self, last_sash_position_name)
+        splitter.SetSashPosition(last_sash_position)
+        if toolbar:
+            if collapse_tool:
+                toolbar.EnableTool(collapse_tool.GetId(), True)
+            if expand_tool:
+                toolbar.EnableTool(expand_tool.GetId(), False)
+        return True

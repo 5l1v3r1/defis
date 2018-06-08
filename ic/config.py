@@ -29,3 +29,22 @@ PROFILE_PATH = os.path.join(os.environ.get('HOME', os.path.dirname(__file__)),
 
 # Альтернативное расположение wxFormBuilder
 ALTER_WXFORMBUILDER = '~/dev/ide/wxFormBuilder/output/bin/wxformbuilder'
+
+
+def get_cfg_var(sName):
+    """
+    Прочитать значение переменной конфига.
+    @type sName: C{string}
+    @param sName: Имя переменной.
+    """
+    return globals()[sName]
+
+
+def set_cfg_var(sName, vValue):
+    """
+    Установить значение переменной конфига.
+    @type sName: C{string}
+    @param sName: Имя переменной.
+    @param vValue: Значение переменной.
+    """
+    globals()[sName] = vValue

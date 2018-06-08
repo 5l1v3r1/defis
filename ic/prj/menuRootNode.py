@@ -21,7 +21,7 @@ from ic.utils import ini
 from ic.bitmap import ic_bmp
 from ic.dlg import ic_dlg
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 _ = wx.GetTranslation
 
@@ -217,6 +217,14 @@ class icMenuRootNode(flatmenu.FlatMenu):
                                      normalBmp=ic_bmp.createLibraryBitmap('1c.png'))
         tool_submenu.AppendItem(item)
         prj_tree_ctrl.Bind(wx.EVT_MENU, self.OnImport1C, id=self.imp1cID)
+
+        # 'Дизайнер форм wxFormBuilder'
+        self.wxfbID = wx.NewId()
+        item = flatmenu.FlatMenuItem(tool_submenu, self.wxfbID,
+                                     u'Дизайнер форм wxFormBuilder', u'Дизайнер форм wxFormBuilder',
+                                     normalBmp=ic_bmp.createLibraryBitmap('wxformbuilder.png'))
+        tool_submenu.AppendItem(item)
+        prj_tree_ctrl.Bind(wx.EVT_MENU, self.OnWXFormBuilder, id=self.wxfbID)
 
         self.AppendSubMenu(tool_submenu, u'Инструменты')
 
@@ -481,3 +489,10 @@ class icMenuRootNode(flatmenu.FlatMenu):
             self._Parent.getRoot().getParent().Refresh()
         except:
             io_prnt.outErr(u'Ошибка запуска визарда импорта метаобъектов 1С')
+
+    def OnWXFormBuilder(self, event):
+        """
+        Вызов wxFormBuilder.
+        """
+        from . import prj_fb
+        prj_fb.run_wxformbuilder()
