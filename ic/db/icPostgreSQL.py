@@ -4,6 +4,11 @@
 """
 Модуль функций установки связи с PostgreSQL.
 
+В качестве драйвера используется psycopg2:
+
+***********************************************************
+sudo apt install python-psycopg2
+***********************************************************
 
 Памятка по PostgreSQL:
 
@@ -19,6 +24,8 @@ CREATE TABLE tab_name_dest AS TABLE tab_name_source;
 """
 
 from ic.components import icwidget
+
+__version__ = (0, 0, 1, 2)
 
 # Константы
 # Тип БД

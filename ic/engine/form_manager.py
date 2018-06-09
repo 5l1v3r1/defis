@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 8, 1)
+__version__ = (0, 1, 8, 2)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -744,7 +744,7 @@ class icFormManager(formdatamanager.icFormDataManager):
         try:
             i = ctrl.GetColumnCount()
             if width <= 0:
-                width = wx.LIST_AUTOSIZE
+                width = wx.LIST_AUTOSIZE_USEHEADER
             ctrl.InsertColumn(i, label, width=width)
             return True
         except:
@@ -779,7 +779,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             так и словарем:
             {'label': Заголовок колонки,
             'width': Ширина колонки}
-            Автоширина - wx.LIST_AUTOSIZE
+            Автоширина - wx.LIST_AUTOSIZE_USEHEADER
         @return: True - все прошло нормально / False - какая-то ошибка.
         """
         if ctrl is None:
@@ -815,6 +815,25 @@ class icFormManager(formdatamanager.icFormDataManager):
             return True
         else:
             log.warning(u'Добавление колонок списка контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)
+        return False
+
+    def setColumnsAutoSize_list_ctrl(self, ctrl=None):
+        """
+        Установить авторазмер колонок контрола списка.
+        @param ctrl: Объект контрола.
+        @return: True - все прошло нормально / False - какая-то ошибка.
+        """
+        if ctrl is None:
+            log.warning(u'Не определен контрол для установки авторазмеров списка')
+            return False
+
+        if isinstance(ctrl, wx.ListCtrl):
+            # Обновить размер колонок
+            for i in range(ctrl.GetColumnCount()):
+                ctrl.SetColumnWidth(i, wx.LIST_AUTOSIZE_USEHEADER)
+            return True
+        else:
+            log.warning(u'Установление авторазмера колонок списка контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)
         return False
 
     def appendRow_ListCtrl(self, ctrl, row=(),

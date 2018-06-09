@@ -20,7 +20,7 @@ from ic.utils import ic_str
 from ic.engine import form_manager
 
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 3)
 
 UNIX_CR = '\n'
 WIN_CR = '\r\n'
@@ -178,6 +178,9 @@ class icViewSQLQueryDialog(view_sql_query_dlg_proto.icViewSQLQueryDialogProto,
 
                 self.setColumns_list_ctrl(self.records_listCtrl, cols=cols)
                 self.setRows_list_ctrl(self.records_listCtrl, rows=rows)
+                if rows:
+                    # Автообразмерить колонки
+                    self.setColumnsAutoSize_list_ctrl(self.records_listCtrl)
                 return True
         return False
 
@@ -195,6 +198,7 @@ class icViewSQLQueryDialog(view_sql_query_dlg_proto.icViewSQLQueryDialogProto,
         else:
             try:
                 query_table = self.db.executeSQL(sql_text)
+
                 query_table['__fields__'] = [field[0] for field in query_table['__fields__']]
                 query_table['__data__'] = list(query_table['__data__'])
                 for i, rec in enumerate(query_table['__data__']):

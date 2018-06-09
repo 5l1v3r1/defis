@@ -2,7 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Класс пользовательского визуального компонента.
+Компонент поддержки БД MySQL.
+
+ВНИМАНИЕ! Для MySQL необходимо указывать charset в атрибуте query
+    Иначе русский текст получается как ????????.
+    Например 'query' = {'charset': 'utf8'}
+    !!! Обращаю внимание что charset указывается только как utf8.
+    !!! Нельзя использовать utf-8 или utf_8.
 
 @type ic_user_name: C{string}
 @var ic_user_name: Имя пользовательского класса.
@@ -73,6 +79,7 @@ ic_class_spc = {'type': ic_tab.MYSQL_DB_TYPE,
                                  'host': u'Сервер БД',
                                  'encoding': u'Кодировка БД',
                                  'port': u'Порт',
+                                 'query': u'Дополнительные cловарь опций, которые должны быть переданы диалекту и/или DBAPI',
                                  },
                 }
 
@@ -93,7 +100,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icMySQL(icwidget.icSimple, ic_tab.icSQLAlchemyDB):

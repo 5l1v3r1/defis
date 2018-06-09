@@ -76,6 +76,7 @@ ic_class_spc = {'type': ic_tab.POSTGRES_DB_TYPE,
                                  'port': u'Порт',
                                  'encoding': u'Кодировка БД',
                                  'convert_unicode': u'Автоматическое преобразование в UNICODE?',
+                                 'query': u'Дополнительные cловарь опций, которые должны быть переданы диалекту и/или DBAPI',
                                  },
                 }
 
