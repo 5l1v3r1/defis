@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jun 17 2015)
+## Python code generated with wxFormBuilder (version Dec 21 2016)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -38,7 +38,7 @@ class icSpravChoiceListDlgProto ( wx.Dialog ):
 		self.m_staticText2.Wrap( -1 )
 		self.dlg_toolbar.AddControl( self.m_staticText2 )
 		self.search_textctrl = wx.TextCtrl( self.dlg_toolbar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
-		self.search_textctrl.SetFont( wx.Font( 14, 70, 90, 90, False, wx.EmptyString ) )
+		self.search_textctrl.SetFont( wx.Font( 14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 		
 		self.dlg_toolbar.AddControl( self.search_textctrl )
 		self.search_tool = self.dlg_toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.ArtProvider.GetBitmap( wx.ART_FIND, wx.ART_MENU ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
@@ -149,6 +149,15 @@ class icSpravEditDlgProto ( wx.Dialog ):
 		
 		self.del_tool = self.ctrl_toolBar.AddLabelTool( wx.ID_ANY, u"Удалить", wx.ArtProvider.GetBitmap( wx.ART_DEL_BOOKMARK, wx.ART_MENU ), wx.NullBitmap, wx.ITEM_NORMAL, u"Удалить", u"Удалить", None ) 
 		
+		self.ctrl_toolBar.AddSeparator()
+		
+		self.m_staticText41 = wx.StaticText( self.ctrl_toolBar, wx.ID_ANY, u"Найти:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41.Wrap( -1 )
+		self.ctrl_toolBar.AddControl( self.m_staticText41 )
+		self.find_textCtrl = wx.TextCtrl( self.ctrl_toolBar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.ctrl_toolBar.AddControl( self.find_textCtrl )
+		self.find_tool = self.ctrl_toolBar.AddLabelTool( wx.ID_ANY, u"Найти", wx.ArtProvider.GetBitmap( wx.ART_FIND, wx.ART_MENU ), wx.NullBitmap, wx.ITEM_NORMAL, u"Найти", u"Найти", None ) 
+		
 		self.ctrl_toolBar.Realize() 
 		
 		bSizer5.Add( self.ctrl_toolBar, 0, wx.EXPAND, 5 )
@@ -187,6 +196,7 @@ class icSpravEditDlgProto ( wx.Dialog ):
 		self.Bind( wx.EVT_TOOL, self.onAddToolClicked, id = self.add_tool.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onEditToolClicked, id = self.edit_tool.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onDelToolClicked, id = self.del_tool.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onFindToolClicked, id = self.find_tool.GetId() )
 		self.ok_button.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
 	
 	def __del__( self ):
@@ -216,6 +226,9 @@ class icSpravEditDlgProto ( wx.Dialog ):
 		event.Skip()
 	
 	def onDelToolClicked( self, event ):
+		event.Skip()
+	
+	def onFindToolClicked( self, event ):
 		event.Skip()
 	
 	def onOkButtonClick( self, event ):
@@ -304,7 +317,7 @@ class icSpravChoiceTreeDlgProto ( wx.Dialog ):
 		self.m_staticText2.Wrap( -1 )
 		self.search_toolBar.AddControl( self.m_staticText2 )
 		self.search_textCtrl = wx.TextCtrl( self.search_toolBar, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 400,-1 ), 0 )
-		self.search_textCtrl.SetFont( wx.Font( 14, 70, 90, 90, False, wx.EmptyString ) )
+		self.search_textCtrl.SetFont( wx.Font( 14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 		
 		self.search_toolBar.AddControl( self.search_textCtrl )
 		self.search_tool = self.search_toolBar.AddLabelTool( wx.ID_ANY, u"Найти", wx.ArtProvider.GetBitmap( wx.ART_FIND, wx.ART_MENU ), wx.NullBitmap, wx.ITEM_NORMAL, u"Найти", u"Найти", None ) 

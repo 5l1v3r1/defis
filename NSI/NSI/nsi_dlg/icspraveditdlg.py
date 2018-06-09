@@ -19,8 +19,11 @@ from ic.db import icsqlalchemy
 from . import nsi_dialogs_proto
 from . import iceditcodeproperty
 
+# Для расширенного управления контролами формы
+from ic.engine import form_manager
+
 # Version
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 3)
 
 # Не редактируемые поля таблицы справочника
 NOT_EDITABLE_FIELDS = ('type', 'count', 'access')
@@ -259,7 +262,8 @@ class icSpravRecEditDlg(nsi_dialogs_proto.icSpravRecEditDlgProto):
         event.Skip()
 
 
-class icSpravEditDlg(nsi_dialogs_proto.icSpravEditDlgProto):
+class icSpravEditDlg(nsi_dialogs_proto.icSpravEditDlgProto,
+                     form_manager.icFormManager):
     """
     Диалоговое окно редактирования справочника.
     """
@@ -430,7 +434,7 @@ class icSpravEditDlg(nsi_dialogs_proto.icSpravEditDlgProto):
         if is_col_autosize:
             # Переразмерить колонки
             for i, field in enumerate(fields):
-                self.recs_listCtrl.SetColumnWidth(i, wx.LIST_AUTOSIZE)
+                self.recs_listCtrl.SetColumnWidth(i, wx.LIST_AUTOSIZE_USEHEADER)
         
     def set_sprav_list(self, tree_item=None):
         """
@@ -457,7 +461,7 @@ class icSpravEditDlg(nsi_dialogs_proto.icSpravEditDlgProto):
         # Переразмерить колонки
         fields = self.get_tab_editable_fields()
         for i in range(len(fields)):
-            self.recs_listCtrl.SetColumnWidth(i, wx.LIST_AUTOSIZE)            
+            self.recs_listCtrl.SetColumnWidth(i, wx.LIST_AUTOSIZE_USEHEADER)
 
     def find_tree_child_item(self, item_text, cur_item=None):
         """
@@ -749,6 +753,78 @@ class icSpravEditDlg(nsi_dialogs_proto.icSpravEditDlgProto):
             if do_find:
                 find_code = self.search_codes[self.search_code_idx]
                 self.select_sprav_tree_item(find_code)
+        else:
+            ic_dlg.icWarningBox(u'ПРЕДУПРЕЖДЕНИЕ', u'Не выбрана строка поиска')
+            
+        event.Skip()        
+
+    def find_word_in_records(self, find_word, start_row=None, start_col=None):
+        """
+        Поиск слова в текущем списке записей справочника.
+        @param find_word: Искомое слово.
+        @param start_row: Начальная строка для начала поиска.
+            Если не указана, то берется первая.
+        @param start_col: Начальная колонка для начала поиска.
+            Если не указана, то берется первая.
+        @return: Индекс записи, индекс поля, где найдено слово. 
+            Или None если ничего не найдено.
+        """
+        if start_row is None:
+            start_row = 0
+        if start_col is None:
+            start_col = 0
+
+        find_word = find_word.lower()
+        fields = self.get_tab_editable_fields()
+        for i_row, row in enumerate(self._list_ctrl_dataset[start_row:]):
+            if i_row == 0:
+                for i_col, field in enumerate(fields[start_col:]):
+                    field_name = field['name']
+                    value = ic_str.toUnicode(row[field_name]).lower()
+                    if find_word in value:
+                        log.debug(u'Найдено соответствие %s <%s> в <%s>'  % (field_name, find_word, value))
+                        return start_row+i_row, start_col+i_col
+            else:
+                for i_col, field in enumerate(fields):
+                    field_name = field['name']
+                    value = ic_str.toUnicode(row[field_name]).lower()
+                    if find_word in value:
+                        log.debug(u'Найдено соответствие в поле %s <%s> : <%s>'  % (field_name, find_word, value))
+                        return start_row+i_row, i_col
+        log.warning(u'Не найдено <%s> в списке. Поиск окончен.' % find_word)
+        return None
+
+    def findWordInRecordsListCtrl(self, start_row=None):
+        """
+        Процедура поиска слова в списке текущих записей.
+        @param start_row: Начальная строка поиска. Если не определено,
+            то поиск производится с текущей выбранной строки.
+        """
+        cur_row = start_row
+        if cur_row is None:
+            cur_row = self.getItemSelectedIdx(self.recs_listCtrl)
+
+        # log.debug(u'Текущая выбранная строка <%d>' % cur_row)
+        find_word = self.find_textCtrl.GetValue()
+        find_result = self.find_word_in_records(find_word, start_row=cur_row + 1)
+
+        do_find = find_result is not None
+
+        if do_find:
+            find_row, find_col = find_result
+            self.selectItem_list_ctrl(self.recs_listCtrl, find_row)
+        else:
+            msg = u'Не найдено поисковое слово. Начать поиск с начала?'
+            if ic_dlg.icAskBox(u'ВНИМАНИЕ', msg):
+                self.findWordInRecordsListCtrl(-1)
+
+    def onFindToolClicked(self, event):
+        """
+        Обработчик инструмента поиска записи справочника по ключевому слову.
+        """
+        find_txt = self.find_textCtrl.GetValue()
+        if find_txt:
+            self.findWordInRecordsListCtrl()
         else:
             ic_dlg.icWarningBox(u'ПРЕДУПРЕЖДЕНИЕ', u'Не выбрана строка поиска')
             

@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 8, 2)
+__version__ = (0, 1, 8, 3)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1164,10 +1164,13 @@ class icFormManager(formdatamanager.icFormDataManager):
         log.warning(u'Объект типа <%s> не поддерживается как определитель выбранного элемента контрола' % obj.__class__.__name__)
         return -1
 
-    def selectItem_list_ctrl(self, ctrl=None, item_idx=-1):
+    def selectItem_list_ctrl(self, ctrl=None, item_idx=-1,
+                             is_focus=True, deselect_prev=False):
         """
         Выбрать элемент контрола списка по индексу.
-        @param ctrl: Объект контрола.  
+        @param ctrl: Объект контрола.
+        @param is_focus: Автоматически переместить фокус на элемент?
+        @param deselect_prev: Произвести отмену выбора предыдущего выбранного элемента?
         @return: True - выбор прошел успешно.
         """
         if ctrl is None:
@@ -1178,7 +1181,11 @@ class icFormManager(formdatamanager.icFormDataManager):
             if (0 > item_idx) or (item_idx >= ctrl.GetItemCount()):
                 log.warning(u'Не корректный индекс <%d> контрола списка <%s>' % (item_idx, ctrl.__class__.__name__))
                 return False
+            if deselect_prev:
+                ctrl.Select(self.getItemSelectedIdx(ctrl), 0)
             ctrl.Select(item_idx)
+            if is_focus:
+                ctrl.Focus(item_idx)
             return True
         elif isinstance(ctrl, wx.dataview.DataViewListCtrl):
             try:
