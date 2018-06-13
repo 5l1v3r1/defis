@@ -154,6 +154,8 @@ class icSpravChoiceComboCtrlProto(wx.combo.ComboCtrl):
             io_prnt.outWarning(u'Не определен справочник в контроле icSpravChoiceComboCtrl')
         return False
 
+    # !!! Эти функции должны обязательно присутствовать
+    # во всех контролах для унификации установки/чтения значения контрола !!!
     getValue = getCode
     setValue = setCode
 

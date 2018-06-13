@@ -68,7 +68,7 @@ from .icPostgreSQL import SPC_IC_POSTGRESQL
 from .icMSSQL import SPC_IC_MSSQL
 from .icMySQL import SPC_IC_MYSQL
 
-__version__ = (0, 1, 5, 1)
+__version__ = (0, 1, 6, 1)
 
 DB_TYPES = [SQLITE_DB_TYPE, POSTGRES_DB_TYPE, MSSQL_DB_TYPE, MYSQL_DB_TYPE]
 
@@ -1055,6 +1055,19 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
             except IndexError:
                 return None
             return field['type_val']
+        return None
+
+    def getFieldLength(self, FieldName_):
+        """
+        Длина поля по его имени.
+        @param FieldName_: Имя поля таблицы.
+        """
+        if self.dataclass is not None:
+            try:
+                field = [field for field in self.getResource()['child'] if field['name'] == FieldName_][0]
+            except IndexError:
+                return None
+            return field['len']
         return None
 
     def getConnection(self):
@@ -2184,6 +2197,38 @@ class icSQLAlchemyDataClass(icdataclassinterface.icDataClassInterface, object):
         Класс-ассоциация (маппера) текущей таблицы.
         """
         self._mapper_class = MapperClass_
+
+    def get_normalized(self, query_result=None):
+        """
+        Произвести нормализацию результата запроса.
+        @param query_result: Абстрактный результат запроса.
+        @return: Функция возвращает результат запроса
+        представляется в словарно-списковом представлении:
+        QUERY_TABLE_RESULT = {'__fields__': (), - Описание полей - кортеж кортежей
+                              '__data__': [],   - Данные - список кортежей
+                              }
+        """
+        if query_result is None:
+            fields = tuple([(field_name,
+                             self.getFieldType(field_name),
+                             self.getFieldLength(field_name)) for field_name in self.getFieldNames()])
+            data = self.queryAll()
+            return copy.deepcopy({'__fields__': fields, '__data__': data})
+        try:
+            # if data and to_dict:
+            #    new_data = [dict([(fields[i][0], val) for i, val in enumerate(rec)]) for rec in data]
+            #    data = new_data
+            data = list(query_result)
+            if data:
+                fields = [(col.name, col.type.name,
+                           col.type.length if getattr(col.type, 'length') else 0) for col in query_result]
+            else:
+                fields = ()
+            result = copy.deepcopy({'__fields__': fields, '__data__': data})
+            return result
+        except:
+            log.fatal(u'Ошибка нормализации результата запроса к таблице')
+        return None
 
 
 class icSQLAlchemyTabClass(icSQLAlchemyDataClass):

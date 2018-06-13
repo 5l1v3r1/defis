@@ -5,6 +5,11 @@
 Интерфейс классов данных системы.
 """
 
+from ic.log import log
+
+
+__version__ = (0, 0, 2, 2)
+
 
 class icDataClassInterface:
     """
@@ -161,3 +166,116 @@ class icDataClassInterface:
         Очистить таблицу.
         """
         pass
+
+    def get_normalized(self, query_result=None):
+        """
+        Произвести нормализацию результата запроса.
+        @param query_result: Абстрактный результат запроса.
+        @return: Функция возвращает результат запроса
+        представляется в словарно-списковом представлении:
+            {'__fields__': (), - Описание полей - кортеж кортежей
+             '__data__': [],   - Данные - список кортежей
+            }
+        """
+        return None
+
+    def find_record(self, normal_data=None, field_name=None, value=None):
+        """
+        Поиск записи в нормализованных данных по значению поля
+        @param normal_data: Нормализованные данные
+            в словарно-списковом представлении:
+            {'__fields__': (), - Описание полей - кортеж кортежей
+             '__data__': [],   - Данные - список кортежей
+            }
+        @param field_name: Наименование поля по которому происходит поиск.
+        @param value: Искомое значение.
+        @return: Словарь записи в формате:
+            { 'имя поля': значение поля, ...}
+            или None если запись не найдена.
+        """
+        if normal_data is None:
+            normal_data = self.get_normalized()
+
+        if normal_data:
+            try:
+                field_names = [field[0] for field in normal_data.get('__fields__', [])]
+                field_idx = field_names.index(field_name)
+                find_record = None
+                for rec in normal_data.get('__data__', []):
+                    if rec[field_idx] == value:
+                        find_record = dict([(fld_name, rec[i]) for i, fld_name in enumerate(field_names)])
+                        break
+                return find_record
+            except:
+                log.fatal(u'Ошибка поиска записи по значению поля <%s> : <%s>' % (field_name, str(value)))
+        else:
+            log.warning(u'Не определены данные табличного объекта для поиска записи по значению поля <%s> : <%s>' % (field_name, str(value)))
+        return None
+
+    def get_record_dict(self, normal_data=None, record=None):
+        """
+        Преобразовать строковую запись в запись в виде словаря.
+        @param normal_data: Нормализованные данные
+            в словарно-списковом представлении:
+            {'__fields__': (), - Описание полей - кортеж кортежей
+             '__data__': [],   - Данные - список кортежей
+            }
+        @param record: Запись в виде списка или кортежа.
+        @return: Словарь записи в формате:
+            { 'имя поля': значение поля, ...}
+            или None если запись не найдена.
+        """
+        field_names = [field[0] for field in normal_data.get('__fields__', [])]
+        rec_count = len(record)
+        record_dict = dict([(fld_name, record[i] if i < rec_count else None) for i, fld_name in enumerate(field_names)])
+        return record_dict
+
+    def get_recordset_dict(self, normal_data=None):
+        """
+        Преобразовать табличные данные в список словарей.
+        @param normal_data: Нормализованные данные
+            в словарно-списковом представлении:
+            {'__fields__': (), - Описание полей - кортеж кортежей
+             '__data__': [],   - Данные - список кортежей
+            }
+        @return: Список словарей записей.
+            Словарь записи в формате:
+            { 'имя поля': значение поля, ...}
+            или None если запись не найдена.
+        """
+        recordset = list()
+        field_names = [field[0] for field in normal_data.get('__fields__', [])]
+        for rec in normal_data.get('__data__', []):
+            rec_count = len(rec)
+            record_dict = dict([(fld_name, rec[i] if i < rec_count else None) for i, fld_name in enumerate(field_names)])
+            recordset.append(record_dict)
+        return recordset
+
+    def set_recordset_dict(self, normal_data=None, recordset=None):
+        """
+        И обратная операция
+        Преобразовать список словарей в табличные данные.
+        @param normal_data: Нормализованные данные
+            в словарно-списковом представлении:
+            {'__fields__': (), - Описание полей - кортеж кортежей
+             '__data__': [],   - Данные - список кортежей
+            }
+        @param recordset: Список словарей записей.
+            Словарь записи в формате:
+            { 'имя поля': значение поля, ...}
+            или None если запись не найдена.
+        @return: Заполненнные нормализованные данные.
+        """
+        if recordset is None:
+            # Нечего преобразовывать
+            log.warning(u'Не определен рекорсет')
+            return normal_data
+
+        field_names = [field[0] for field in normal_data.get('__fields__', [])]
+
+        data = list()
+        for record_dict in recordset:
+            rec = [record_dict.get(field_name, None) for field_name in field_names]
+            data.append(rec)
+        normal_data['__data__'] = data
+        return normal_data

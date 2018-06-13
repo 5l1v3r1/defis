@@ -6,6 +6,7 @@
 """
 
 # Подключение библиотек
+import copy
 from . import icsqlalchemydataset
 
 import ic.utils.ic_util
@@ -14,7 +15,7 @@ from ic.log import log
 
 import ic.interfaces.icdataclassinterface as icdataclassinterface
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 2, 1)
 
 # Спецификации
 # Результат запроса (словарно-списковое представление)
@@ -108,7 +109,7 @@ def getQueryTable(Query_, PostFilter_=None):
                 field_name2idx[field_name] = field_names.index(field_name)
             # Фильтрация
             filter_if_str_lst = ['r[%d]==%s' % (field_name2idx[fld],
-                                    ic.utils.ic_util.getStrInQuotes(PostFilter_[fld])) for fld in PostFilter_.keys()]
+                                 ic.utils.ic_util.getStrInQuotes(PostFilter_[fld])) for fld in PostFilter_.keys()]
             filter_if_str = 'lambda r: '+' and '.join(filter_if_str_lst)
             log.debug(u'getQueryTable PostFilter: ' + filter_if_str)
             filter_if = eval(filter_if_str)
@@ -242,6 +243,34 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
             if cursor:
                 result = cursor.fetchone()
         return result
+
+    def get_normalized(self, query_result=None):
+        """
+        Произвести нормализацию результата запроса.
+        @param query_result: Абстрактный результат запроса.
+        @return: Функция возвращает результат запроса
+        представляется в словарно-списковом представлении:
+        QUERY_TABLE_RESULT = {'__fields__': (), - Описание полей - кортеж кортежей
+                              '__data__': [],   - Данные - список кортежей
+                              }
+        """
+        if query_result is None:
+            return self.queryAll()
+        try:
+            # if data and to_dict:
+            #    new_data = [dict([(fields[i][0], val) for i, val in enumerate(rec)]) for rec in data]
+            #    data = new_data
+            data = list(query_result)
+            if data:
+                fields = [(col.name, col.type.name,
+                           col.type.length if getattr(col.type, 'length') else 0) for col in query_result]
+            else:
+                fields = ()
+            result = copy.deepcopy({'__fields__': fields, '__data__': data})
+            return result
+        except:
+            log.fatal(u'Ошибка нормализации результата запроса')
+        return None
 
 
 class icNamedQueryPrototype(icQueryPrototype):
