@@ -86,8 +86,8 @@ ic_class_spc = {'type': 'TableChoiceCtrl',
 
 #   Имя иконки класса, которые располагаются в директории
 #   ic/components/user/images
-ic_class_pic = ic_bmp.createLibraryBitmap('table-arrow.png')
-ic_class_pic2 = ic_bmp.createLibraryBitmap('table-arrow.png')
+ic_class_pic = ic_bmp.createLibraryBitmap('ic_table_combobox.png')
+ic_class_pic2 = ic_bmp.createLibraryBitmap('ic_table_combobox.png')
 
 #   Путь до файла документации
 ic_class_doc = ''
