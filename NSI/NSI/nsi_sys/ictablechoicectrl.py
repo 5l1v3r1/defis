@@ -14,7 +14,7 @@ from ic.components import icwidget
 # from ic.utils import coderror
 from ic.utils import ic_str
 
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 2, 1)
 
 # Спецификация
 SPC_IC_TABLECHOICECTRL = {'table': None,  # Паспорт таблицы/запроса источника данных
@@ -22,6 +22,9 @@ SPC_IC_TABLECHOICECTRL = {'table': None,  # Паспорт таблицы/зап
                           'label_field': '',    # Поле, которое отображается в контроле
                           'get_label': None,    # Код определения записи контрола, в случае сложного оформления записи
                           'get_filter': None,   # Код дополнительной фильтрации данных таблицы/запроса
+                          'can_empty': True,    # Возможно выбирать пустое значение?
+
+                          'on_change': None,  # Обработчик изменения выбранного кода
 
                           '__parent__': icwidget.SPC_IC_WIDGET,
                           }
@@ -52,8 +55,8 @@ class icTableChoiceCtrlProto(wx.ComboBox):
         # Выбранный код. Определяется по кодовому полю
         self._selected_code = None
 
-        # Привязать обработчики событий
-        self.Bind(wx.EVT_COMBOBOX, self.onComboBox)
+        # Привязка обработчика событий производиться в потомке
+        # self.Bind(wx.EVT_COMBOBOX, self.onComboBox)
 
     def getCode(self):
         """
@@ -98,7 +101,7 @@ class icTableChoiceCtrlProto(wx.ComboBox):
         """
         self._src_data = tab_src_data
         tab_data = self.refreshTableData(self._src_data)
-        self.set_choices(tab_data)
+        self.set_choices(tab_data, is_empty=self.getCanEmpty())
         return tab_data is not None
 
     def refreshTableData(self, tab_src_data=None):
@@ -230,10 +233,11 @@ class icTableChoiceCtrlProto(wx.ComboBox):
                 log.warning(u'Не определен метод получения надписи элемента списка выбора в компоненте <%s>' % self.name)
         return label
 
-    def set_choices(self, table_data=None):
+    def set_choices(self, table_data=None, is_empty=True):
         """
         Установка списка выбора.
         @param table_data: Табличные данные.
+        @param is_empty: Присутствует в списке пустая строка?
         @return: True/False.
         """
         if table_data is None:
@@ -245,9 +249,14 @@ class icTableChoiceCtrlProto(wx.ComboBox):
 
             # Затем заполним
             try:
+                if is_empty:
+                    self.Append(u'')
+
                 for record in table_data.get('__data__', []):
                     label = self.get_label(record, table_data)
-                    self.AppendText(label)
+                    self.Append(label)
+
+                self.SetSelection(0)
                 return True
             except:
                 log.fatal(u'Ошибка заполнения списка выбора данными')
@@ -289,10 +298,18 @@ class icTableChoiceCtrlProto(wx.ComboBox):
         """
         Обработчик выбора элемента.
         """
-        selected_idx = event.GetSelection()
+        selected_idx = self.GetSelection() - int(self.getCanEmpty())
         selected_rec = self.get_selected_record(selected_idx=selected_idx)
         if selected_rec is not None:
             self._selected_code = selected_rec.get(self.getCodeField(), None)
         else:
             self._selected_code = None
-        event.Skip()
+        if event:
+            event.Skip()
+
+    def getCanEmpty(self):
+        """
+        Возможно выбирать пустое значение?
+        """
+        log.warning(u'Не переопределенный метод getCanEmpty')
+        return True

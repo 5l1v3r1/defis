@@ -60,19 +60,26 @@ ic_class_spc = {'type': 'TableChoiceCtrl',
                 'label_field': '',    # Поле, которое отображается в контроле
                 'get_label': None,    # Код определения записи контрола, в случае сложного оформления записи
                 'get_filter': None,   # Код дополнительной фильтрации данных таблицы/запроса
+                'can_empty': True,  # Возможно выбирать пустое значение?
+
+                'on_change': None,  # Обработчик изменения выбранного кода
 
                 '__styles__': ic_class_styles,
                 '__attr_types__': {0: ['name', 'type'],
                                    icDefInf.EDT_TEXTFIELD: ['description', 'code_field', 'label_field'],
                                    icDefInf.EDT_USER_PROPERTY: ['table'],
+                                   icDefInf.EDT_CHECK_BOX: ['can_empty'],
                                    },
-                '__events__': {},
+                '__events__': {'on_change': ('wx.EVT_COMBOBOX', 'onComboBox', False),
+                               },
                 '__parent__': parentModule.SPC_IC_TABLECHOICECTRL,
                 '__attr_hlp__': {'table': u'Паспорт таблицы/запроса источника данных',
                                  'code_field': u'Поле, которое является кодом записи',
                                  'label_field': u'Поле, которое отображается в контроле',
                                  'get_label': u'Код определения записи контрола, в случае сложного оформления записи',
                                  'get_filter': u'Код дополнительной фильтрации данных таблицы/запроса',
+                                 'can_empty': u'Возможно выбирать пустое значение?',
+                                 'on_change': u'Обработчик изменения выбранного кода',
                                  },
                 }
 
@@ -94,7 +101,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 0, 1)
+__version__ = (0, 0, 2, 1)
 
 
 # Функции редактирования
@@ -179,14 +186,26 @@ class icTableChoiceCtrl(parentModule.icTableChoiceCtrlProto, icwidget.icWidget):
                                                      size=self.size, pos=self.position, style=self.style)
         # Установить источник данных
         table_psp = self.getTablePsp()
-        table = self.GetKernel().Create(table_psp) if table_psp else None
-        self.setTableSrcData(table)
+        self.createTableSrcData(table_psp=table_psp)
+
+        # Регистрация обработчиков
+        self.Bind(wx.EVT_COMBOBOX, self.onComboBox)
+        self.BindICEvt()
 
     def getTablePsp(self):
         """
         Паспорт табличного объекта-источника данных.
         """
         return self.getICAttr('table')
+
+    def createTableSrcData(self, table_psp):
+        """
+        Создать табличный объект-источник данных по его паспорту.
+        @param table_psp: Паспорт табличного объекта-источника данных.
+        @return: табличный объект-источник данных.
+        """
+        table = self.GetKernel().Create(table_psp) if table_psp else None
+        self.setTableSrcData(table)
 
     def getCodeField(self):
         """
@@ -239,3 +258,20 @@ class icTableChoiceCtrl(parentModule.icTableChoiceCtrlProto, icwidget.icWidget):
         @return: True/False.
         """
         return self.isICAttrValue('get_filter')
+
+    def getCanEmpty(self):
+        """
+        Возможно выбирать пустое значение?
+        """
+        return self.getICAttr('can_empty')
+
+    def onComboBox(self, event):
+        """
+        Обработчик выбора элемента.
+        """
+        # Вызвать обработчик родительского класса
+        # ВНИМАНИЕ! Skip не выполняем.
+        parentModule.icTableChoiceCtrlProto.onComboBox(self, None)
+        # Вызов пользовательского обработчика
+        # ВНИМАНИЕ! По окончании выполняется Skip.
+        self.eval_event('on_change', event, bSkip=True)

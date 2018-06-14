@@ -8,7 +8,7 @@
 from ic.log import log
 
 
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 2, 3)
 
 
 class icDataClassInterface:
@@ -243,6 +243,9 @@ class icDataClassInterface:
             { 'имя поля': значение поля, ...}
             или None если запись не найдена.
         """
+        if normal_data is None:
+            normal_data = self.get_normalized()
+
         recordset = list()
         field_names = [field[0] for field in normal_data.get('__fields__', [])]
         for rec in normal_data.get('__data__', []):
@@ -266,6 +269,9 @@ class icDataClassInterface:
             или None если запись не найдена.
         @return: Заполненнные нормализованные данные.
         """
+        if normal_data is None:
+            normal_data = self.get_normalized()
+
         if recordset is None:
             # Нечего преобразовывать
             log.warning(u'Не определен рекорсет')

@@ -12,10 +12,12 @@ from . import icsqlalchemydataset
 import ic.utils.ic_util
 from ic.utils import resource
 from ic.log import log
+from ic.utils import txtgen
+from ic.utils import ic_str
 
 import ic.interfaces.icdataclassinterface as icdataclassinterface
 
-__version__ = (0, 0, 2, 1)
+__version__ = (0, 0, 2, 3)
 
 # Спецификации
 # Результат запроса (словарно-списковое представление)
@@ -137,6 +139,11 @@ SPC_IC_QUERY = {'type': QUERY_TYPE,     # Тип запроса
                 'source': None,     # Имя источника данных/БД
                 }
 
+# Символы перевода коретки.
+# Используются в генераторе SQL выражения
+UNIX_CR = '\n'
+WIN_CR = '\r\n'
+
 
 # --- Классы ---
 class icQueryPrototype(icdataclassinterface.icDataClassInterface):
@@ -162,25 +169,35 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         """
         return self.data_source
         
-    def getSQLTxt(self):
+    def getSQLTxt(self, **kwargs):
         """
         Текст SQL запроса.
+        @param kwargs: Параметры SQL запроса для генерации исполняемого текста
+            SQL запроса.
         """
-        return self._sql_txt
-        
+        # Необходимо заменить перевод кареток
+        sql_txt = self._sql_txt.replace('\\n', UNIX_CR)
+
+        # Сгенерировать запрос для последующего использования
+        sql_txt = txtgen.gen(sql_txt, kwargs)
+
+        return sql_txt
+
     def setSQLTxt(self, SQLTxt_):
         """
         Установить текст SQL запроса.
         """
         self._sql_txt = SQLTxt_
         
-    def queryAll(self):
+    def queryAll(self, **kwargs):
         """
         Выполнить SQL запрос и вернуть результат в виде QUERY_TABLE_RESULT.
+        @param kwargs: Параметры SQL запроса для генерации исполняемого текста
+            SQL запроса.
         """
         data_src = self.getDataSource()
         if data_src:
-            return data_src.execSQL(self.getSQLTxt())
+            return data_src.executeSQL(self.getSQLTxt(**kwargs))
         return None
         
     def execute(self):
@@ -190,15 +207,17 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         recordset = self.fetchAllRecs()
         return recordset
    
-    def execSQL(self):
+    def execSQL(self, **kwargs):
         """
         Выполнить SQL запрос.
+        @param kwargs: Параметры SQL запроса для генерации исполняемого текста
+            SQL запроса.
         """
         result = None
         data_src = self.getDataSource()
         if data_src:
             cursor = data_src.createCursor()
-            sql_txt = self.getSQLTxt()
+            sql_txt = self.getSQLTxt(**kwargs)
             try:
                 cursor.execute(sql_txt)
             except:
@@ -213,16 +232,18 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         if data_src:
             data_src.closeCursor()
         
-    def fetchAllRecs(self):
+    def fetchAllRecs(self, **kwargs):
         """
         Получить все записи результата запроса.
+        @param kwargs: Параметры SQL запроса для генерации исполняемого текста
+            SQL запроса.
         @return: Возвращает список кортежей.
         """
         result = None
         data_src = self.getDataSource()
         if data_src:
             cursor = data_src.createCursor()
-            sql_txt = self.getSQLTxt()
+            sql_txt = self.getSQLTxt(**kwargs)
             try:
                 cursor.execute(sql_txt)
                 result = cursor.fetchall()
@@ -255,7 +276,8 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
                               }
         """
         if query_result is None:
-            return self.queryAll()
+            sql_params = dict([(name, u'') for name in txtgen.get_raplace_names(self._sql_txt)])
+            return self.queryAll(**sql_params)
         try:
             # if data and to_dict:
             #    new_data = [dict([(fields[i][0], val) for i, val in enumerate(rec)]) for rec in data]
