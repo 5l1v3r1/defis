@@ -9,7 +9,7 @@ import datetime
 
 import ic
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 1)
 
 
 def get_first_day_of_month(year, month):
@@ -112,3 +112,57 @@ def loadYEAR():
     year = ic.settings.THIS.SETTING.sys_year.get()
     setYEAR(year)
     return year
+
+
+def get_min_date_time(date=None):
+    """
+    Время начала дня.
+    @param date: Дата datetime.date.
+        Если не указана, то берется сегодняшняя системная дата.
+    @return: Время начала указанного дня. Например 2018-01-01 00:00:00.
+    """
+    if date is None:
+        date = datetime.date.today()
+
+    min_date_time = datetime.datetime.combine(date, datetime.time.min)
+    return min_date_time
+
+
+def get_max_date_time(date=None):
+    """
+    Время окончания дня.
+    @param date: Дата datetime.date.
+        Если не указана, то берется сегодняшняя системная дата.
+    @return: Время окончания указанного дня.
+        Например 2018-01-01 23:59:59.
+    """
+    if date is None:
+        date = datetime.date.today()
+
+    max_date_time = datetime.datetime.combine(date, datetime.time.max)
+    return max_date_time
+
+
+def is_min_date_time(dt, cmp_microsecond=False):
+    """
+    Время начала дня?
+    @param dt: Дата-время datetime.datetime.
+    @param cmp_microsecond: Сравнивать микросекунды?
+    @return: True-да. Например 2018-01-01 00:00:00 / False - нет.
+    """
+    if not cmp_microsecond:
+        return dt.hour == 0 and dt.minute == 0 and dt.second == 0
+    return dt.hour == 0 and dt.minute == 0 and dt.second == 0 and dt.microsecond == 0
+
+
+def is_max_date_time(dt, cmp_microsecond=False):
+    """
+    Время окончания дня?
+    @param dt: Дата-время datetime.datetime.
+    @param cmp_microsecond: Сравнивать микросекунды?
+    @return: True-да. Например 2018-01-01 23:59:59 / False - нет.
+    """
+    max_dt = datetime.time.max
+    if not cmp_microsecond:
+        return dt.hour == max_dt.hour and dt.minute == max_dt.minute and dt.second == max_dt.second
+    return dt.hour == max_dt.hour and dt.minute == max_dt.minute and dt.second == max_dt.second and dt.microsecond == max_dt.microsecond
