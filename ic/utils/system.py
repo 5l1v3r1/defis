@@ -13,7 +13,7 @@ import platform
 try:
     # Для Python 2
     import commands as get_procesess_module
-else ImportError:
+except ImportError:
     # Для Python 3
     import subprocess as get_procesess_module
 
