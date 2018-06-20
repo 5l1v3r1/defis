@@ -85,14 +85,23 @@ def isPython3():
     return sys.version_info.major == 3
 
 
+def getActiveProcessCount(find_process):
+    """
+    Количество активных выполняемых процессов.
+    @param find_process: Строка поиска процесса.
+    @param find_process:
+    @return: Количество найденных процессов.
+    """
+    processes_txt = get_procesess_module.getoutput('ps -eo pid,cmd')
+    processes = processes_txt.strip().split('\n')
+    find_processes = [process for process in processes if find_process in process]
+    return len(find_processes)
+
+
 def isActiveProcess(find_process):
     """
     Проверка на существование активного выполняемого процесса.
     @param find_process: Строка поиска процесса.
     @return: True - есть такой процесс / False - процесс не найден.
     """
-    processes_txt = get_procesess_module.getoutput('ps -eo pid,cmd')
-    processes = processes_txt.strip().split('\n')
-    find_processes = [process for process in processes if find_process in process]
-    # print('Find processes: %s' % str(find_processes))
-    return len(find_processes) >= 1
+    return getActiveProcessCount(find_process) >= 1
