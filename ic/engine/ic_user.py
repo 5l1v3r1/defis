@@ -288,6 +288,9 @@ def icEditorLogin(User_=None, Password_=None, DBMode_='-s', **kwargs):
 def closeMainWinForce():
     """
     Принудительное закрытие главного окна программы.
+    ВНИМАНИЕ! Использовать только в начале обработчика
+        инициализации главного окна.
+        Иначе последствия могут быть не предсказуемыми.
     @return: True/False.
     """
     log.info(u'Принудительное закрытие главного окна программы')
@@ -301,6 +304,27 @@ def closeMainWinForce():
         return True
     except:
         log.fatal(u'Ошибка принудительного закрытия главного окна')
+    return False
+
+
+def closeAppForce():
+    """
+    Принудительное закрытие приложения.
+    ВНИМАНИЕ! Использовать только в начале обработчика
+        инициализации главного окна.
+        Иначе последствия могут быть не предсказуемыми.
+    @return: True/False.
+    """
+    log.info(u'Принудительное закрытие приложения')
+    try:
+        import wx
+
+        app = wx.GetApp()
+        app.ExitMainLoop()
+        app.Destroy()
+        return True
+    except:
+        log.fatal(u'Ошибка принудительного закрытия приложения')
     return False
 
 
@@ -320,10 +344,7 @@ def icLogout():
     glob.set_glob_var('schemas', None)
     glob.set_glob_var('settings', None)
 
-    # Просто закрываем главное окно
-    closeMainWinForce()
-    # sys.exit(0)
-    return True        
+    return True
 
 
 def getMainWin():
