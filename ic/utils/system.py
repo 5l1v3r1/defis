@@ -17,7 +17,7 @@ except ImportError:
     # Для Python 3
     import subprocess as get_procesess_module
 
-__version__ = (0, 0, 3, 1)
+__version__ = (0, 0, 4, 1)
 
 
 def getPlatform():
@@ -105,3 +105,10 @@ def isActiveProcess(find_process):
     @return: True - есть такой процесс / False - процесс не найден.
     """
     return getActiveProcessCount(find_process) >= 1
+
+
+def exit_force():
+    """
+    Принудительное закрытие программы
+    """
+    sys.exit(0)

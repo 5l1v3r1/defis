@@ -20,7 +20,7 @@ from ic.kernel import icexceptions
 from . import glob
 from ic.utils import ic_file
 
-__version__ = (0, 0, 2, 2)
+__version__ = (0, 0, 3, 2)
 
 
 def getKernel():
@@ -88,9 +88,14 @@ def icGet(Name_, LockKey_=None):
         или None, если нет такого объекта.
     """
     try:
-        return getKernel().GetContext().Get(Name_)
+        kernel = getKernel()
+        if kernel:
+            return kernel.GetContext().Get(Name_)
+        else:
+            log.warning(u'Не определено ядро системы для получения объекта <%s>' % Name_)
     except:
         log.fatal(u'Ошибка ic_user.icGet NAME: <%s> KERNEL: <%s>' % (Name_, getKernel()))
+    return None
 
 
 def icPut(Name_, Data_, LockKey_=None):
@@ -280,6 +285,25 @@ def icEditorLogin(User_=None, Password_=None, DBMode_='-s', **kwargs):
     return login_result
 
 
+def closeMainWinForce():
+    """
+    Принудительное закрытие главного окна программы.
+    @return: True/False.
+    """
+    log.info(u'Принудительное закрытие главного окна программы')
+    try:
+        import wx
+
+        app = wx.GetApp()
+        main_win = app.GetTopWindow()
+        main_win.Close(force=True)
+        app.ExitMainLoop()
+        return True
+    except:
+        log.fatal(u'Ошибка принудительного закрытия главного окна')
+    return False
+
+
 def icLogout():
     """
     Останов.
@@ -289,11 +313,16 @@ def icLogout():
         # Закрыть главное окно
         kernel.Stop()
         glob.set_glob_var('KERNEL', None)
+    else:
+        log.warning(u'Не определено ядро системы при останове. Принудительное закрытие главного окна.')
 
     glob.set_glob_var('metadata', None)
     glob.set_glob_var('schemas', None)
     glob.set_glob_var('settings', None)
 
+    # Просто закрываем главное окно
+    closeMainWinForce()
+    # sys.exit(0)
     return True        
 
 
