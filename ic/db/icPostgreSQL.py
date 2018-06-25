@@ -21,6 +21,12 @@ ALTER TABLE tab_name ALTER COLUMN field_name TYPE bigint;
 ***********************************************************
 CREATE TABLE tab_name_dest AS TABLE tab_name_source;
 ***********************************************************
+
+3. Создание индексов
+*******************************************************************
+CREATE INDEX index_name_idx ON table_name (field1, field2, field3)
+*******************************************************************
+
 """
 
 from ic.components import icwidget
