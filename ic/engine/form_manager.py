@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 8, 4)
+__version__ = (0, 1, 8, 5)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -733,32 +733,44 @@ class icFormManager(formdatamanager.icFormDataManager):
             log.warning(u'Перемещение строки списка контрола типа <%s> не поддерживается' % ctrl.__class__.__name__)
         return False
 
-    def appendColumn_ListCtrl(self, ctrl, label=u'', width=-1):
+    def appendColumn_ListCtrl(self, ctrl, label=u'', width=-1, align='LEFT'):
         """
         Добавить колонку в wx.ListCtrl.
         ВНИМАНИЕ! На старых ОС (...-16.04) wx.LIST_AUTOSIZE_USEHEADER не работает!!!
             Поэтому для автоширины используем везде wx.LIST_AUTOSIZE.
         @param ctrl: Объект контрола wx.ListCtrl.
-        @param col_label: Надпись колонки.
+        @param label: Надпись колонки.
         @param width: Ширина колонки.
+        @param align: Выравнивание: LEFT/RIGHT.
         @return: True - все прошло нормально / False - какая-то ошибка.
         """
         try:
             i = ctrl.GetColumnCount()
             if width <= 0:
                 width = wx.LIST_AUTOSIZE
-            ctrl.InsertColumn(i, label, width=width)
+
+            col_align = str(align).strip().upper()
+            if col_align == 'RIGHT':
+                col_format = wx.LIST_FORMAT_RIGHT
+            elif col_align == 'CENTRE':
+                col_format = wx.LIST_FORMAT_CENTRE
+            elif col_align == 'CENTER':
+                col_format = wx.LIST_FORMAT_CENTER
+            else:
+                col_format = wx.LIST_FORMAT_LEFT
+            ctrl.InsertColumn(i, label, width=width, format=col_format)
             return True
         except:
             log.fatal(u'Ошибка добавления колонки в контрол wx.ListCtrl')
         return False
 
-    def appendColumn_list_ctrl(self, ctrl=None, label=u'', width=-1):
+    def appendColumn_list_ctrl(self, ctrl=None, label=u'', width=-1, align='LEFT'):
         """
         Добавить колонку в контрол списка.
         @param ctrl: Объект контрола.
-        @param col_label: Надпись колонки.
+        @param label: Надпись колонки.
         @param width: Ширина колонки.
+        @param align: Выравнивание: LEFT/RIGHT.
         @return: True - все прошло нормально / False - какая-то ошибка.
         """
         if ctrl is None:
@@ -777,10 +789,11 @@ class icFormManager(formdatamanager.icFormDataManager):
         @param ctrl: Объект контрола.
         @param cols: Список описаний колонок.
             колонка может описываться как списком
-            ('Заголовок колонки', Ширина колонки)
+            ('Заголовок колонки', Ширина колонки, Выравнивание)
             так и словарем:
             {'label': Заголовок колонки,
-            'width': Ширина колонки}
+            'width': Ширина колонки,
+            'align': Выравнивание}
             ВНИМАНИЕ! На старых ОС (...-16.04) wx.LIST_AUTOSIZE_USEHEADER не работает!!!
                 Поэтому для автоширины используем везде wx.LIST_AUTOSIZE.
         @return: True - все прошло нормально / False - какая-то ошибка.
