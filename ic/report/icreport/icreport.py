@@ -32,6 +32,7 @@ icReport - Программа запуска/обзора отчетов.
         --stylelib=         Указание библиотеки стилей для единого оформления отчетов
         --var=              Добавление переменной для заполнения в отчете
         --path=             Указание папки отчетов
+        --no_gui            Включение консольного режима работы
 """
 
 
@@ -46,7 +47,7 @@ from ic.std.log import log
 
 from ic.report import do_report
 
-__version__ = (0, 0, 7, 5)
+__version__ = config.__version__
 
 DEFAULT_REPORTS_PATH = './reports'
 
@@ -56,22 +57,23 @@ def main(argv):
     Основная запускающая функция.
     @param argv: Список параметров коммандной строки.
     """
+    # Инициализоция системы журналирования
+    log.init(config)
+
     # Разбираем аргументы командной строки
     try:
         options, args = getopt.getopt(argv, 'h?vdVEDpPES',
-                                      ['help', 'version', 'debug',
+                                      ['help', 'version', 'debug', 'log',
                                        'viewer', 'editor',
                                        'postprint', 'postpreview', 'postexport',
                                        'print=', 'preview=', 'export=', 'select=',
                                        'gen=', 'db=', 'sql=',
-                                       'stylelib=', 'var=', 'path='])
-    except getopt.error, msg:
-        print(msg)
-        print('For help use --help option')
+                                       'stylelib=', 'var=', 'path=',
+                                       'no_gui'])
+    except getopt.error as err:
+        log.error(err.msg, bForcePrint=True)
+        log.warning('For help use --help option', bForcePrint=True)
         sys.exit(2)
-
-    # Инициализоция системы журналирования
-    log.init(config)
 
     # Параметры запуска генерации отчета из коммандной строки
     report_filename = None
@@ -133,6 +135,8 @@ def main(argv):
                                                                           unicode(var_value, config.DEFAULT_ENCODING)))
         elif option in ('--path',):
             path = arg
+        elif option in ('--no_gui', ):
+            config.set_glob_var('NO_GUI_MODE', True)
 
     # ВНИМАНИЕ! Небходимо добавить путь к папке отчетов,
     # чтобы проходили импорты модулей отчетов

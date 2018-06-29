@@ -15,10 +15,11 @@ import re
 from ic.std.log import log
 from ic.std.convert import xml2dict
 from ic.std.utils import execfunc
+from ic.std.utils import textfunc
 
 from ic.report import icrepgen
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 2, 4)
 
 # Константы
 # Теги шаблона
@@ -77,6 +78,22 @@ class icReportTemplate:
         # Структура шаблона отчета,  которую понимает генератор отчетов.
         self._rep_template = None
 
+        # Полное имя исходного файла шаблона
+        self.template_filename = None
+
+    def setTemplateFilename(self, template_filename):
+        """
+        Полное имя исходного файла шаблона.
+        @param template_filename: Полное имя исходного файла шаблона
+        """
+        self.template_filename = template_filename
+
+    def getTemplateFilename(self):
+        """
+        Полное имя исходного файла шаблона.
+        """
+        return self.template_filename
+
     def save(self, template_filename, template_name=None):
         """
         Сохранить шаблон в Pickle файле.
@@ -99,6 +116,7 @@ class icReportTemplate:
         @param template_filename: Имя XML файла шаблона.
         @param template_name: Имя шаблона (листа).
         """
+        self.setTemplateFilename(template_filename)
         pickle_file_name = os.path.splitext(template_filename)[0]+DEFAULT_REPORT_FILE_EXT
         pickle_file = None
         try:
@@ -539,7 +557,7 @@ class icExcelXMLReportTemplate(icReportTemplate):
             # Взять таблицу
             rep_template_tabs = [rep_obj for rep_obj in self._rep_worksheet['children'] if rep_obj['name'] == 'Table']
             self._setDefaultCellSize(rep_template_tabs[0])
-            # Привести таблицу к квадратному виду
+            # Привести таблицу к нормальному виду
             rep_template_tab = self._normTable(rep_template_tabs[0])
 
             # Взять описания колонок
@@ -549,10 +567,14 @@ class icExcelXMLReportTemplate(icReportTemplate):
             rep_template_rows = [element for element in rep_template_tab['children'] if element['name'] == 'Row']
             rep_template_rows = self._defineSpan(rep_template_rows)
 
+            # Количество колонок без колонки тегов бендов
+            col_count = self._getColumnCount(rep_template_rows)
+            log.debug(u'Количество колонок: %d' % col_count)
+
             # II. Определить все ячейки листа
             used_rows = range(len(rep_template_rows))
-            used_cols = range(self._getTagBandIdx(rep_template_rows))
-            
+            used_cols = range(col_count)
+
             self.__cur_band = None  # Тег текущего бенда
             # Перебор по строкам
             for cur_row in used_rows:
@@ -567,8 +589,6 @@ class icExcelXMLReportTemplate(icReportTemplate):
                             rep['sheet'][-1].append(None)
 
             # III. Определить бэнды в шаблоне
-            # Количество колонок без колонки тегов бендов
-            col_count = self._getTagBandIdx(rep_template_rows)
             # Перебрать все ячейки первой колонки
             self.__cur_band = None  # Тег текущего бенда
             title_row = 0   # Счетчик строк колонтитулов/заголовочных бендов
@@ -586,11 +606,13 @@ class icExcelXMLReportTemplate(icReportTemplate):
                         try:
                             parse_func(self, rep, rep_template_rows[cur_row]['children'])
                         except:
-                            log.error('Parse function')
+                            log.fatal(u'Ошибка парсинга функции <%s>' % textfunc.toUnicode(parse_func))
                         title_row += 1
                     else:
                         # Определить бэнд внутри объекта
                         rep = self._defBand(self.__cur_band, cur_row, col_count, title_row, rep)
+                else:
+                    log.error(u'Не корректный тег строки [%d]' % cur_row)
 
             # Прочитать в шаблон параметры страницы
             rep['page_setup'] = copy.deepcopy(icrepgen.IC_REP_PAGESETUP)
@@ -602,16 +624,51 @@ class icExcelXMLReportTemplate(icReportTemplate):
             print_setup = [rep_obj for rep_obj in sheet_options[0]['children'] if rep_obj['name'] == 'Print']
             if print_setup:
                 rep['page_setup'].update(self._getPrintSetup(print_setup[0]))
-                        
+
+            # Проверить заполнение генератора отчета
+            if not rep['generator']:
+                tmpl_filename = self.getTemplateFilename()
+                rep['generator'] = os.path.splitext(tmpl_filename)[1].upper() if tmpl_filename else '.ODS'
+
             return rep
         except:
-            log.fatal('Parse template <%s>' % template_name)
+            log.fatal(u'Ошибка парсинга шаблона отчета <%s>' % textfunc.toUnicode(template_name))
         return None
+
+    def _existTagBand(self):
+        """
+        Присутствует в шаблоне колонка тегов бендов?
+            Если не существует, то далее считаем,
+            что весь шаблон - это  заголовок отчета [header].
+        @return: True - колонка тегов бендов есть в шаблоне / False - нет.
+        """
+        log.info(u'Колонка тегов бендов: %s' % str(self._tag_band_col))
+        return self._tag_band_col is not None
+
+    def _getColumnCount(self, Rows_):
+        """
+        Определить количество колонок.
+        @param Rows_: Список описаний строк.
+        @return: Количество колонок шаблона отчета.
+        """
+        # Сначала предполагаем что в шаблоне имеется колонка тегов бендов
+        col_count = self._getTagBandIdx(Rows_)
+        if col_count <= 0:
+            # В шаблоне нет колонки тегов бендов
+            # Считаем по строкам
+            max_col = 0
+            for row in range(len(Rows_)):
+                if 'children' in Rows_[row]:
+                    for col in range(len(Rows_[row]['children'])):
+                        max_col = max(max_col, col)
+            col_count = max_col
+        return col_count
 
     def _getTagBandIdx(self, Rows_):
         """
         Определить номер колонки тегов бэндов.
         @param Rows_: Список описаний строк.
+        @return: Номер колонки тегов бендов.
         """
         if self._tag_band_col is None:
             # Это последняя колонка
@@ -686,7 +743,7 @@ class icExcelXMLReportTemplate(icReportTemplate):
             # Сделать копию данных отчета для возможного отката.
             rep = copy.deepcopy(Rep_)
             
-            log.debug('Define band. Tag: <%s>' % BandTag_)
+            log.debug(u'Определение бэнда. Тег: <%s>' % BandTag_)
             if BandTag_.strip() == HEADER_TAG:
                 # Заполнить бэнд
                 rep['header'] = self._band(rep['header'], Row_-TitleRow_, ColCount_)
@@ -824,7 +881,7 @@ class icExcelXMLReportTemplate(icReportTemplate):
             return cell_style
         except:
             log.fatal(u'Ошибка определения стиля ячейки шаблона отчета')
-            return Styles_['Default']
+        return Styles_['Default']
 
     def _getTypeCell(self, Cell_):
         """
@@ -989,15 +1046,21 @@ class icExcelXMLReportTemplate(icReportTemplate):
             row = Rows_[Row_]
             # Проверка корректности описания строки
             if 'children' not in row or not row['children']:
-                log.warning('WARNING. _getTagBandRow function <%s>' % row)
+                log.warning(u'WARNING. _getTagBandRow function <%s>' % row)
                 return self.__cur_band
             i_tag = self._getTagBandIdx(Rows_)
 
-            if i_tag > 0:
-                i_tag, tag_value = self._findTagBandRow(row)
-                if i_tag >= 0:
-                    # Если тег найден, то взять его
-                    self.__cur_band = tag_value
+            # ВНИМАНИЕ! Если колонки тегов бендов нет в шаблоне
+            # то считаем что весь шаблон это шапка отчета
+            # Используется для простого заполнения тегами
+            if not self._existTagBand():
+                self.__cur_band = HEADER_TAG
+            else:
+                if i_tag > 0:
+                    i_tag, tag_value = self._findTagBandRow(row)
+                    if i_tag >= 0:
+                        # Если тег найден, то взять его
+                        self.__cur_band = tag_value
 
             return self.__cur_band
         except:
@@ -1070,10 +1133,16 @@ class icExcelXMLReportTemplate(icReportTemplate):
         @param ParseRow_: Разбираемая строка шаблона отчета в виде списка.
         """
         try:
-            if 'value' in ParseRow_[0]['children'][0] and ParseRow_[0]['children'][0]['value']:
-                Rep_['description'] = ParseRow_[0]['children'][0]['value']
+            if not self._existTagBand():
+                # Если теги бендов не указаны в шаблоне то
+                # определяем описание как имя файла
+                tmpl_filename = self.getTemplateFilename()
+                Rep_['description'] = os.path.splitext(os.path.basename(tmpl_filename))[0] if tmpl_filename else u''
             else:
-                Rep_['description'] = None
+                if 'value' in ParseRow_[0]['children'][0] and ParseRow_[0]['children'][0]['value']:
+                    Rep_['description'] = ParseRow_[0]['children'][0]['value']
+                else:
+                    Rep_['description'] = None
         except:
             log.fatal(u'_parseDescriptionTag function')
 
@@ -1101,10 +1170,16 @@ class icExcelXMLReportTemplate(icReportTemplate):
         @param ParseRow_: Разбираемая строка шаблона отчета в виде списка.
         """
         try:
-            if 'value' in ParseRow_[0]['children'][0] and ParseRow_[0]['children'][0]['value']:
-                Rep_['generator'] = ParseRow_[0]['children'][0]['value']
+            if not self._existTagBand():
+                # Если теги бендов не указаны в шаблоне то
+                # определяем генератор по расширению имени файла
+                tmpl_filename = self.getTemplateFilename()
+                Rep_['generator'] = os.path.splitext(tmpl_filename)[1].upper() if tmpl_filename else '.ODS'
             else:
-                Rep_['generator'] = None
+                if 'value' in ParseRow_[0]['children'][0] and ParseRow_[0]['children'][0]['value']:
+                    Rep_['generator'] = ParseRow_[0]['children'][0]['value']
+                else:
+                    Rep_['generator'] = None
         except:
             log.fatal(u'_parseGeneratorTag function')
 
@@ -1178,3 +1253,31 @@ class icODSReportTemplate(icExcelXMLReportTemplate):
         result = v_excel.Load(TemplateFile_)
         v_excel.SaveAsXML(TemplateFile_.replace('.ods', '.xml'))
         return result
+
+
+class icXLSReportTemplate(icODSReportTemplate):
+    """
+    Шаблон отчета в формате Excel XLS.
+    """
+
+    def __init__(self):
+        """
+        Конструктор класса.
+        """
+        icODSReportTemplate.__init__(self)
+
+    def open(self, TemplateFile_):
+        """
+        Открыть файл шаблона отчета.
+        @param TemplateFile_: Файл шаблона отчета.
+        """
+        try:
+            ods_filename = os.path.splitext(TemplateFile_)[0] + '.ods'
+            cmd = 'unoconv --format=ods %s' % TemplateFile_
+            log.info(u'Выполнение комманды <%s>' % cmd)
+            os.system(cmd)
+
+            return icODSReportTemplate.open(self, ods_filename)
+        except:
+            log.fatal(u'Ошибка открытия файла шаблона <%s>' % TemplateFile_)
+        return None

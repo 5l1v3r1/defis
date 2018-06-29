@@ -23,7 +23,7 @@ import wx
 from ic.log import log
 from ic.utils import system
 
-__version__ = (0, 0, 0, 3)
+__version__ = (0, 0, 1, 1)
 
 
 FILE_PKG_DIRNAME = os.path.dirname(__file__) if os.path.dirname(__file__) else os.getcwd()
@@ -31,10 +31,7 @@ FMSX_DIRNAME = os.path.join(os.path.dirname(FILE_PKG_DIRNAME), 'contrib', 'fMSX'
 IDE_EDITRA_START = os.path.join(os.path.dirname(os.path.dirname(FILE_PKG_DIRNAME)), 'ide', 'Editra-0.7.20', 'editra')
 PYREDITOR_START = os.path.join(os.path.dirname(FILE_PKG_DIRNAME), 'contrib', 'pyreditor', 'pyreditor.pyw')
 
-EXTERNAL_PROGRAMMS_CFG = {'kv2': {'description': u'King\'s Valley II MSX game',
-                                  'linux_cmd': 'cd %s; ./fmsx "./games/kingsvalley2_msx_abandonware.rom"&' % FMSX_DIRNAME,
-                                  'windows_cmd': None},
-                          'calculator': {'description': u'Калькулятор',
+EXTERNAL_PROGRAMMS_CFG = {'calculator': {'description': u'Калькулятор',
                                          'linux_cmd': 'gnome-calculator&',
                                          'windows_cmd': None},
                           'editra': {'description': u'IDE Editra',
@@ -43,6 +40,9 @@ EXTERNAL_PROGRAMMS_CFG = {'kv2': {'description': u'King\'s Valley II MSX game',
                           'pyreditor': {'description': u'PyReditor. Редактор регулярных выражений',
                                         'linux_cmd': '%s %s&' % (sys.executable, PYREDITOR_START),
                                         'windows_cmd': None},
+                          # 'kv2': {'description': u'King\'s Valley II MSX game',
+                          #        'linux_cmd': 'cd %s; ./fmsx "./games/kingsvalley2_msx_abandonware.rom"&' % FMSX_DIRNAME,
+                          #        'windows_cmd': None},
                           }
 
 

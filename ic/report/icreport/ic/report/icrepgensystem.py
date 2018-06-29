@@ -32,14 +32,15 @@ from ic.std.utils import textfunc
 from ic.report import icrepgen
 from ic.report import icreptemplate
 
-__version__ = (0, 0, 2, 3)
+__version__ = (0, 0, 4, 1)
 
 # Константы подсистемы
-DEFAULT_REP_TMPL_FILE = os.path.dirname(__file__)+'/new_report_template.ods'
+DEFAULT_REP_TMPL_FILE = os.path.join(os.path.dirname(__file__), 'new_report_template.ods')
 
 OFFICE_OPEN_CMD_FORMAT = 'libreoffice %s'
 
 ODS_TEMPLATE_EXT = '.ods'
+XLS_TEMPLATE_EXT = '.xls'
 XML_TEMPLATE_EXT = '.xml'
 DEFAULT_TEMPLATE_EXT = ODS_TEMPLATE_EXT
 DEFAULT_REPORT_TEMPLATE_EXT = '.rprt'
@@ -80,6 +81,28 @@ class icReportGeneratorSystem:
         Папка профиля программы.
         """
         return filefunc.getProfilePath()
+
+    def getGeneratorType(self):
+        """
+        Тип системы генерации отчетов.
+        """
+        my_generator_type = self._Rep.get('generator', None) if self._Rep else None
+        if my_generator_type is None:
+            log.warning(u'Не удалось определить тип системы генерации отчетов в <%s>' % self.__class__.__name__)
+        elif type(my_generator_type) in (str, unicode):
+            my_generator_type = my_generator_type.lower()
+        return my_generator_type
+
+    def sameGeneratorType(self, generator_type):
+        """
+        Проверка на тот же тип системы генерации отчетов что и указанный.
+        @param generator_type: Тип системы генерации отчетов.
+            Тип задается расширением файла источника шаблона.
+            Обычно '.ods', '.xml', 'xls' и т.п.
+        @return: True/False
+        """
+        my_generator_type = self.getGeneratorType()
+        return my_generator_type == generator_type.lower()
 
     def getReportDescription(self):
         """
@@ -195,7 +218,7 @@ class icReportGeneratorSystem:
                 shutil.copyfile(src_filename, dst_filename)
 
             cmd = OFFICE_OPEN_CMD_FORMAT % dst_filename
-            log.debug('Command <%s>' % cmd)
+            log.debug(u'Command <%s>' % textfunc.toUnicode(cmd))
             os.system(cmd)
 
             return True
@@ -215,6 +238,7 @@ class icReportGeneratorSystem:
         Обновить шаблон отчета в системе генератора отчетов.
         @param RepTemplateFileName_: Имя файла шаблона отчета.
             Если None, то должен производиться запрос на выбор этого файла.
+        @return: Имя файла файла шаблона или None в случае ошибки.
         """
         if RepTemplateFileName_ is None:
             filename = dlg.getFileDlg(self._ParentForm, u'Выберите шаблон отчета:',
@@ -227,6 +251,7 @@ class icReportGeneratorSystem:
 
             # Конвертация
             log.debug(u'Начало конвертации <%s>' % filename)
+            tmpl_filename = None
             template = None
             if os.path.exists(os.path.splitext(filename)[0] + DEFAULT_TEMPLATE_EXT):
                 tmpl_filename = os.path.splitext(filename)[0] + DEFAULT_TEMPLATE_EXT
@@ -234,6 +259,9 @@ class icReportGeneratorSystem:
             elif os.path.exists(os.path.splitext(filename)[0] + ODS_TEMPLATE_EXT):
                 tmpl_filename = os.path.splitext(filename)[0] + ODS_TEMPLATE_EXT
                 template = icreptemplate.icODSReportTemplate()
+            elif os.path.exists(os.path.splitext(filename)[0] + XLS_TEMPLATE_EXT):
+                tmpl_filename = os.path.splitext(filename)[0] + XLS_TEMPLATE_EXT
+                template = icreptemplate.icXLSReportTemplate()
             elif os.path.exists(os.path.splitext(filename)[0] + XML_TEMPLATE_EXT):
                 tmpl_filename = os.path.splitext(filename)[0] + XML_TEMPLATE_EXT
                 template = icreptemplate.icExcelXMLReportTemplate()
@@ -244,8 +272,12 @@ class icReportGeneratorSystem:
                 new_filename = os.path.splitext(filename)[0]+DEFAULT_REPORT_TEMPLATE_EXT
                 res.saveResourcePickle(new_filename, rep_template)
             log.info(u'Конец конвертации')
+            return new_filename
+        else:
+            log.warning(u'Не найден файл источника шаблона <%s>' % filename)
+        return None
    
-    def OpenModule(self,RepTemplateFileName_=None):
+    def OpenModule(self, RepTemplateFileName_=None):
         """
         Открыть модуль отчета в редакторе.
         """
@@ -414,6 +446,16 @@ class icReportGeneratorSystem:
             return False
         return True
 
+    def createEmptyQueryTbl(self):
+        """
+        Создать пустую таблицу запроса.
+        В случае постой таблицы запроса генерация не должна прекращаться.
+        @return: Функция возвращает словарь -
+            ТАБЛИЦА ЗАПРОСА ПРЕДСТАВЛЯЕТСЯ В ВИДЕ СЛОВАРЯ
+            {'__fields__': (), '__data__': []}
+        """
+        return {'__fields__': (), '__data__': []}
+
     def getQueryTbl(self, report, db_url=None, sql=None, *args, **kwargs):
         """
         Получить таблицу запроса.
@@ -484,12 +526,12 @@ class icReportGeneratorSystem:
                         # Обработка обычного SQL запроса
                         query_tbl = self._getSQLQueryTable(report, sql=self._QueryTab[4:].strip())
                     else:
-                        log.warning(u'Not support query type <%s>' % self._QueryTab)
+                        log.warning(u'Не поддерживаемый тип запроса <%s>' % self._QueryTab)
                 # Таблица уже просто определена как DataSet
                 elif isinstance(self._QueryTab, dict):
                     query_tbl = self._QueryTab
                 else:
-                    log.warning(u'Not support query type <%s>' % type(self._QueryTab))
+                    log.warning(u'Не поддерживаемый тип запроса <%s>' % type(self._QueryTab))
             return query_tbl
         except:
             # Вывести сообщение об ошибке в лог

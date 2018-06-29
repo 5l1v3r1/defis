@@ -13,6 +13,7 @@ import os.path
 from .dlg import icreportactiondlg
 from ic.std.log import log
 from ic.std.dlg import dlg
+from ic.std.utils import textfunc
 
 from ic.virtual_excel import icexcel
 
@@ -20,7 +21,9 @@ from ic.report import icrepgensystem
 from ic.report import icrepgen
 from ic.report import icrepfile
 
-__version__ = (0, 0, 1, 5)
+from ic import config
+
+__version__ = (0, 0, 1, 7)
 
 
 class icODSReportGeneratorSystem(icrepgensystem.icReportGeneratorSystem):
@@ -214,9 +217,13 @@ class icODSReportGeneratorSystem(icrepgensystem.icReportGeneratorSystem):
             # 1. Получить таблицу запроса
             query_tbl = self.getQueryTbl(self._Rep, *args, **kwargs)
             if self._isEmptyQueryTbl(query_tbl):
-                if not dlg.getAskBox(u'Внимание',
-                                     u'Нет данных, соответствующих запросу: %s. Продолжить генерацию отчета?' % self._Rep['query']):
-                    return None
+                if not config.get_glob_var('NO_GUI_MODE'):
+                    if not dlg.getAskBox(u'Внимание',
+                                         u'Нет данных, соответствующих запросу: %s. Продолжить генерацию отчета?' % self._Rep['query']):
+                        return None
+                else:
+                    log.warning(u'')
+                query_tbl = self.createEmptyQueryTbl()
 
             # 2. Запустить генерацию
             rep = icrepgen.icReportGenerator()
@@ -257,7 +264,8 @@ class icODSReportGeneratorSystem(icrepgensystem.icReportGeneratorSystem):
             _kwargs.update(dict(db_url=db_url, sql=sql, stylelib=stylelib, variables=vars))
             query_tbl = self.getQueryTbl(self._Rep, **_kwargs)
             if self._isEmptyQueryTbl(query_tbl):
-                dlg.getMsgBox(u'Внимание', u'Нет данных, соответствующих запросу: %s' % self._Rep['query'],
+                dlg.getMsgBox(u'Внимание',
+                              u'Нет данных, соответствующих запросу: %s' % self._Rep['query'],
                               self._ParentForm)
                 return None
 
@@ -269,7 +277,7 @@ class icODSReportGeneratorSystem(icrepgensystem.icReportGeneratorSystem):
             return data_rep
         except:
             # Вывести сообщение об ошибке в лог
-            log.fatal(u'Ошибка генерации отчета <%s>.' % self._Rep['name'])
+            log.fatal(u'Ошибка генерации отчета <%s>.' % textfunc.toUnicode(self._Rep['name']))
         return None
 
     def save(self, report_data=None, is_virtual_excel=True):
@@ -295,16 +303,18 @@ class icODSReportGeneratorSystem(icrepgensystem.icReportGeneratorSystem):
             rep_file.write(xml_rep_file_name, report_data)
 
             if is_virtual_excel:
-                log.info(u'Конвертация отчета <%s> в файл <%s>' % (xml_rep_file_name, rep_file_name))
+                log.info(u'Конвертация отчета <%s> в файл <%s>' % (textfunc.toUnicode(xml_rep_file_name),
+                                                                   textfunc.toUnicode(rep_file_name)))
                 v_excel = icexcel.icVExcel()
                 v_excel.Load(xml_rep_file_name)
                 v_excel.SaveAs(rep_file_name)
             else:
                 # ВНИМАНИЕ! UNOCONV транслирует не все стили и атрибуты ячеек
                 # Поэтому сначала используется Virtual Excel
-                cmd = 'unoconv -f ods %s' % xml_rep_file_name
-                log.info(u'UNOCONV. Конвертация отчета <%s> в файл <%s>. (%s)' % (xml_rep_file_name,
-                                                                                  rep_file_name, cmd))
+                cmd = 'unoconv --format=ods %s' % xml_rep_file_name
+                log.info(u'UNOCONV. Конвертация отчета <%s> в файл <%s>. (%s)' % (textfunc.toUnicode(xml_rep_file_name),
+                                                                                  textfunc.toUnicode(rep_file_name),
+                                                                                  textfunc.toUnicode(cmd)))
                 os.system(cmd)
 
             return rep_file_name

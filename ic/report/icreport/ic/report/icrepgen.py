@@ -38,7 +38,7 @@ import copy
 from ic.std.log import log
 from ic.std.utils import textfunc
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 5)
 
 # Константы
 # Ключевые теги для обозначения:
@@ -323,7 +323,7 @@ class icReportGenerator:
                 grp['old_rec'] = None
 
             time_start = time.time()
-            log.info('REPORT <%s> GENERATE START' % self._RepName)
+            log.info(u'Отчет <%s>. Запуск генерации' % textfunc.toUnicode(self._RepName))
 
             # III. Вывод данных в отчет
             # Создать отчет
@@ -428,7 +428,8 @@ class icReportGenerator:
             self._Rep['page_setup'] = self._Template['page_setup']
 
             # Прогресс бар
-            log.info('REPORT <%s> GENERATE STOP. Time <%d> sec.' % (self._RepName, time.time()-time_start))
+            log.info(u'Отчет <%s>. Окончание генерации. Время: %d сек.' % (textfunc.toUnicode(self._RepName),
+                                                                           time.time()-time_start))
 
             return self._Rep
         except:
@@ -470,7 +471,7 @@ class icReportGenerator:
             return True
         except:
             # Вывести сообщение об ошибке в лог
-            log.fatal(u'Ошибка генерации заголовка отчета <%s>.' % self._RepName)
+            log.fatal(u'Ошибка генерации заголовка отчета <%s>.' % textfunc.toUnicode(self._RepName))
             return False
             
     def _genFooter(self, Footer_):
@@ -817,8 +818,11 @@ class icReportGenerator:
                 # Переменная
                 elif re.search(REP_VAR_PATT, cur_func):
                     var_name = cur_func[2:-2]
-                    log.debug(u'Обработка переменной <%s> -- %s' % (var_name, var_name in self._NameSpace))
-                    value = str(self._NameSpace.setdefault(var_name, None))
+                    if var_name in self._NameSpace:
+                        log.debug(u'Обработка переменной <%s>' % var_name)
+                    else:
+                        log.warning(u'Переменная <%s> не найдена в пространстве имен' % var_name)
+                    value = str(self._NameSpace.setdefault(var_name, u''))
                     
                 # Блок кода
                 elif re.search(REP_EXEC_PATT, cur_func):

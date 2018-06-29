@@ -6,11 +6,16 @@
 """
 
 # Подключение библиотек
+import sys
 import os
 import os.path
 import platform
+import pwd
+import fnmatch
 
 from ic.std.log import log
+
+__version__ = (0, 0, 3, 1)
 
 # Имя папки прфиля программы
 DEFAULT_PROFILE_DIRNAME = '.icreport'
@@ -111,3 +116,71 @@ def getProfilePath(bAutoCreatePath=True):
                 log.fatal(u'Ошибка создания пути профиля <%s>' % profile_path)
         return profile_path
     return '~/' + DEFAULT_PROFILE_DIRNAME
+
+
+def get_home_path(UserName_=None):
+    """
+    Определить домашнюю папку пользователя.
+    """
+    if sys.platform[:3].lower() == 'win':
+        home = os.path.join(os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
+    else:
+        if UserName_ is None:
+            home = os.environ['HOME']
+        else:
+            user_struct = pwd.getpwnam(UserName_)
+            home = user_struct.pw_dir
+    return home
+
+
+HOME_PATH_SIGN = '~'
+
+
+def normal_path(path, sUserName=None):
+    """
+    Нормировать путь.
+    @param path: Путь.
+    @param sUserName: Имя пользователя.
+    """
+    home_dir = get_home_path(sUserName)
+    return os.path.abspath(os.path.normpath(path.replace(HOME_PATH_SIGN, home_dir)))
+
+
+def file_modify_dt(filename):
+    """
+    Дата-время изменения файла.
+    @param filename: Полное имя файла.
+    @return: Дата-время изменения файла или None в случае ошибки.
+    """
+    if not os.path.exists(filename):
+        log.warning(u'Файл <%s> не найден' % filename)
+        return None
+
+    try:
+        if platform.system() == 'Windows':
+            return os.path.getmtime(filename)
+        else:
+            stat = os.stat(filename)
+            return stat.st_mtime
+    except:
+        log.fatal(u'Ошибка определения даты-времени изменения файла <%s>' % filename)
+    return None
+
+
+def remove_file(filename):
+    """
+    Удалить файл.
+    @param filename: Имя файла.
+    @return: True/False.
+    """
+    if not os.path.exists(filename):
+        log.warning(u'Удаление. Файл <%s> не найден' % filename)
+        return False
+
+    try:
+        os.remove(filename)
+        log.info(u'Файл <%s> удален' % filename)
+        return True
+    except:
+        log.fatal(u'Ошибка удаления файла <%s>' % filename)
+    return False

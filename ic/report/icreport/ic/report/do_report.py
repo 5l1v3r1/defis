@@ -12,13 +12,15 @@ import wx
 # Подключение библиотек
 from ic.std.log import log
 from ic.std.utils import res
+from ic.std.utils import textfunc
+from ic.std.utils import filefunc
 
 from ic.report import icreportbrowser
 from ic.report import report_generator
 from ic.report import icstylelib
 
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 3, 1)
 
 DEFAULT_REPORT_FILE_EXT = '.rprt'
 
@@ -33,21 +35,108 @@ def getReportResourceFilename(report_filename='', report_dir=''):
     @return: Полное имя файла отчета.
     """
     # Проверить расширение
-    if not report_filename.endswith(DEFAULT_REPORT_FILE_EXT):
-        report_filename = os.path.splitext(report_filename)[0]+DEFAULT_REPORT_FILE_EXT
+    rprt_filename = report_filename
+    if not rprt_filename.endswith(DEFAULT_REPORT_FILE_EXT):
+        rprt_filename = os.path.splitext(rprt_filename)[0]+DEFAULT_REPORT_FILE_EXT
 
-    if os.path.exists(report_filename):
+    # Проверить актуальность шаблона
+    full_src_filename = getPathFilename(report_filename, report_dir)
+    full_rprt_filename = getPathFilename(rprt_filename, report_dir)
+    if isNewReportTemplateFile(full_src_filename, full_rprt_filename):
+        # Если исходный шаблон изменен позже чем рабочий файл шаблона <rprt>
+        # то необходимо сделать изменения
+        updateReportTemplateFile(full_src_filename, full_rprt_filename)
+
+    if os.path.exists(rprt_filename):
         # Проверить может быть задано абсолютное имя файла
-        filename = report_filename
+        filename = rprt_filename
     else:
         # Задано скорее всего относительное имя файла
         # относительно папки отчетов
-        filename = os.path.join(report_dir, report_filename)
+        filename = full_rprt_filename
         if not os.path.exists(filename):
             # Нет такого файла
-            log.warning(u'Файл шаблона отчета <%s> не найден' % filename)
-            filename = None
+            log.warning(u'Файл шаблона отчета <%s> не найден' % textfunc.toUnicode(filename))
+            filename = createReportResourceFile(filename)
+    log.debug(u'Полное имя файла шаблона <%s>' % textfunc.toUnicode(filename))
     return filename
+
+
+def getPathFilename(filename='', report_dir=''):
+    """
+    Получить полное имя файла отчета.
+    @param report_filename: Имя файла отчета в кратком виде.
+    @param report_dir: Папка отчетов.
+    @return: Полное имя файла отчета.
+    """
+    return filefunc.normal_path(os.path.join(report_dir, filename))
+
+
+def isNewReportTemplateFile(src_filename, rprt_filename):
+    """
+    Проверить актуальность шаблона.
+    Если исходный шаблон изменен позже чем рабочий файл шаблона *.rprt
+    то необходимо сделать изменения.
+    @return: True-внесены измененияв исходный шаблон/False-изменений нет.
+    """
+    src_modify_dt = filefunc.file_modify_dt(src_filename)
+    rprt_modify_dt = filefunc.file_modify_dt(rprt_filename)
+    if src_modify_dt and rprt_modify_dt:
+        return src_modify_dt > rprt_modify_dt
+    return False
+
+
+def updateReportTemplateFile(src_filename, rprt_filename):
+    """
+    Произвести обновления шаблона отчета.
+    @param src_filename: Имя файла шаблона источника.
+    @param rprt_filename: Имя результирующего файла шаблона *.rprt.
+    @return: Скорректированное имя созданного файла шаблона или None в случае ошибки.
+    """
+    # Удаляем результирующий файл
+    filefunc.remove_file(rprt_filename)
+    # Удаляем все промежуточные файлы
+    for ext in report_generator.SRC_REPORT_EXT:
+        src_ext = os.path.splitext(src_filename)[1].lower()
+        if src_ext != ext:
+            filename = os.path.splitext(src_filename)[0] + ext
+            if os.path.exists(filename):
+                filefunc.remove_file(filename)
+    # Пересоздаем шаблон
+    return createReportResourceFile(rprt_filename)
+
+
+def createReportResourceFile(template_filename):
+    """
+    Создать ресурсный файл шаблона по имени запрашиваемого.
+    @param template_filename: Имя запрашиваемого файла шаблона.
+    @return: Скорректированное имя созданного файла шаблона или None в случае ошибки.
+    """
+    # Коррекция имени файла с учетом русских букв в имени файла
+    dir_name = os.path.dirname(template_filename)
+    base_filename = os.path.basename(template_filename).replace(' ', '_')
+    base_filename = textfunc.rus2lat(base_filename) if textfunc.isRUSText(base_filename) else base_filename
+    norm_tmpl_filename = os.path.join(dir_name, base_filename)
+
+    log.info(u'Создание нового файла шаблона <%s>' % norm_tmpl_filename)
+    # Последовательно проверяем какой файл можно взять за основу для шаблона
+    for ext in report_generator.SRC_REPORT_EXT:
+        src_filename = os.path.splitext(template_filename)[0] + ext
+        unicode_src_filename = textfunc.toUnicode(src_filename)
+        if os.path.exists(src_filename):
+            # Да такой файл есть и он может выступать
+            # в качестве источника для шаблона
+            log.info(u'Найден источник шаблона отчета <%s>' % unicode_src_filename)
+            try:
+                rep_generator = report_generator.createReportGeneratorSystem(ext)
+                return rep_generator.Update(src_filename)
+            except:
+                log.fatal(u'Ошибка конвертации шаблона отчета <%s> -> <%s>' % (unicode_src_filename, norm_tmpl_filename))
+            return None
+
+    log.warning(u'Не найдены источники шаблонов отчета в папке <%s> для <%s>' % (dir_name,
+                                                                                 textfunc.toUnicode(os.path.basename(template_filename))))
+    return None
 
 
 def loadStyleLib(stylelib_filename=None):

@@ -24,12 +24,14 @@ try:
 except ImportError:
     log.error(u'ODFpy Import Error.')
 
-__version__ = (0, 0, 2, 4)
+__version__ = (0, 0, 3, 3)
 
 DIMENSION_CORRECT = 35
 DEFAULT_STYLE_ID = 'Default'
 
 CM2PT_CORRECT = 25
+
+INCH2CM = 2.54
 
 SPREADSHEETML_CR = '&#10;'
 
@@ -45,6 +47,12 @@ A4_PAPER_FORMAT = 'A4'
 A3_PAPER_FORMAT = 'A3'
 
 DEFAULT_ENCODE = 'utf-8'
+
+# Поля страницы по умолчанию
+DEFAULT_XML_MARGIN_TOP = 0.787401575
+DEFAULT_XML_MARGIN_BOTTOM = 0.787401575
+DEFAULT_XML_MARGIN_LEFT = 0.787401575
+DEFAULT_XML_MARGIN_RIGHT = 0.787401575
 
 
 class icODS(object):
@@ -457,18 +465,18 @@ class icODS(object):
                 ods_properties['printorientation'] = orientation.lower()
                 
             page_margins = self.getChildrenByName(page_setup[0], 'PageMargins')
-            margin_top = page_margins[0].get('Top', None) if page_margins else None
-            margin_bottom = page_margins[0].get('Bottom', None) if page_margins else None
-            margin_left = page_margins[0].get('Left', None) if page_margins else None
-            margin_right = page_margins[0].get('Right', None) if page_margins else None
+            margin_top = page_margins[0].get('Top', DEFAULT_XML_MARGIN_TOP) if page_margins else DEFAULT_XML_MARGIN_TOP
+            margin_bottom = page_margins[0].get('Bottom', DEFAULT_XML_MARGIN_BOTTOM) if page_margins else DEFAULT_XML_MARGIN_BOTTOM
+            margin_left = page_margins[0].get('Left', DEFAULT_XML_MARGIN_LEFT) if page_margins else DEFAULT_XML_MARGIN_LEFT
+            margin_right = page_margins[0].get('Right', DEFAULT_XML_MARGIN_RIGHT) if page_margins else DEFAULT_XML_MARGIN_RIGHT
             if margin_top:
-                ods_properties['margintop'] = str(float(margin_top)*DIMENSION_CORRECT) 
+                ods_properties['margintop'] = self._dimension_inch2cm(margin_top, True)
             if margin_bottom:
-                ods_properties['marginbottom'] = str(float(margin_bottom)*DIMENSION_CORRECT) 
+                ods_properties['marginbottom'] = self._dimension_inch2cm(margin_bottom, True)
             if margin_left:
-                ods_properties['marginleft'] = str(float(margin_left)*DIMENSION_CORRECT) 
+                ods_properties['marginleft'] = self._dimension_inch2cm(margin_left, True)
             if margin_right:
-                ods_properties['marginright'] = str(float(margin_right)*DIMENSION_CORRECT)                 
+                ods_properties['marginright'] = self._dimension_inch2cm(margin_right, True)
         else:
             log.warning('WorksheetOptions PageSetup not define')
         if print_setup:
@@ -595,7 +603,7 @@ class icODS(object):
         width = dData.get('Width', None)
 
         if width:
-            width = str(float(width)*DIMENSION_CORRECT)
+            width = self._dimension_xml2ods(width)
             # Создать автоматические стили дбя ширин колонок
             ods_col_style = odf.style.Style(name=self._genColumnStyleName(), family='table-column')
             ods_col_properties = odf.style.TableColumnProperties(columnwidth=width, breakbefore='auto')
@@ -633,7 +641,7 @@ class icODS(object):
         height = dData.get('Height', None)
         
         if height:
-            height = str(float(height)*DIMENSION_CORRECT)
+            height = self._dimension_xml2ods(height)
             # Создать автоматические стили дбя высот строк
             style_name = self._genRowStyleName()
             ods_row_style = odf.style.Style(name=style_name, family='table-row')
@@ -1416,6 +1424,7 @@ class icODS(object):
         Прочитать из ODS файла данные о параметрах страницы.
         @param ODSPageLayouts: Список найденных параметров страницы.
         """
+        log.debug(u'Чтение данных параметров страницы из ODS')
         if not ODSPageLayouts:
             log.warning(u'Not define page layout')
             return None
@@ -1423,8 +1432,13 @@ class icODS(object):
         log.debug(u'Set default worksheet options')
         options = {'name': 'WorksheetOptions',
                    'children': [{'name': 'PageSetup',
-                                 'children': [{'name': 'Layout'},
-                                              {'name': 'PageMargins'},
+                                 'children': [{'name': 'Layout',
+                                               'Orientation': PORTRAIT_ORIENTATION},
+                                              {'name': 'PageMargins',
+                                               'Top': str(DEFAULT_XML_MARGIN_TOP),
+                                               'Bottom': str(DEFAULT_XML_MARGIN_BOTTOM),
+                                               'Left': str(DEFAULT_XML_MARGIN_LEFT),
+                                               'Right': str(DEFAULT_XML_MARGIN_RIGHT)},
                                               ]
                                  },
                                 {'name': 'Print',
@@ -1435,36 +1449,50 @@ class icODS(object):
                                 ]
                    }
         
+        # for pagelayout in ODSPageLayouts:
+        #    log.debug(u'Чтение значения параметров страницы <%s> : %s' % (str(pagelayout.getAttribute('name')),
+        #                                                                  str(pagelayout.getAttribute('pageusage'))))
         for pagelayout in ODSPageLayouts:
+            # log.debug(u'Чтение значения параметров страницы <%s>' % str(pagelayout.getAttribute('name')))
             properties = pagelayout.getElementsByType(odf.style.PageLayoutProperties)
+            log.debug(u'Properties: %s' % str(properties))
             if properties:
                 properties = properties[0]
                 orientation = properties.getAttribute('printorientation')
                 margin = properties.getAttribute('margin')
+                log.debug(u'Margin: %s' % margin)
                 margin_top = properties.getAttribute('margintop')
+                log.debug(u'Margin Top: %s' % margin_top)
                 margin_bottom = properties.getAttribute('marginbottom')
+                log.debug(u'Margin Bottom: %s' % margin_bottom)
                 margin_left = properties.getAttribute('marginleft')
+                log.debug(u'Margin Left: %s' % margin_left)
                 margin_right = properties.getAttribute('marginright')
+                log.debug(u'Margin Right: %s' % margin_right)
                 page_width = properties.getAttribute('pagewidth')
+                log.debug(u'Page Width: %s' % page_width)
                 page_height = properties.getAttribute('pageheight')
+                log.debug(u'Page Height: %s' % page_height)
                 fit_to_page = properties.getAttribute('scaletopages')
+                log.debug(u'Fit To Pages: %s' % fit_to_page)
                 scale_to = properties.getAttribute('scaleto')
+                log.debug(u'Scale To: %s' % scale_to)
 
                 if orientation:
                     options['children'][0]['children'][0]['Orientation'] = orientation.title()
                 if margin:
-                    options['children'][0]['children'][1]['Top'] = self._dimension_ods2xml(margin)
-                    options['children'][0]['children'][1]['Bottom'] = self._dimension_ods2xml(margin)
-                    options['children'][0]['children'][1]['Left'] = self._dimension_ods2xml(margin)
-                    options['children'][0]['children'][1]['Right'] = self._dimension_ods2xml(margin)
+                    options['children'][0]['children'][1]['Top'] = self._dimension_cm2inch(margin)
+                    options['children'][0]['children'][1]['Bottom'] = self._dimension_cm2inch(margin)
+                    options['children'][0]['children'][1]['Left'] = self._dimension_cm2inch(margin)
+                    options['children'][0]['children'][1]['Right'] = self._dimension_cm2inch(margin)
                 if margin_top:
-                    options['children'][0]['children'][1]['Top'] = self._dimension_ods2xml(margin_top)
+                    options['children'][0]['children'][1]['Top'] = self._dimension_cm2inch(margin_top)
                 if margin_bottom:
-                    options['children'][0]['children'][1]['Bottom'] = self._dimension_ods2xml(margin_bottom)
+                    options['children'][0]['children'][1]['Bottom'] = self._dimension_cm2inch(margin_bottom)
                 if margin_left:
-                    options['children'][0]['children'][1]['Left'] = self._dimension_ods2xml(margin_left)
+                    options['children'][0]['children'][1]['Left'] = self._dimension_cm2inch(margin_left)
                 if margin_right:
-                    options['children'][0]['children'][1]['Right'] = self._dimension_ods2xml(margin_right)
+                    options['children'][0]['children'][1]['Right'] = self._dimension_cm2inch(margin_right)
                 if fit_to_page or (scale_to == (1, 1)):
                     options['children'].append({'name': 'FitToPage'})
 
@@ -1581,7 +1609,39 @@ class icODS(object):
             return str(float(sDimension[:-2]) * 2.8)
         else:
             # Размер указан в точках
-            return str(float(sDimension)/DIMENSION_CORRECT)
+            return str(float(sDimension) / DIMENSION_CORRECT)
+
+    def _dimension_xml2ods(self, sDimension):
+        """
+        Перевод размеров из представления XML в ODS.
+        @param sDimension: Строковое представление размера в дюймах.
+        """
+        return str(float(sDimension) * DIMENSION_CORRECT)
+
+    def _dimension_inch2cm(self, sDimension, is_postfix=False):
+        """
+        Перевод размеров из представления в дюймах в сантиментры.
+        @param sDimension: Строковое представление размера в дюймах.
+        @param is_postfix: Добавить cm в качестве постфикса в строке?
+        """
+        return str(float(sDimension) * INCH2CM) + (' cm' if is_postfix else '')
+
+    def _dimension_cm2inch(self, sDimension):
+        """
+        Перевод размеров из представления в сантиментрах/мм в дюймы.
+        @param sDimension: Строковое представление размера в сантиметрах/мм.
+        """
+        if not sDimension:
+            return None
+        elif (len(sDimension) > 2) and (sDimension[-2:] == 'cm'):
+            # Размер указан в сентиметрах?
+            return str(float(sDimension[:-2]) / INCH2CM)
+        elif (len(sDimension) > 2) and (sDimension[-2:] == 'mm'):
+            # Размер указан в миллиметрах?
+            return str(float(sDimension[:-2]) / 10.0 / INCH2CM)
+        else:
+            # Размер указан в точках
+            return str(float(sDimension) / DIMENSION_CORRECT)
 
     def _add_page_break(self, dWorksheet, iRow):
         """
