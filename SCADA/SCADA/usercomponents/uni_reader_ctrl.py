@@ -8,7 +8,7 @@
 с помощью XML-RPC данных из службы UniReader.
 """
 
-# from ic.log import log
+from ic.log import log
 
 from ic.components import icwidget
 
@@ -87,7 +87,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 class icUniReaderController(icwidget.icSimple,
@@ -104,6 +104,24 @@ class icUniReaderController(icwidget.icSimple,
     """
 
     component_spc = ic_class_spc
+
+    @staticmethod
+    def TestComponentResource(res, context, parent, *arg, **kwarg):
+        """
+        Функция тестирования компонента SQL запроса в режиме редактора ресурса.
+        @param res:
+        @param context:
+        @param parent:
+        @param arg:
+        @param kwarg:
+        @return:
+        """
+        import ic
+        from SCADA.controllers import test_uni_reader_ctrl_dlg
+        log.info(u'Тестирование контроллера <%s>. Имя файла <%s>. Расширение <%s>' % (res['name'], parent._formName,
+                                                                                      parent.file.split('.')[1]))
+        controller = ic.getKernel().createObjBySpc(None, res, context=context)
+        test_uni_reader_ctrl_dlg.view_test_uni_reader_ctrl_dlg(parent=None, controller=controller)
 
     def __init__(self, parent, id=-1, component=None, logType=0, evalSpace=None,
                  bCounter=False, progressDlg=None):
