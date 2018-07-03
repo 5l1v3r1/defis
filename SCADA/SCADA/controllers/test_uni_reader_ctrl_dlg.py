@@ -113,7 +113,10 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
             ic_dlg.icWarningBox(u'ОШИБКА', msg)
             return None
 
-        return self.controller.read_tags(**tags)
+        tag_values = self.controller.read_tags(**tags)
+        if tags and not tag_values:
+            log.warning(u'Ошибка определения значений тегов')
+        return tag_values
 
     def onOkButtonClick(self, event):
         """
