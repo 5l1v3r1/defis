@@ -12,7 +12,7 @@ from ic.engine import form_manager
 from ic.log import log
 from ic.dlg import ic_dlg
 
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderControllerDlgProto,
@@ -54,6 +54,8 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
                 self.set_tags(**tags)
             else:
                 log.warning(u'Не определены теги контроллера')
+        else:
+            log.warning(u'Не определен контроллер для тестирования')
 
     def init_img(self):
         """
@@ -78,14 +80,11 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
 
     def set_tags(self, **tags):
         """
-        Устанвить теги.
+        Установить теги.
         @param tags: Словарь тегов в формате:
             {'имя тега': 'адрес тега', ... }
         @return: True/False.
         """
-        # Сначала очистить список
-        self.clear_ctrl_value(self.tags_listCtrl)
-
         if tags:
             tag_names = tags.keys()
             tag_names.sort()
@@ -96,7 +95,9 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
                          tags[tag_name],
                          tag_values[tag_name]) for tag_name in tag_names]
                 self.setRows_list_ctrl(self.tags_listCtrl,
-                                       rows=rows)
+                                       rows=rows,
+                                       evenBackgroundColour=wx.WHITE,
+                                       oddBackgroundColour=wx.LIGHT_GREY)
 
     def read_tags(self, **tags):
         """
@@ -178,6 +179,7 @@ def view_test_uni_reader_ctrl_dlg(parent=None, controller=None):
         log.info(u'\tПорт: %s' % controller.getPort())
         log.info(u'\tСервер: %s' % controller.getServer())
         log.info(u'\tУзел: %s' % controller.getNode())
+        log.info(u'\tТеги: %s' % str(controller.getTags().keys() if controller.getTags() else controller.getTags()))
 
         dlg = icTestUniReaderCtrlDlg(parent=parent)
         dlg.set_controller(controller)
