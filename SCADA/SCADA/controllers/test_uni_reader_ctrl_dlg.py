@@ -49,7 +49,11 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         self.controller = controller
         if self.controller:
             # Сразу установить теги если контроллер определен
-            self.set_tags(controller.getTags())
+            tags = controller.getTags()
+            if tags:
+                self.set_tags(**tags)
+            else:
+                log.warning(u'Не определены теги контроллера')
 
     def init_img(self):
         """
