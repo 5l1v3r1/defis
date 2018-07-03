@@ -33,11 +33,13 @@ SPC_IC_UNI_READER_CTRL = {'host': u'',
                           'port': uni_reader_controller.DEFAULT_PORT,
                           'server': u'',
                           'node': u'',
+                          'tags': None,
                           '__parent__': icwidget.SPC_IC_SIMPLE,
                           '__attr_hlp__': {'host': u'Хост',
                                            'port': u'Порт',
                                            'server': u'Имя сервера подключения',
                                            'node': u'Имя узла подключания',
+                                           'tags': u'Словарь тегов с адресами',
                                            },
                           }
 
@@ -58,6 +60,7 @@ ic_class_spc = {'type': 'UniReaderController',
                 'port': uni_reader_controller.DEFAULT_PORT,
                 'server': u'',
                 'node': u'',
+                'tags': None,
 
                 '__events__': {},
                 '__lists__': {'server': list(SERVERS),
@@ -66,6 +69,7 @@ ic_class_spc = {'type': 'UniReaderController',
                 '__attr_types__': {icDefInf.EDT_TEXTFIELD: ['description', '_uuid'],
                                    icDefInf.EDT_NUMBER: ['port'],
                                    icDefInf.EDT_CHOICE: ['server', 'node'],
+                                   icDefInf.EDT_DICT: ['tags'],
                                    },
                 '__parent__': SPC_IC_UNI_READER_CTRL,
                 }
@@ -87,7 +91,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 
 class icUniReaderController(icwidget.icSimple,
@@ -154,7 +158,7 @@ class icUniReaderController(icwidget.icSimple,
         node = self.getNode()
         uni_reader_controller.icUniReaderControllerProto.__init__(self, host=host,
                                                                   port=port,
-                                                                  server=server,node=node)
+                                                                  server=server, node=node)
 
     def getHost(self):
         """
@@ -179,3 +183,10 @@ class icUniReaderController(icwidget.icSimple,
         Узел.
         """
         return self.getICAttr('node')
+
+    def getTags(self):
+        """
+        Словарь тегов в формате:
+            {'имя тега': 'адрес тега', ... }
+        """
+        return self.getICAttr('tags')
