@@ -47,6 +47,9 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         @param controller: Объект контроллера.
         """
         self.controller = controller
+        if self.controller:
+            # Сразу установить теги если контроллер определен
+            self.set_tags(controller.getTags())
 
     def init_img(self):
         """
