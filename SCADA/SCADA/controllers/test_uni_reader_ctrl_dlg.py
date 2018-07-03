@@ -12,7 +12,7 @@ from ic.engine import form_manager
 from ic.log import log
 from ic.dlg import ic_dlg
 
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 
 class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderControllerDlgProto,
@@ -39,6 +39,7 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         if isinstance(tags, dict):
             self.tags = tags
         else:
+            log.warning(u'Ошибка типа тегов контроллера')
             self.tags = dict()
 
     def set_controller(self, controller=None):
@@ -51,7 +52,7 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
             # Сразу установить теги если контроллер определен
             tags = controller.getTags()
             if tags:
-                self.set_tags(**tags)
+                self.set_tags(tags)
             else:
                 log.warning(u'Не определены теги контроллера')
         else:
@@ -70,6 +71,8 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         self.setColumns_list_ctrl(self.tags_listCtrl, (dict(label=u'Тег', width=150),
                                                        dict(label=u'Адрес', width=400),
                                                        dict(label=u'Значение', width=400)))
+        if isinstance(self.tags, dict):
+            self.update_tags(**self.tags)
 
     def init(self):
         """
@@ -78,7 +81,7 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         self.init_img()
         self.init_ctrl()
 
-    def set_tags(self, **tags):
+    def update_tags(self, **tags):
         """
         Установить теги.
         @param tags: Словарь тегов в формате:
@@ -130,7 +133,10 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
         """
         Обработчик инструмента <Обновить>.
         """
-        self.set_tags(**self.tags)
+        if isinstance(self.tags, dict):
+            self.update_tags(**self.tags)
+        else:
+            log.warning(u'Не определены теги контроллера')
         event.Skip()
 
     def onAddToolClicked(self, event):
@@ -142,7 +148,7 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
 
         if tag_name not in self.tags:
             self.tags[tag_name] = tag_address
-            self.set_tags(**self.tags)
+            self.update_tags(**self.tags)
         else:
             msg = u'Тег <%s> уже есть в списке' % tag_name
             log.warning(msg)
@@ -159,7 +165,7 @@ class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderContr
             tag_name = self.tags_listCtrl.GetItemText(selected_idx)
             log.debug(u'Удален тег <%s>' % tag_name)
             del self.tags[tag_name]
-            self.set_tags(**self.tags)
+            self.update_tags(**self.tags)
         event.Skip()
 
 
