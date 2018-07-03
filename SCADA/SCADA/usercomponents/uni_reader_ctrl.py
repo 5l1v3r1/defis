@@ -175,12 +175,14 @@ class icUniReaderController(icwidget.icSimple,
         """
         Сервер.
         """
+        # log.info(u'\tResource server attr: %s' % self.resource['server'])
         return self.getICAttr('server')
 
     def getNode(self):
         """
         Узел.
         """
+        # log.info(u'\tResource node attr: %s' % self.resource['node'])
         return self.getICAttr('node')
 
     def getTags(self):
