@@ -31,8 +31,8 @@ NODES = (OPC_SERVER_NODE, )
 # --- Спецификация ---
 SPC_IC_UNI_READER_CTRL = {'host': u'',
                           'port': uni_reader_controller.DEFAULT_PORT,
-                          'server': u'',
-                          'node': u'',
+                          'server': RSLINX_SERVER,
+                          'node': OPC_SERVER_NODE,
                           'tags': None,
                           '__parent__': icwidget.SPC_IC_SIMPLE,
                           '__attr_hlp__': {'host': u'Хост',
@@ -58,8 +58,8 @@ ic_class_spc = {'type': 'UniReaderController',
 
                 'host': u'',
                 'port': uni_reader_controller.DEFAULT_PORT,
-                'server': u'',
-                'node': u'',
+                'server': RSLINX_SERVER,
+                'node': OPC_SERVER_NODE,
                 'tags': None,
 
                 '__events__': {},
@@ -91,7 +91,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 
 class icUniReaderController(icwidget.icSimple,
@@ -106,7 +106,6 @@ class icUniReaderController(icwidget.icSimple,
         - B{name='default'}:
 
     """
-
     component_spc = ic_class_spc
 
     @staticmethod
