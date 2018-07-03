@@ -17,7 +17,7 @@ import wx.xrc
 class icTestUniReaderControllerDlgProto ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Тестирование контроллера", pos = wx.DefaultPosition, size = wx.Size( 675,463 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Тестирование контроллера", pos = wx.DefaultPosition, size = wx.Size( 1139,463 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		

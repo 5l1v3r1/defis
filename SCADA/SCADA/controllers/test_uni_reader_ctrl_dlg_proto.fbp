@@ -44,7 +44,7 @@
             <property name="minimum_size"></property>
             <property name="name">icTestUniReaderControllerDlgProto</property>
             <property name="pos"></property>
-            <property name="size">675,463</property>
+            <property name="size">1139,463</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title">Тестирование контроллера</property>
