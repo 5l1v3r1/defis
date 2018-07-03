@@ -26,7 +26,7 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 8, 5)
+__version__ = (0, 1, 8, 6)
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -1695,6 +1695,9 @@ class icFormManager(formdatamanager.icFormDataManager):
             result = True
         elif issubclass(ctrl.__class__, wx.dataview.DataViewListCtrl):
             self._set_wxDataViewListCtrl_data(ctrl, ())
+            result = True
+        elif issubclass(ctrl.__class__, wx.ListCtrl):
+            ctrl.DeleteAllItems()
             result = True
         else:
             log.warning(u'icFormManager. Тип контрола <%s> не поддерживается для очистки значения' % ctrl.__class__.__name__)
