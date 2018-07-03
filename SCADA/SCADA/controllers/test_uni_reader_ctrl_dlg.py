@@ -12,7 +12,7 @@ from ic.engine import form_manager
 from ic.log import log
 from ic.dlg import ic_dlg
 
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 class icTestUniReaderCtrlDlg(test_uni_reader_ctrl_dlg_proto.icTestUniReaderControllerDlgProto,
@@ -172,7 +172,16 @@ def view_test_uni_reader_ctrl_dlg(parent=None, controller=None):
         app = wx.GetApp()
         parent = app.GetTopWindow()
 
-    dlg = icTestUniReaderCtrlDlg(parent=parent)
-    dlg.set_controller(controller)
-    dlg.init()
-    dlg.ShowModal()
+    try:
+        log.info(u'Тестирование контроллера <%s>' % controller.getName())
+        log.info(u'\tХост: %s' % controller.getHost())
+        log.info(u'\tПорт: %s' % controller.getPort())
+        log.info(u'\tСервер: %s' % controller.getServer())
+        log.info(u'\tУзел: %s' % controller.getNode())
+
+        dlg = icTestUniReaderCtrlDlg(parent=parent)
+        dlg.set_controller(controller)
+        dlg.init()
+        dlg.ShowModal()
+    except:
+        log.fatal(u'Ошибка отображения диалогового окна тестирования контроллера UniReader')
