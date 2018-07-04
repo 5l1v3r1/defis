@@ -25,7 +25,7 @@ from NSI.nsi_dlg import icspraveditdlg
 from NSI.nsi_dlg import icspravchoicetreedlg
 
 # Версия
-__version__ = (0, 0, 1, 3)
+__version__ = (0, 0, 1, 4)
 
 # Спецификация
 SPC_IC_SPRAV = {'type': 'SpravDefault',
@@ -401,6 +401,7 @@ class icSpravPrototype(icSpravInterface):
         @type ParentCode: C{...}
         @param ParentCode: Код более верхнего уровня.
         @param field: Задает поле или группу полей, которые надо вернуть.
+            Полу задается строкой. Поля задаются словарем.
         @param form: имя формы визуального интерфейса работы со справочником.
         @param parentForm: Родительская форма.
         @type DateTime_: C{string}
@@ -411,6 +412,7 @@ class icSpravPrototype(icSpravInterface):
             Если не определено то отображаются <Код> и <Наименование>.
         @param search_fields: Список имен полей для поиска.
             Если не определено то поиск только по <Код> и <Наименование>.
+        @return: Код ошибки, Результат выбора
         """
         result = IC_HLP_OK
         res_val = None
@@ -501,12 +503,13 @@ class icSpravPrototype(icSpravInterface):
         """
         try:
             field_names = tuple(self.getStorage().getSpravFieldNames())
-            result = self.Hlp(field=field_names, parentForm=parent,
+            fields = dict([(field_name, None) for field_name in field_names])
+            result = self.Hlp(field=fields, parentForm=parent,
                               *args, **kwargs)
             if result[0] in (0, coderror.IC_HLP_OK):
-                field_values = result[2]
+                record = result[2]
                 # Преобразуем запись в словарь
-                record = dict([(field_name, field_values[i]) for i, field_name in enumerate(field_names)])
+                # record = dict([(field_name, field_values[i]) for i, field_name in enumerate(field_names)])
                 return record
             else:
                 io_prnt.outErr(u'Ошибка выбора справочника <%s>. Результат %s' % (self.getName(), result))
