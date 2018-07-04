@@ -25,7 +25,7 @@ from NSI.nsi_dlg import icspraveditdlg
 from NSI.nsi_dlg import icspravchoicetreedlg
 
 # Версия
-__version__ = (0, 0, 1, 2)
+__version__ = (0, 0, 1, 3)
 
 # Спецификация
 SPC_IC_SPRAV = {'type': 'SpravDefault',
@@ -493,19 +493,36 @@ class icSpravPrototype(icSpravInterface):
     # Другое название метода (я считаю что более правильное)
     Choice = Hlp
 
+    def choice_record(self, parent=None, *args, **kwargs):
+        """
+        Вызов выбора записи из справочника.
+        @param parent: Родительская форма.
+        @return: Выбранную запись или None в случае ошибки.
+        """
+        try:
+            field_names = tuple(self.getStorage().getSpravFieldNames())
+            result = self.Hlp(field=field_names, parentForm=parent,
+                              *args, **kwargs)
+            if result[0] in (0, coderror.IC_HLP_OK):
+                field_values = result[1]
+                # Преобразуем запись в словарь
+                record = dict([(field_name, field_values[i]) for i, field_name in enumerate(field_names)])
+                return record
+            else:
+                io_prnt.outErr(u'Ошибка выбора справочника <%s>. Результат %s' % (self.getName(), result))
+        except:
+            io_prnt.outErr(u'Ошибка выбора записи справочника <%s>' % self.getName())
+        return None
+
     def choice_code(self, parent=None, *args, **kwargs):
         """
         Вызов выбора кода из справочника.
         @param parent: Родительская форма.
         @return: Выбранный код.
         """
-        result = self.Hlp(field='name', parentForm=parent,
-                          *args, **kwargs)
-        if result[0] in (0, coderror.IC_HLP_OK):
-            code = result[1]
-            return code
-        else:
-            io_prnt.outErr(u'Ошибка выбора справочника <%s>. Результат %s' % (self.getName(), result))
+        record = self.choice_record(parent, *args, **kwargs)
+        if record and isinstance(record, dict):
+            return record.get('cod', None)
         return None
 
     def getFields(self, Fields_=None, Cod_=None):
