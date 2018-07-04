@@ -91,7 +91,7 @@ ic_class_spc = {'type': 'SpravTreeComboCtrl',
                                  'find_item': u'Функция поиска элемента дерева',
                                  'get_selected_code': u'Функция получения выбранного кода',
                                  'set_selected_code': u'Функция установки выбранного кода',
-                                 'on_change': 'Обработчик изменения выбранного кода',
+                                 'on_change': u'Обработчик изменения выбранного кода',
                                  },
                 }
 
@@ -113,7 +113,7 @@ ic_can_contain = []
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 1, 1)
+__version__ = (0, 0, 1, 2)
 
 
 # Функции редактирования

@@ -25,7 +25,7 @@ from NSI.nsi_dlg import icspraveditdlg
 from NSI.nsi_dlg import icspravchoicetreedlg
 
 # Версия
-__version__ = (0, 0, 0, 5)
+__version__ = (0, 0, 1, 2)
 
 # Спецификация
 SPC_IC_SPRAV = {'type': 'SpravDefault',
@@ -492,6 +492,21 @@ class icSpravPrototype(icSpravInterface):
 
     # Другое название метода (я считаю что более правильное)
     Choice = Hlp
+
+    def choice_code(self, parent=None, *args, **kwargs):
+        """
+        Вызов выбора кода из справочника.
+        @param parent: Родительская форма.
+        @return: Выбранный код.
+        """
+        result = self.Hlp(field='name', parentForm=parent,
+                          *args, **kwargs)
+        if result[0] in (0, coderror.IC_HLP_OK):
+            code = result[1]
+            return code
+        else:
+            io_prnt.outErr(u'Ошибка выбора справочника <%s>. Результат %s' % (self.getName(), result))
+        return None
 
     def getFields(self, Fields_=None, Cod_=None):
         """
