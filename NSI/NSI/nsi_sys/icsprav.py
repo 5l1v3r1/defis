@@ -503,7 +503,7 @@ class icSpravPrototype(icSpravInterface):
         """
         try:
             field_names = tuple(self.getStorage().getSpravFieldNames())
-            fields = dict([(field_name, None) for field_name in field_names])
+            fields = dict([(field_name, field_name) for field_name in field_names])
             result = self.Hlp(field=fields, parentForm=parent,
                               *args, **kwargs)
             if result[0] in (0, coderror.IC_HLP_OK):
@@ -532,7 +532,12 @@ class icSpravPrototype(icSpravInterface):
         """
         Заполнение полей для возврата функцией Hlp().
         @param Fields_: Задает поле или группу полей, которые надо вернуть.
+            Поля могут задаваться как имя одного поля в виде строки,
+            так и как группы полей как словарь соответствий полей ключам
+            или список имен полей.
         @param Cod_: Код записи таблицы данных.
+        @return: Значение поля по коду или словарь заполненных
+            полей.
         """
         res_val = None
         storage = self.getStorage()
@@ -541,12 +546,15 @@ class icSpravPrototype(icSpravInterface):
         #   Формируем словарь значений, которые необходимо вернуть
         if rec:
             if isinstance(Fields_, dict):
-                res_val = {}
+                res_val = dict()
                 for key in Fields_.keys():
                     fld_sprav = Fields_[key]
                     res_val[key] = rec[fld_sprav]
             elif type(Fields_) in (str, unicode):
                 res_val = rec[Fields_]
+            elif isinstance(Fields_, tuple) or isinstance(Fields_, list):
+                res_val = dict([(field_name, rec[field_name]) for field_name in Fields_])
+
         return res_val
 
     def getLevelByCod(self, Cod_):
