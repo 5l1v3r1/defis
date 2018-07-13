@@ -8,6 +8,10 @@
 # Подключение библиотек
 import wx
 
+__version__ = (0, 0, 1, 2)
+
+DEFAULT_ENCODINT_STR = '<Default Encoding>'
+
 
 class icIDEInterface:
     """
@@ -20,7 +24,8 @@ class icIDEInterface:
         @param IDEFrame: Указатель на главное окно IDE.
         """
         self._ide = IDEFrame
-        self._ide.Bind(wx.EVT_CLOSE, self.OnCloseIC)
+        if self._ide:
+            self._ide.Bind(wx.EVT_CLOSE, self.OnCloseIC)
 
     def OnCloseIC(self, event):
         """
@@ -44,7 +49,7 @@ class icIDEInterface:
         pass
         
     def OpenFile(self, filename, OpenInNewTab=True,
-                 editrecentfiles=True, encoding='<Default Encoding>', readonly=False):
+                 editrecentfiles=True, encoding=DEFAULT_ENCODINT_STR, readonly=False):
         """
         Загружает нужный файл в IDE.
         

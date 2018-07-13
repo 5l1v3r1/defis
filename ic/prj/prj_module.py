@@ -16,13 +16,14 @@ import ic.utils.ic_res as ic_res
 import ic.utils.util as util
 import ic.dlg.ic_dlg as ic_dlg
 from ic.kernel import io_prnt
+from ic.editor import ext_python_editor
 
 from . import prj_node
 from . import prj_resource
 from . import prj_fb
 from . import prj_xrc
 
-__version__ = (0, 0, 1, 7)
+__version__ = (0, 0, 2, 2)
 
 _ = wx.GetTranslation
 
@@ -615,11 +616,19 @@ class PrjModule(prj_node.PrjNode):
         """
         Редактирование модуля.
         """
+        # Определяем имя модуля
+        py_name = self.getModuleName()
+        py_dir = self.getModulePath()
+        py_file = os.path.join(py_dir, py_name+self.ext)
+
+        # Определяем IDE
         ide = self.getRoot().getParent().ide
+        if ide is None:
+            io_prnt.outWarning(u'Не определен IDE для редактрования модуля <%s>' % py_file)
+            io_prnt.outLog(u'Используется внешний редактор модулей Python')
+            ide = ext_python_editor.icExtPythonEditor()
+
         if ide:
-            py_name = self.getModuleName()
-            py_dir = self.getModulePath()
-            py_file = os.path.join(py_dir, py_name+self.ext)
             # Сначала разблокировать все модули
             self.getRoot().unlockAllPyFilesInIDE()
             if ide.IsOpenedFile(py_file):
@@ -646,6 +655,7 @@ class PrjModule(prj_node.PrjNode):
             if self.isResClass(py_file):
                 self.getRoot().getParent().res_editor.SetResource(self.name,
                                                                   py_dir, self.name, 'py', bEnable=True)
+
             return ide.OpenFile(py_file, True, readonly=self.readonly)
 
         return False

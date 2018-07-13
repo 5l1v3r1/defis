@@ -7,10 +7,11 @@
 
 import os.path
 import ic.dlg.ic_logo_dlg as ic_logo_dlg
-import ic.kernel.io_prnt as io_prnt
+# import ic.kernel.io_prnt as io_prnt
+from ic.log import log
 
 #
-__version__ = (1, 0, 0, 3)
+__version__ = (1, 0, 1, 1)
 
 
 #   Словарь пользовательских модулей
@@ -61,7 +62,7 @@ def icGetUserModulDict(not_load_lst=None, bRefresh = False):
                 p, subsys = os.path.split(user_dir)
                 user_dir += '/%s' % DEFAULT_SUBSYS_PACKAGE
                 
-            io_prnt.outLog('>>> user_dir %s' % user_dir)
+            log.info('>>> user_dir %s' % user_dir)
             if user_dir and os.path.isdir(user_dir):
                 dir_list = os.listdir(user_dir)
                 
@@ -80,10 +81,10 @@ def icGetUserModulDict(not_load_lst=None, bRefresh = False):
                             md = subsys+'.'+prefix+fileName.split('.')[0]
                         else:
                             md = fileName.split('.')[0]
-        
-                        if ext == 'py' and not md in not_load_lst:
+
+                        if ext == 'py' and md not in not_load_lst:
                             try:
-                                io_prnt.outLog('>>> user component import %s' % md)
+                                log.info('>>> user component import %s' % md)
                                 ic_logo_dlg.SetLoadProccessBoxLabel(u'>>> Имп. компонент: %s' % md, 100*j/len(dir_list))
 
                                 class_mod = __import__(md, globals(), locals(), [], -1)
@@ -102,10 +103,10 @@ def icGetUserModulDict(not_load_lst=None, bRefresh = False):
                                     user_modules_dict[typ] = class_mod
                                 except AttributeError, msg:
                                     typ = None
-                                    io_prnt.outWarning(u'### module <%s> has invalid component interface (absent variable <ic_class_spc>)' % md)
+                                    log.warning(u'### module <%s> has invalid component interface (absent variable <ic_class_spc>)' % md)
                             except:
                                 try:
-                                    io_prnt.outErr(u'###! import error module: %s' % md)
+                                    log.fatal(u'###! import error module: %s' % md)
                                 except:
                                     print(u'###! import error module: %s' % md)
 

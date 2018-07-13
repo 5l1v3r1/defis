@@ -25,6 +25,8 @@ import copy
 from ic.engine import ic_user
 from ic.utils import ic_mode
 
+__version__ = (0, 0, 1, 2)
+
 
 def main(args):
     """
@@ -34,7 +36,7 @@ def main(args):
     args = copy.deepcopy(args)
     
     # Проверка аргументов запуска
-    if not args or ("-h" in args):
+    if not args or ('-h' in args):
         print(__doc__)
         return
 
@@ -43,26 +45,23 @@ def main(args):
     if '-dbg' in args:
         del args[args.index('-dbg')]
         debug = True
-    ic_mode.setDebugMode(debug)
+        ic_mode.setDebugMode(debug)
         
     if '-cfg' in args:
         del args[args.index('-cfg')]
         
         # Запуск конфигуратора
         ic_mode.setRuntimeMode(False)
+
+        prj_path = None
+        if args:
+            prj_path = args[0]
+            ic.set_log_prj(prj_path)
+            ic.set_ini_file(prj_path)
+
         try:
-            # Записать текущую директорию
-            # Путь к функции main.py
-            ic_user.icLet('SYS_DIR', os.getcwd())
-            try:
-                # Записать системные переменные
-                # Путь к БД
-                ic_user.icLet('SYS_DB', args[0])
-            except:
-                pass
-            # Записать имя пользователя
-            ic_user.icLet('UserName', 'Admin')
-            ic_user.StartDRPython()
+            from ic.PropertyEditor import icResTree
+            icResTree.editor_main(0, path=prj_path)
         except:
             print(__doc__)
             return

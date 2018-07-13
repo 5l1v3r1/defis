@@ -16,7 +16,7 @@ import imp
 from . import icexceptions
 from ic.log import log
 
-__version__ = (0, 1, 1, 2)
+__version__ = (0, 1, 1, 3)
 
 prs = None
 resource = None
@@ -570,6 +570,15 @@ class icKernel(icBaseKernel):
                     self._eventLoopLst.wait(0.5)
 
     def signal_loop(self, *warg):
+        """
+        Диспетчер сигналов.
+        """
+        try:
+            return self._signal_loop(*warg)
+        except:
+            log.fatal(u'Ошибка диспетчера сигналов')
+
+    def _signal_loop(self, *warg):
         """
         Диспетчер сигналов.
         """

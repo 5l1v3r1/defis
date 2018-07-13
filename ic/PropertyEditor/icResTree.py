@@ -96,6 +96,7 @@ def getResKey(res):
         key = None
     return key
 
+
 # -------------------------------------------------------------------------------
 _ResCard = u'Ресурсы (*.frm)|*.frm|All files (*.*)|*.*| IcObj files (*.py)|*.py'
 
@@ -150,6 +151,7 @@ def GetObjectClass(obj_typ):
 
 def MyExec(s):
     exec s
+
 
 #   Спецификация на объект группы
 SPC_IC_GROUP = {'name': 'default',
@@ -549,7 +551,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
                 self.addBranch(item, res_obj)
             else:
                 # Предупредить о не корректной спецификации
-                log.warning('Specification <%s> widget not support addition child' % res['type'])
+                log.warning(u'Спецификация компонента <%s> не поддерживает добавление дочерних элементов' % res['type'])
 
             if 'cols' in res and isinstance(res['cols'], list):
                 res['cols'].append(res_obj)
@@ -859,7 +861,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
             if 'win2' in res and data != res['win2']:
                 nameList.append(res['win2']['name'])
         except:
-            log.error('No parent in icResTree.GetChildNameList()')
+            log.fatal(u'No parent in icResTree.GetChildNameList()')
 
         return nameList
 
@@ -896,9 +898,9 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
                     cmd = 'start explorer ' + fileDoc.replace('/', '\\')
                     os.system(cmd)
             else:
-                io_prnt.outLog('Help file %s is not found' % fileDoc)
+                io_prnt.outWarning(u'Help file %s is not found' % fileDoc)
         except:
-            io_prnt.outLastErr('View Help Error!')
+            io_prnt.outLastErr(u'View Help Error!')
 
     def _initPicDict(self):
         """
@@ -1021,7 +1023,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
             if not self.findItem(self.root, findStr):
                 ic_dlg.icWarningBox(ParentWin_=self,
                                     Title_=u'ВНИМАНИЕ',
-                                    Text_=u'Not find substring \'%s\' in resource' % findStr)
+                                    Text_=u'Не найдена подстрока \'%s\' в ресурсе' % findStr)
                 if self.finddlg:
                     self.finddlg.SetFocus()
 
@@ -1324,7 +1326,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
                     self.GetResEditor().RefreshPropertySelObj()
 
                     if not os.path.exists(fn):
-                        log.warning('File <%s> not exists' % fn)
+                        log.warning(u'Файл <%s> не найден' % fn)
                     else:
                         self.GetResEditor().OpenIDEFile(fn)
 
@@ -1397,7 +1399,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
         if 'child' in data and data['child']:
             setCopyBuffEdt(self.GetPyData(item))
         else:
-            wx.MessageBox('Component has not child elements')
+            wx.MessageBox(u'Компонент не имеет дочерних элементов')
 
     def _isCanContain(self, typ, typIns):
         """
@@ -1688,6 +1690,7 @@ class icResTree(icwidget.icWidget, wx.TreeCtrl):
         """
         self.editor = edt
 
+
 SPC_IC_RESNOTEBOOK = {'name': 'resnotebook',
                       'type': 'ResNotebook',
                       'res': {},                    # Ресурсное описание компонента, который редактируется
@@ -1723,6 +1726,7 @@ class icPropertyNotebookGrp:
         Возвращает указатель на редактор свойств.
         """
         return self._propEditor
+
 
 SPC_IC_RESEDITOR = {'name': 'res',
                     'type': 'ResEditor',
@@ -1963,9 +1967,9 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
         if fileExt == 'py':
             if os.path.isdir(filePath) and (not os.path.isfile(path) or bRecreate):
                 text = resource.genClassFromRes(nameRes, templ)
-                file = open(path, 'wb')
-                file.write(text.encode('utf-8'))
-                file.close()
+                file_obj = open(path, 'wb')
+                file_obj.write(text.encode('utf-8'))
+                file_obj.close()
                 return 1
             elif not os.path.isdir(filePath):
                 return -1
@@ -1975,11 +1979,11 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
         # Словарно - списковой структурой
         else:
             if os.path.isdir(filePath) and (not os.path.isfile(path) or bRecreate):
-                _res = {nameRes:templ}
+                _res = {nameRes: templ}
                 text = str(_res)
-                file = open(path, 'wb')
-                file.write(text)
-                file.close()
+                file_obj = open(path, 'wb')
+                file_obj.write(text)
+                file_obj.close()
                 return 1
             elif not os.path.isdir(filePath):
                 return -1
@@ -1991,9 +1995,9 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
                 else:
                     _res[nameRes] = None
                     text = str(_res)
-                    file = open(path, 'wb')
-                    file.write(text)
-                    file.close()
+                    file_obj = open(path, 'wb')
+                    file_obj.write(text)
+                    file_obj.close()
                     return 1
 
     def get_res_module_name(self, rn=None):
@@ -2042,9 +2046,9 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
             return fn
 
         txt = resource.genResModuleHead(rn, fn)
-        file = open(fn, 'wb')
-        file.write(txt)
-        file.close()
+        file_obj = open(fn, 'wb')
+        file_obj.write(txt)
+        file_obj.close()
         return fn
 
     def create_obj_module(self, name, fn=None):
@@ -2221,7 +2225,7 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
                 # Убираем ресурс из буфера
                 util.clearResourceBuff()
             except:
-                io_prnt.outErr('CREATE FILE ERROR file=<%s>' % fileName,
+                io_prnt.outErr(u'Ошибка создания файла <%s>' % fileName,
                                Device_=io_prnt.IC_LOG_CONSOLE)
                 return False
 
@@ -2640,7 +2644,7 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
         else:
             v = ''
 
-        if self._formName <> None:
+        if self._formName is not None:
             text_old = u'Имя ресурса: %s' % self._formName+v
         else:
             text_old = u'Имя ресурса'
@@ -2678,7 +2682,7 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
             event.SetEventObject(self)
             self.GetEventHandler().AddPendingEvent(event)
 
-    def SaveRes(self, path, bAsk = False):
+    def SaveRes(self, path, bAsk=False):
         """
         Сохраняет ресурсное описание в файл.
         @type path: C{string}
@@ -2688,6 +2692,7 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
         @rtype: C{bool}
         @return: Признак успешного выполнения.
         """
+        file_obj = None
         try:
             _res = util.readAndEvalFile(path)
             if _res is None:
@@ -2709,13 +2714,14 @@ class icResourceEditor(icwidget.icWidget, wx.SplitterWindow):
                 return False
             _res[self._formName] = self.GetResource()
             text = str(_res)
-            file = open(path, 'wb')
-            file.write(text)
-            file.close()
+            file_obj = open(path, 'wb')
+            file_obj.write(text)
+            file_obj.close()
             io_prnt.outLog(u'Сохранить ресурс <%s> в <%s>' % (self._formName, path),
                            Device_=io_prnt.IC_LOG_CONSOLE)
         except IOError:
-            file.close()
+            if file_obj:
+                file_obj.close()
         except:
             ic_dlg.icFatalBox(u'ОШИБКА', u'Ошибка в SaveRes ...')
             return False
@@ -2842,7 +2848,7 @@ class ResourseEditorFrame2(wx.Frame):
     Фрейм для редактора проекта.
     """
 
-    def __init__(self, parent, id=-1, title='Frame Editor',
+    def __init__(self, parent, id=-1, title=u'Frame Editor',
                  size=(-1, -1), pos=(-1, -1), style=wx.DEFAULT_FRAME_STYLE):
         """
         Конструктра.
@@ -2863,18 +2869,19 @@ def editor_main(par=0, path=None):
     """
     Функция запуска редактора.
     """
+    log.info(u'Запуск редакттора проекта <%s>' % path)
     from . import icDesigner
     app = icDesigner.icDesignerApp(par)
     txt = u'Редактор форм'
-    #---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
     # Устанавливаем окружение
     # до файлов с документацией
     ic.utils.resource.IC_DOC_PATH = os.getcwd().replace('PropertyEditor', '')+'doc'
     # Путь к файлам ресурсов
     if not path:
-        path = 'C/defis/'
+        path = 'C:/defis/'
 
-    #---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
     evalSpace = icwidget.icResObjContext()
     frame = ResourseEditorFrame2(None, -1, u'Редактор форм', size=(350, 500),
                                  style=wx.DEFAULT_FRAME_STYLE | wx.CLIP_CHILDREN)
