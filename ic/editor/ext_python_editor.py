@@ -7,6 +7,12 @@
 В нашем случае используется gEdit.
 Т.к. он кросплатформенный, поддерживает плагины и
 подсвечивает синтаксис Python.
+
+Установка плагинов:
+sudo apt install gedit-plugins
+
+Для gEdit есть плагин PythonChecker:
+https://github.com/rdunklau/Gedit-checkpython.git
 """
 
 import os

@@ -2869,7 +2869,7 @@ def editor_main(par=0, path=None):
     """
     Функция запуска редактора.
     """
-    log.info(u'Запуск редакттора проекта <%s>' % path)
+    log.info(u'Запуск редактора проекта <%s>' % path)
     from . import icDesigner
     app = icDesigner.icDesignerApp(par)
     txt = u'Редактор форм'
