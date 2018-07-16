@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 # from services.ic_std.log import log
 from ic.log import log
 
-__version__ = (0, 0, 1, 30)
+__version__ = (0, 0, 1, 31)
 
 
 # Имя таблицы движения по умолчанию
@@ -556,11 +556,15 @@ class icAccRegistry(object):
                         log.debug(u'Вычитание из итоговой таблицы')
                         resource_requisite_names = self.get_resource_requisite_names()
                         resource_requisites = dict([(name, getattr(result_table.c, name)-operation[name]) for name in resource_requisite_names])
+                        # Словарь значений рекзизитов для добавления позиции
+                        init_resource_requisites = dict([(name, -operation[name]) for name in resource_requisite_names])
                     elif operation_code == EXPENSE_OPERATION_CODE:
                         # Это расход, значит надо прибавить в итоговой таблице
                         log.debug(u'Сложение в итоговой таблице')
                         resource_requisite_names = self.get_resource_requisite_names()
                         resource_requisites = dict([(name, getattr(result_table.c, name)+operation[name]) for name in resource_requisite_names])
+                        # Словарь значений рекзизитов для добавления позиции
+                        init_resource_requisites = dict([(name, operation[name]) for name in resource_requisite_names])
                     else:
                         # Не поддерживаемый тип операции движения
                         log.warning(u'Не поддерживаемый тип <%s> операции движения' % operation_code)
@@ -591,7 +595,7 @@ class icAccRegistry(object):
                         else:
                             try:
                                 requisites = dict()
-                                requisites.update(resource_requisites)
+                                requisites.update(init_resource_requisites)
                                 requisites.update(dimension_requisites)
                                 extended_requisite_names = self.get_extended_requisite_names()
                                 extended_requisites = dict(
