@@ -328,6 +328,7 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
             except:
                 if connection:
                     connection.close()
+                log.fatal(u'Ошибка определения онлайн состояния связи с БД')
                 is_connect = False
         return is_connect
 
