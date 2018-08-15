@@ -168,7 +168,14 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         Источник данных.
         """
         return self.data_source
-        
+
+    def checkOnlineConnect(self):
+        """
+        Проверка связи с источником данных.
+        @return: True - связь установлена / False - связь разорвана по какой либо причине.
+        """
+        return self.data_source.checkOnline() if self.data_source else False
+
     def getSQLTxt(self, **kwargs):
         """
         Текст SQL запроса.
@@ -197,6 +204,7 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         """
         data_src = self.getDataSource()
         if data_src:
+            # if self.checkOnlineConnect():
             return data_src.executeSQL(self.getSQLTxt(**kwargs))
         return None
         

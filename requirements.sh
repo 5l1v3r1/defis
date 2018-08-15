@@ -6,104 +6,104 @@
 # Анализаторы кода Python
 apt show pylint | grep Package
 apt show pylint | grep Version
-sudo apt install pylint
+sudo apt install --assume-yes pylint
 
 apt show python-pep8 | grep Package
 apt show python-pep8 | grep Version
-sudo apt install python-pep8
+sudo apt install --assume-yes python-pep8
 
 # Модули ОС
 apt show smbfs-utils | grep Package
 apt show smbfs-utils | grep Version
-sudo apt install smbfs-utils
+sudo apt install --assume-yes smbfs-utils
 
 apt show cifs-utils | grep Package
 apt show cifs-utils | grep Version
-sudo apt install cifs-utils
+sudo apt install --assume-yes cifs-utils
 
 apt show smbclient | grep Package
 apt show smbclient | grep Version
-sudo apt install smbclient
+sudo apt install --assume-yes smbclient
 
 apt show indicator-applet-complete | grep Package
 apt show indicator-applet-complete | grep Version
-sudo apt install indicator-applet-complete
+sudo apt install --assume-yes indicator-applet-complete
 
 apt show ttf-mscorefonts-installer | grep Package
 apt show ttf-mscorefonts-installer | grep Version
-sudo apt install ttf-mscorefonts-installer
+sudo apt install --assume-yes ttf-mscorefonts-installer
 
 apt show python-apt | grep Package
 apt show python-apt | grep Version
-sudo apt install python-apt
+sudo apt install --assume-yes python-apt
 
 # Работа с консолью
 apt show python-dialog | grep Package
 apt show python-dialog | grep Version
-sudo apt install python-dialog
+sudo apt install --assume-yes python-dialog
 
 apt show python-urwid | grep Package
 apt show python-urwid | grep Version
-sudo apt install python-urwid
+sudo apt install --assume-yes python-urwid
 
 apt show curl | grep Package
 apt show curl | grep Version
-sudo apt install curl
+sudo apt install --assume-yes curl
 
 # wxPython
 apt show python-wxgtk3.0 | grep Package
 apt show python-wxgtk3.0 | grep Version
-sudo apt install python-wxgtk3.0
+sudo apt install --assume-yes python-wxgtk3.0
 
 apt show python-six | grep Package
 apt show python-six | grep Version
-sudo apt install python-six
+sudo apt install --assume-yes python-six
 
 apt show python-matplotlib | grep Package
 apt show python-matplotlib | grep Version
-sudo apt install python-matplotlib
+sudo apt install --assume-yes python-matplotlib
 
 apt show python-wxmpl | grep Package
 apt show python-wxmpl | grep Version
-sudo apt install python-wxmpl
+sudo apt install --assume-yes python-wxmpl
 
 # БД
 apt show python-psycopg2 | grep Package
 apt show python-psycopg2 | grep Version
-sudo apt install python-psycopg2
+sudo apt install --assume-yes python-psycopg2
 
 apt show python-sqlalchemy | grep Package
 apt show python-sqlalchemy | grep Version
-sudo apt install python-sqlalchemy
+sudo apt install --assume-yes python-sqlalchemy
 
 apt show python-pyodbc | grep Package
 apt show python-pyodbc | grep Version
-sudo apt install unixodbc unixodbc-dev freetds-bin freetds-dev tdsodbc python-pyodbc
+sudo apt install --assume-yes unixodbc unixodbc-dev freetds-bin freetds-dev tdsodbc python-pyodbc
 
 # Office
 apt show unococnv | grep Package
 apt show unococnv | grep Version
-sudo apt install unoconv
+sudo apt install --assume-yes unoconv
 
 apt show python-sane | grep Package
 apt show python-sane | grep Version
-sudo apt install python-sane
+sudo apt install --assume-yes python-sane
 
 apt show python-reportlab | grep Package
 apt show python-reportlab | grep Version
-sudo apt install python-reportlab
+sudo apt install --assume-yes python-reportlab
 
 apt show python-pypdf2 | grep Package
 apt show python-pypdf2 | grep Version
-sudo apt install python-pypdf2
+sudo apt install --assume-yes python-pypdf2
 
 apt show python-odf | grep Package
 apt show python-odf | grep Version
-sudo apt install python-odf python-odf-doc
+sudo apt install --assume-yes python-odf python-odf-doc
 
 apt show libreoffice-java-common | grep Package
 apt show libreoffice-java-common | grep Version
-sudo apt install libreoffice-java-common
+sudo apt install --assume-yes libreoffice-java-common
 
 # В конце отобразим список установленных пакетов
 
