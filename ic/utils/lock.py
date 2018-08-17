@@ -457,13 +457,18 @@ def _UnLockFileWalk(args, CurDir_, CurNames_):
     # Выбрать только свои файлы-блокировки
     for cur_file in lock_files:
         lock_record = ReadLockRecord(cur_file)
-        if not user_name:
-            if lock_record['computer'] == computer_name:
-                os.remove(cur_file)
+        io_prnt.outLog(u'Разблокировка. Компьютер <%s>. Пользователь <%s>. Запись блокировки %s' % (computer_name, user_name, str(lock_record)))
+
+        if isinstance(lock_record, str) and not lock_record.strip():
+            # Если пустая строка в записи блокировки, то просто удаляем
+            os.remove(cur_file)
         else:
-            if lock_record['computer'] == computer_name and \
-               lock_record['user'] == user_name:
-                os.remove(cur_file)
+            if not user_name:
+                if lock_record['computer'] == computer_name:
+                    os.remove(cur_file)
+            else:
+                if lock_record['computer'] == computer_name and lock_record['user'] == user_name:
+                    os.remove(cur_file)
 
 
 def UnLockAllFile(LockDir_, ComputerName_=None, UserName_=None):

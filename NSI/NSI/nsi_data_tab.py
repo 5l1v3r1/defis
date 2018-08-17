@@ -30,7 +30,7 @@ __version__ = (0,0,0,1)
 
 DBF_DEFAULT_ENCODE = 'cp866'
 
-SPRAV_DBF_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'SPRAV.DBF') if os.path.dirname(__file__) else  '/mnt/samba/defis/NSI/data/SPRAV.DBF'
+SPRAV_DBF_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'SPRAV.DBF') if os.path.dirname(__file__) else  '/mnt/defis/defis/NSI/data/SPRAV.DBF'
 
 SPRAV_TYPE_CODES = (161, 162, 163, 164, 165, 166, 167, 168, 169,
                     171, 172, 173, 174, 175, 176, 177, 178, 179,
