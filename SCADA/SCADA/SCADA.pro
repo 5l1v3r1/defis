@@ -47,7 +47,7 @@ p23
 g10
 ssS'__py__'
 p24
-V/mnt/samba/defis/SCADA/SCADA
+V/mnt/defis/defis/SCADA/SCADA
 p25
 sVSCADA
 p26

@@ -84,7 +84,7 @@ p49
 g36
 ssS'__py__'
 p50
-V/mnt/samba/defis/WMS/WMS
+V/mnt/defis/defis/WMS/WMS
 p51
 sa(dp52
 S'link'
@@ -92,7 +92,7 @@ p53
 I0
 sS'__py__'
 p54
-V/mnt/samba/defis/SCADA/SCADA
+V/mnt/defis/defis/SCADA/SCADA
 p55
 sS'type'
 p56
@@ -104,7 +104,7 @@ VSCADA
 p59
 sS'path'
 p60
-V/mnt/samba/defis/SCADA/SCADA/SCADA.pro
+V/mnt/defis/defis/SCADA/SCADA/SCADA.pro
 p61
 sa(dp62
 S'type'
@@ -124,7 +124,7 @@ S'NSI'
 p69
 sS'path'
 p70
-V/mnt/samba/defis/NSI/NSI/NSI.pro
+V/mnt/defis/defis/NSI/NSI/NSI.pro
 p71
 sa(dp72
 S'type'
@@ -133,7 +133,7 @@ S'icSubSys'
 p74
 sS'__py__'
 p75
-V/mnt/samba/defis/ayan_product/ayan_product
+V/mnt/defis/defis/ayan_product/ayan_product
 p76
 sS'link'
 p77
@@ -144,6 +144,6 @@ Vayan_product
 p79
 sS'path'
 p80
-V/mnt/samba/defis/ayan_product/ayan_product/ayan_product.pro
+V/mnt/defis/defis/ayan_product/ayan_product/ayan_product.pro
 p81
 sa.

@@ -399,7 +399,7 @@ S'NSI'
 p242
 sS'path'
 p243
-V/mnt/samba/defis/NSI/NSI/NSI.pro
+V/mnt/defis/defis/NSI/NSI/NSI.pro
 p244
 sa(dp245
 S'type'
@@ -419,6 +419,6 @@ S'STD'
 p252
 sS'path'
 p253
-V/mnt/samba/defis/STD/STD/STD.pro
+V/mnt/defis/defis/STD/STD/STD.pro
 p254
 sa.
