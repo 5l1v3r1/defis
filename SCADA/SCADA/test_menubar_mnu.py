@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Resource module </mnt/samba/defis/SCADA/SCADA/test_menubar.mnu>
-File            </mnt/samba/defis/SCADA/SCADA/test_menubar_mnu.py>
+Resource module </mnt/defis/defis/SCADA/SCADA/test_menubar.mnu>
+File            </mnt/defis/defis/SCADA/SCADA/test_menubar_mnu.py>
 Description     <Resource module>
 """
 
 import ic
 from ic.interfaces import icmanagerinterface
 
-### RESOURCE_MODULE: /mnt/samba/defis/SCADA/SCADA/test_menubar.mnu
+### RESOURCE_MODULE: /mnt/defis/defis/SCADA/SCADA/test_menubar.mnu
 
 ### ---- Import external modules -----
 ### RESOURCE_MODULE_IMPORTS

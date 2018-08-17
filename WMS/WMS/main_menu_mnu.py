@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Resource module </mnt/samba/defis/WMS/WMS/main_menu.mnu>
-File            </mnt/samba/defis/WMS/WMS/main_menu_mnu.py>
+Resource module </mnt/defis/defis/WMS/WMS/main_menu.mnu>
+File            </mnt/defis/defis/WMS/WMS/main_menu_mnu.py>
 Description     <Resource module>
 """
 
-### RESOURCE_MODULE: /mnt/samba/defis/WMS/WMS/main_menu.mnu
+### RESOURCE_MODULE: /mnt/defis/defis/WMS/WMS/main_menu.mnu
 
 ### ---- Import external modules -----
 ### RESOURCE_MODULE_IMPORTS
