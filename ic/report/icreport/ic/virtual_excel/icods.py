@@ -3,6 +3,7 @@
 
 import os.path
 import re
+import uuid
 
 import config
 
@@ -581,15 +582,17 @@ class icODS(object):
         """
         Генерация имени стиля колонки.
         """
-        from services.ic_std.utils import uuid
-        return uuid.get_uuid()
+        # from services.ic_std.utils import uuid
+        # return uuid.get_uuid()
+        return str(uuid.uuid4())
 
     def _genRowStyleName(self):
         """
         Генерация имени стиля cтроки.
         """
-        from services.ic_std.utils import uuid
-        return uuid.get_uuid()
+        # from services.ic_std.utils import uuid
+        # return uuid.get_uuid()
+        return str(uuid.uuid4())
 
     def setColumn(self, dData):
         """
