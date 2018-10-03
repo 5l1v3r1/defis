@@ -12,7 +12,7 @@ wx.ListCtrl, wx.DataListView и т.п.
 без использования компьютерной мыши:
         F1 - Окно помощи
         ESC - Отмена ввода
-        ENTER - Подтверждение ввода
+        NUM LOCK ENTER - Подтверждение ввода
         BACKSPACE - Возврат значений по умолчанию
         TAB - Переключение  между объектами ввода
 
@@ -21,6 +21,9 @@ wx.ListCtrl, wx.DataListView и т.п.
 
         INS - Добавление нового элемента
         DEL - Удаление существующего элемента
+
+ВНИМАНИЕ! В качестве подтверждения ввода используется NUM LOCK ENTER
+т.к. стандартный ENTER используется в управлении контролами.
 """
 
 import wx
@@ -117,7 +120,7 @@ class icQuickEntryPanelCtrl(quick_entry_panel_ctrl_proto.icQuickEntryPanelCtrlPr
         help_txt = u'''Горячие клавиши:
         F1 - Окно помощи
         ESC - Отмена ввода
-        ENTER - Подтверждение ввода
+        NUM LOCK ENTER - Подтверждение ввода
         BACKSPACE - Возврат значений по умолчанию
         TAB - Переключение  между объектами ввода
         
