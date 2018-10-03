@@ -51,7 +51,9 @@ class icQuickEntryPanelCtrl(quick_entry_panel_ctrl_proto.icQuickEntryPanelCtrlPr
         # Сама панель быстрого ввода
         if quick_entry_panel_class:
             # Создать панель быстрог ввода
+            log.debug(u'Создание панели быстрого ввода <%s>' % quick_entry_panel_class.__name__)
             self.quick_entry_panel = quick_entry_panel_class(self, *args, **kwargs)
+            log.debug(u'Панель быстрого ввода <%s> создана' % quick_entry_panel_class.__name__)
             # Разместить в сайзере
             panel_Sizer = self.GetSizer()
             panel_Sizer.Add(self.quick_entry_panel, 0, wx.EXPAND, 5)
@@ -209,17 +211,21 @@ class icQuickEntryPanelDialog(wx.Dialog, form_manager.icFormManager):
 
         # На подложке создаем панель управления
         self.ctrl_panel = icQuickEntryPanelCtrl(self, quick_entry_panel_class, *args, **kwargs)
+        log.debug(u'1')
         if self.ctrl_panel.quick_entry_panel:
+            log.debug(u'2')
             accord = self.find_panel_accord(self.ctrl_panel.quick_entry_panel)
-            # log.debug(u'Accord %s' % str(accord))
+            log.debug(u'Accord %s' % str(accord))
             self.set_accord(**accord)
 
+        log.debug(u'3')
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
         # Значения по умолчанию
         self.defaults = None
 
         # Загрузить сохраненные данные
+        log.debug(u'Загрузка параметров диалогового окна')
         ext_data = self.load_ext_data(self.get_ext_data_name())
         if pos is None:
             new_pos = ext_data.get('pos', wx.DefaultPosition)
@@ -285,6 +291,7 @@ def quick_entry_ctrl(parent, title=u'', pos=None, size=None,
            1 - Сделан переход на следующий элемент без сохранения данных
         2. Словарь заполненных значений
     """
+    # log.debug(u'Запуск панели быстрого ввода <%s>' % quick_entry_panel_class.__name__)
     # Создаем подложку
     dlg = icQuickEntryPanelDialog(parent=parent, title=title, pos=pos, size=size,
                                   quick_entry_panel_class=quick_entry_panel_class,
