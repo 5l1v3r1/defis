@@ -64,6 +64,7 @@ CTRL_UP = dict(mode=wx.ACCEL_CTRL, key=wx.WXK_UP, label='CTRL+UP')
 CTRL_DOWN = dict(mode=wx.ACCEL_CTRL, key=wx.WXK_DOWN, label='CTRL+DOWN')
 CTRL_LEFT = dict(mode=wx.ACCEL_CTRL, key=wx.WXK_LEFT, label='CTRL+LEFT')
 CTRL_RIGHT = dict(mode=wx.ACCEL_CTRL, key=wx.WXK_RIGHT, label='CTRL+RIGHT')
+CTRL_ENTER = dict(mode=wx.ACCEL_CTRL, key=wx.WXK_NUMPAD_ENTER, label='CTRL+ENTER')
 
 # Разделитель наименования комбинации клавиш
 KEY_COMBUNE_NAME_SEPARATOR = '_'
