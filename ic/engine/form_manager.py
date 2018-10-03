@@ -27,11 +27,11 @@ from ic.utils import ic_file
 from ic.utils import key_combins
 
 
-__version__ = (0, 1, 9, 1)
+__version__ = (0, 1, 9, 2)
 
 # Список имен, которые необходимо пропустить при обаботке соответствий
 # имен контролов и значений контролов
-SKIP_ACCORD_NAMES = ('Handle', 'EventHandler')
+SKIP_ACCORD_NAMES = ('Handle', 'EventHandler', 'Parent', 'GrandParent')
 
 
 class icFormManager(formdatamanager.icFormDataManager):
@@ -148,7 +148,7 @@ class icFormManager(formdatamanager.icFormDataManager):
             ctrl = getattr(panel, ctrlname)
             if issubclass(ctrl.__class__, wx.Window) and ctrl.IsEnabled():
                 if issubclass(ctrl.__class__, wx.Panel):
-                    # log.debug(u'Имя контрола панели <%s>' % ctrlname)
+                    log.debug(u'Имя контрола панели <%s>' % ctrlname)
                     data = self.get_panel_data(ctrl, data_dict, *ctrl_names)
                     result.update(data)
                 else:
