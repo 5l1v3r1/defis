@@ -14,6 +14,7 @@ from ic.log import log
 try:
         import sqlalchemy
         import sqlalchemy.orm
+        import sqlalchemy.exc
 
         from sqlalchemy import *
         from sqlalchemy.sql.functions import *
@@ -624,6 +625,7 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
         Или None в случае ошибки.
         """
         result = None
+        cursor = None
         # Выполнить запрос
         try:
             # Доступ к конекшену DBAPI2
@@ -646,11 +648,20 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
                     data = new_data
                 result = copy.deepcopy({'__fields__': fields, '__data__': data})
             cursor.close()
+
+        except sqlalchemy.exc.OperationalError as error:
+            if cursor:
+                cursor.close()
+            err_txt = u'Ошибка БД <%s>' % error
+            log.fatal(err_txt)
+            ic_dlg.icErrBox(u'ОШИБКА', err_txt)
+            return None
         except:
+            if cursor:
+                cursor.close()
             err_txt = u'Ошибка выполнения запроса <%s>' % ic_str.toUnicode(SQLQuery_)
             log.fatal(err_txt)
             ic_dlg.icErrBox(u'ОШИБКА', err_txt)
-
             return None
 
         return result
