@@ -17,7 +17,7 @@ from ic.utils import ic_str
 
 import ic.interfaces.icdataclassinterface as icdataclassinterface
 
-__version__ = (0, 0, 2, 3)
+__version__ = (0, 0, 2, 4)
 
 # Спецификации
 # Результат запроса (словарно-списковое представление)
@@ -205,7 +205,7 @@ class icQueryPrototype(icdataclassinterface.icDataClassInterface):
         data_src = self.getDataSource()
         if data_src:
             # if self.checkOnlineConnect():
-            return data_src.executeSQL(self.getSQLTxt(**kwargs))
+            return data_src.executeSQL(self.getSQLTxt(**kwargs), show_error=False)
         return None
         
     def execute(self):

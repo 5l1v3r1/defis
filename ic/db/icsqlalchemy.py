@@ -69,7 +69,7 @@ from .icPostgreSQL import SPC_IC_POSTGRESQL
 from .icMSSQL import SPC_IC_MSSQL
 from .icMySQL import SPC_IC_MYSQL
 
-__version__ = (0, 1, 6, 1)
+__version__ = (0, 1, 6, 2)
 
 DB_TYPES = [SQLITE_DB_TYPE, POSTGRES_DB_TYPE, MSSQL_DB_TYPE, MYSQL_DB_TYPE]
 
@@ -616,11 +616,12 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
         """
         return bool(SQLQuery_.lower().find('select') != -1)
 
-    def executeSQL(self, SQLQuery_, to_dict=False):
+    def executeSQL(self, SQLQuery_, to_dict=False, show_error=True):
         """
         Выполнить строку запроса.
         @param SQLQuery_: Строка запроса.
         @param to_dict: Преобразовать все записи в словари?
+        @param show_error: Отобразить сообщение об ошибке?
         @return: Возвражает словарь {'__fields__':((..),(..),..),'__data__':[(..),(..),..]}.
         Или None в случае ошибки.
         """
@@ -654,14 +655,16 @@ class icSQLAlchemyDB(icsourceinterface.icSourceInterface):
                 cursor.close()
             err_txt = u'Ошибка БД <%s>' % error
             log.fatal(err_txt)
-            ic_dlg.icErrBox(u'ОШИБКА', err_txt)
+            if show_error:
+                ic_dlg.icErrBox(u'ОШИБКА', err_txt)
             return None
         except:
             if cursor:
                 cursor.close()
             err_txt = u'Ошибка выполнения запроса <%s>' % ic_str.toUnicode(SQLQuery_)
             log.fatal(err_txt)
-            ic_dlg.icErrBox(u'ОШИБКА', err_txt)
+            if show_error:
+                ic_dlg.icErrBox(u'ОШИБКА', err_txt)
             return None
 
         return result
