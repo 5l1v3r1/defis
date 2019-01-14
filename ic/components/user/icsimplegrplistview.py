@@ -30,7 +30,7 @@ from ic.utils import coderror
 import ic.components.icResourceParser as prs
 import ic.imglib.common as common
 import ic.PropertyEditor.icDefInf as icDefInf
-from ic.kernel import io_prnt
+from ic.log import log
 
 import ic.contrib.ObjectListView as parentModule
 
@@ -112,7 +112,7 @@ ic_can_contain = ['GridCell']
 ic_can_not_contain = None
 
 #   Версия компонента
-__version__ = (0, 0, 2, 3)
+__version__ = (0, 0, 2, 4)
 
 
 # Функции редактирования
@@ -313,8 +313,8 @@ class icSimpleGroupListView(icwidget.icWidget, parentModule.GroupListView):
                 """
                 result = util.ic_eval(get_grp_key, evalSpace=locals())
                 try:
-                    io_prnt.outLog(u'Определение ключа группы колонки <%s>. Результат <%s>' % (column['name'],
-                                                                                               result))
+                    log.debug(u'Определение ключа группы колонки <%s>. Результат <%s>' % (column['name'],
+                                                                                          result))
                 except:
                     pass
                 return result[1]
@@ -335,8 +335,8 @@ class icSimpleGroupListView(icwidget.icWidget, parentModule.GroupListView):
                 """
                 result = util.ic_eval(get_grp_title, evalSpace=locals())
                 try:
-                    io_prnt.outLog(u'Определение заголовка группы колонки <%s>. Результат <%s>' % (column['name'],
-                                                                                                   result))
+                    log.debug(u'Определение заголовка группы колонки <%s>. Результат <%s>' % (column['name'],
+                                                                                              result))
                 except:
                     pass
                 return result[1]
@@ -365,7 +365,7 @@ class icSimpleGroupListView(icwidget.icWidget, parentModule.GroupListView):
                 self._data_src_obj.setFilter(data_src_filter)
             return self._data_src_obj.getDataDict()
         else:
-            io_prnt.outWarning(u'Не определен источник данных в объекте <%s>' % self.name)
+            log.warning(u'Не определен источник данных в объекте <%s>' % self.name)
         return None
 
     def setDataset(self, DatasetList_=None, data_src_filter=None):
@@ -393,7 +393,7 @@ class icSimpleGroupListView(icwidget.icWidget, parentModule.GroupListView):
                 DatasetList_ = self.getDatasetFromDataSource(self._data_src_obj, data_src_filter)
 
         if DatasetList_ is None:
-            io_prnt.outWarning(u'Not define DATASET for object <%s>. DataSource: <%s>' % (self.name, self._data_src_obj))
+            log.warning(u'Не определен DATASET для объекта <%s>. DataSource: <%s>' % (self.name, self._data_src_obj))
         else:
             if self.isICAttrValue('conv_dataset'):
                 # Определена функция преобразования датасета
@@ -481,9 +481,13 @@ class icSimpleGroupListView(icwidget.icWidget, parentModule.GroupListView):
         selected_rec = self.getSelectedRecord()
         if selected_rec:
             if isinstance(selected_rec, dict):
+                # log.debug(u'UUID объекта: <%s>' % selected_rec.keys())
                 return selected_rec.get('uuid', None)
             else:
+                # log.debug(u'UUID: <%s>' % selected_rec[self.getColumnCount()])
                 return selected_rec[self.getColumnCount()]
+        else:
+            log.warning(u'Не выделена запись из списка')
         return None
 
     def getColumnCount(self):
