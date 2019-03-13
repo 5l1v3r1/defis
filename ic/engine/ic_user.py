@@ -20,7 +20,7 @@ from ic.kernel import icexceptions
 from . import glob
 from ic.utils import ic_file
 
-__version__ = (0, 0, 3, 2)
+__version__ = (0, 0, 4, 1)
 
 
 def getKernel():
@@ -478,6 +478,36 @@ def getCurUser():
     Текущий зарегистрированный пользователь в системе.
     """
     return getKernel().GetAuthUser()
+
+
+# Имена ролей администратооров
+ADMINISTRATOR_ROLE_NAMES = ('admins', 'administrators', 'Admins', 'Administrators')
+
+
+def isAdministrator(user=None, admin_role_names=ADMINISTRATOR_ROLE_NAMES):
+    """
+    Проверка является ли пользователь администратором.
+    @param user: Проверяемый пользователь. Если None, то берется текущий пользователь.
+    @param admin_role_names: Список имен ролей администраторов.
+    @return: True/False. None - в случае ошибки.
+    """
+    if user is None:
+        user = getCurUser()
+    try:
+        is_admin = [user.isRole(role_name) for role_name in admin_role_names]
+        return any(is_admin)
+    except:
+        log.fatal(u'Ошибка проверки является ли пользователь <%s> администратором' % str(user))
+    return None
+
+
+def isAdministratorCurUser(admin_role_names=ADMINISTRATOR_ROLE_NAMES):
+    """
+    Проверка является ли текущий пользователь администратором системы.
+    @param admin_role_names: Список имен ролей администраторов.
+    @return: True/False.
+    """
+    return isAdministrator(admin_role_names=admin_role_names)
 
 
 def get_res_name_list(*arg, **kwarg):
